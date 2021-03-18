@@ -15,18 +15,18 @@ import java.nio.file.Files;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("static-method")
-public class DatasetU32BuilderTest {
+public class VecU32BuilderTest {
   @Test
   public void builderWithInts() throws IOException {
     var path = createTempFile("u32dataset--builder--", ".dtst");
     try {
-      U32Dataset dataset;
-      try (var builder = U32Dataset.builder(null, path, CREATE)) {
+      U32Vec dataset;
+      try (var builder = U32Vec.builder(null, path, CREATE)) {
         builder
             .appendInt(123)
             .appendInt(42)
             .appendInt(-5);
-        dataset = builder.toDataset();
+        dataset = builder.toVec();
       }
       assertAll(
           () -> assertEquals(3, dataset.length()),
@@ -44,15 +44,15 @@ public class DatasetU32BuilderTest {
     var pathValidity = createTempFile("u32dataset-validitySegment--builder--", ".dtst");
     var pathData = createTempFile("u32dataset-dataSegment--builder--", ".dtst");
     try {
-      U32Dataset dataset;
-      try (var validity = U1Dataset.builder(null, pathValidity, CREATE);
-           var builder = U32Dataset.builder(validity, pathData, CREATE)) {
+      U32Vec dataset;
+      try (var validity = U1Vec.builder(null, pathValidity, CREATE);
+           var builder = U32Vec.builder(validity, pathData, CREATE)) {
         builder
             .appendInt(-99)
             .appendNull()
             .appendInt(777)
             .appendNull();
-        dataset = builder.toDataset();
+        dataset = builder.toVec();
       }
       assertAll(
           () -> assertEquals(4, dataset.length()),
@@ -89,13 +89,13 @@ public class DatasetU32BuilderTest {
   public void builderWithFloats() throws IOException {
     var path = createTempFile("u32dataset--builder--", ".dtst");
     try {
-      U32Dataset dataset;
-      try (var builder = U32Dataset.builder(null, path, CREATE)) {
+      U32Vec dataset;
+      try (var builder = U32Vec.builder(null, path, CREATE)) {
         builder
             .appendFloat(12.0f)
             .appendFloat(42)
             .appendFloat(-8);
-        dataset = builder.toDataset();
+        dataset = builder.toVec();
       }
       assertAll(
           () -> assertEquals(3, dataset.length()),
@@ -113,15 +113,15 @@ public class DatasetU32BuilderTest {
     var pathValidity = createTempFile("u32dataset-validitySegment--builder--", ".dtst");
     var pathData = createTempFile("u32dataset-dataSegment--builder--", ".dtst");
     try {
-      U32Dataset dataset;
-      try (var validity = U1Dataset.builder(null, pathValidity, CREATE);
-           var builder = U32Dataset.builder(validity, pathData, CREATE)) {
+      U32Vec dataset;
+      try (var validity = U1Vec.builder(null, pathValidity, CREATE);
+           var builder = U32Vec.builder(validity, pathData, CREATE)) {
         builder
             .appendFloat(-888.0f)
             .appendNull()
             .appendFloat(44.0f)
             .appendNull();
-        dataset = builder.toDataset();
+        dataset = builder.toVec();
       }
       assertAll(
           () -> assertEquals(4, dataset.length()),
@@ -157,11 +157,11 @@ public class DatasetU32BuilderTest {
   @Test
   public void builderALot() throws IOException {
     var path = createTempFile("u32dataset--builderALot--", ".dtst");
-    U32Dataset dataset;
-    try(var builder = U32Dataset.builder(null, path, CREATE)) {
+    U32Vec dataset;
+    try(var builder = U32Vec.builder(null, path, CREATE)) {
       range(0, 100_000_000)
           .forEach(builder::appendInt);
-      dataset = builder.toDataset();
+      dataset = builder.toVec();
     }
     try(dataset) {
       range(0, 100_000_000).forEach(i -> assertEquals(i, dataset.getInt(i)));

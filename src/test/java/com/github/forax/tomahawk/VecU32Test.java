@@ -14,33 +14,33 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SuppressWarnings("static-method")
-public class DatasetU32Test {
+public class VecU32Test {
   @SuppressWarnings("unused")
-  public static Stream<LongFunction<U32Dataset>> provideIntDatasets() {
+  public static Stream<LongFunction<U32Vec>> provideIntDatasets() {
     return Stream.of(
-        length -> U32Dataset.wrap(new int[(int) length]),
-        length -> U32Dataset.from(MemorySegment.allocateNative(length * 4), null)
+        length -> U32Vec.wrap(new int[(int) length]),
+        length -> U32Vec.from(MemorySegment.allocateNative(length * 4), null)
     );
   }
   @SuppressWarnings("unused")
-  public static Stream<LongFunction<U32Dataset>> provideFloatDatasets() {
+  public static Stream<LongFunction<U32Vec>> provideFloatDatasets() {
     return Stream.of(
-        length -> U32Dataset.wrap(new float[(int) length]),
-        length -> U32Dataset.from(MemorySegment.allocateNative(length * 4), null)
+        length -> U32Vec.wrap(new float[(int) length]),
+        length -> U32Vec.from(MemorySegment.allocateNative(length * 4), null)
     );
   }
   @SuppressWarnings("unused")
-  public static Stream<LongFunction<U32Dataset>> provideAllDatasets() {
+  public static Stream<LongFunction<U32Vec>> provideAllDatasets() {
     return Stream.of(
-        length -> U32Dataset.wrap(new float[(int) length]),
-        length -> U32Dataset.wrap(new float[(int) length]),
-        length -> U32Dataset.from(MemorySegment.allocateNative(length * 4), null)
+        length -> U32Vec.wrap(new float[(int) length]),
+        length -> U32Vec.wrap(new float[(int) length]),
+        length -> U32Vec.from(MemorySegment.allocateNative(length * 4), null)
     );
   }
 
   @ParameterizedTest
   @MethodSource("provideAllDatasets")
-  public void length(LongFunction<? extends U32Dataset> factory) {
+  public void length(LongFunction<? extends U32Vec> factory) {
     assertAll(
         () -> assertEquals(13, factory.apply(13).length()),
         () -> assertEquals(42, factory.apply(42).length())
@@ -49,7 +49,7 @@ public class DatasetU32Test {
 
   @ParameterizedTest
   @MethodSource("provideAllDatasets")
-  public void notNullableByDefault(LongFunction<? extends U32Dataset> factory) {
+  public void notNullableByDefault(LongFunction<? extends U32Vec> factory) {
     try(var dataset = factory.apply(5)) {
       assertAll(
           () -> assertFalse(dataset.isNull(3)),
@@ -61,7 +61,7 @@ public class DatasetU32Test {
 
   @ParameterizedTest
   @MethodSource("provideIntDatasets")
-  public void getSetInts(LongFunction<? extends U32Dataset> factory) {
+  public void getSetInts(LongFunction<? extends U32Vec> factory) {
     try(var dataset = factory.apply(5)) {
       assertEquals(0, dataset.getInt(0));
       assertEquals(0, dataset.getInt(3));
@@ -74,9 +74,9 @@ public class DatasetU32Test {
 
   @ParameterizedTest
   @MethodSource("provideIntDatasets")
-  public void getBoxInts(LongFunction<? extends U32Dataset> factory) {
+  public void getBoxInts(LongFunction<? extends U32Vec> factory) {
     try(var base = factory.apply(5);
-        var dataset = base.withValidity(U1Dataset.wrap(new long[1]))) {
+        var dataset = base.withValidity(U1Vec.wrap(new long[1]))) {
       dataset.setInt(1, 1324);
       dataset.setNull(2);
       dataset.setInt(3, 2768);
@@ -97,7 +97,7 @@ public class DatasetU32Test {
 
   @ParameterizedTest
   @MethodSource("provideIntDatasets")
-  public void wrapOutOfBoundsInts(LongFunction<? extends U32Dataset> factory) {
+  public void wrapOutOfBoundsInts(LongFunction<? extends U32Vec> factory) {
     try(var dataset = factory.apply(5)) {
       assertAll(
           () -> assertThrows(IndexOutOfBoundsException.class, () -> dataset.getInt(7)),
@@ -110,9 +110,9 @@ public class DatasetU32Test {
 
   @ParameterizedTest
   @MethodSource("provideIntDatasets")
-  public void validityInts(LongFunction<? extends U32Dataset> factory) {
+  public void validityInts(LongFunction<? extends U32Vec> factory) {
     try(var simpleDataset = factory.apply(5);
-        var dataset = simpleDataset.withValidity(U1Dataset.wrap(new long[1]))) {
+        var dataset = simpleDataset.withValidity(U1Vec.wrap(new long[1]))) {
       dataset.setInt(0, 42);
       dataset.setInt(3, 56);
       dataset.setNull(0);
@@ -132,7 +132,7 @@ public class DatasetU32Test {
 
   @ParameterizedTest
   @MethodSource("provideFloatDatasets")
-  public void getSetFloats(LongFunction<? extends U32Dataset> factory) {
+  public void getSetFloats(LongFunction<? extends U32Vec> factory) {
     try(var dataset = factory.apply(5)) {
       assertEquals(0f, dataset.getFloat(0));
       assertEquals(0f, dataset.getFloat(3));
@@ -145,9 +145,9 @@ public class DatasetU32Test {
 
   @ParameterizedTest
   @MethodSource("provideFloatDatasets")
-  public void getBoxFloats(LongFunction<? extends U32Dataset> factory) {
+  public void getBoxFloats(LongFunction<? extends U32Vec> factory) {
     try(var base = factory.apply(5);
-        var dataset = base.withValidity(U1Dataset.wrap(new long[1]))) {
+        var dataset = base.withValidity(U1Vec.wrap(new long[1]))) {
       dataset.setFloat(1, 1324f);
       dataset.setNull(2);
       dataset.setFloat(3, 2768f);
@@ -168,7 +168,7 @@ public class DatasetU32Test {
 
   @ParameterizedTest
   @MethodSource("provideFloatDatasets")
-  public void wrapOutOfBoundsFloats(LongFunction<? extends U32Dataset> factory) {
+  public void wrapOutOfBoundsFloats(LongFunction<? extends U32Vec> factory) {
     try(var dataset = factory.apply(5)) {
       assertAll(
           () -> assertThrows(IndexOutOfBoundsException.class, () -> dataset.getFloat(7)),
@@ -181,9 +181,9 @@ public class DatasetU32Test {
 
   @ParameterizedTest
   @MethodSource("provideFloatDatasets")
-  public void validityFloats(LongFunction<? extends U32Dataset> factory) {
+  public void validityFloats(LongFunction<? extends U32Vec> factory) {
     try(var simpleDataset = factory.apply(5);
-        var dataset = simpleDataset.withValidity(U1Dataset.wrap(new long[1]))) {
+        var dataset = simpleDataset.withValidity(U1Vec.wrap(new long[1]))) {
       dataset.setFloat(0, 42f);
       dataset.setFloat(3, 56f);
       dataset.setNull(0);

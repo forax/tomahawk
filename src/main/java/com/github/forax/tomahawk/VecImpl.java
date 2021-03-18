@@ -12,40 +12,40 @@ import java.util.Objects;
 
 import jdk.incubator.foreign.MemorySegment;
 
-interface DatasetImpl {
+interface VecImpl {
   private static IllegalStateException doNotSupportNull() {
     throw new IllegalStateException("this dataset do not support null");
   }
   static NullPointerException valueIsNull() {
     throw new NullPointerException("the value is null");
   }
-  private static IllegalArgumentException invalidLength(Dataset self, Dataset validity) {
+  private static IllegalArgumentException invalidLength(Vec self, Vec validity) {
     throw new IllegalArgumentException("invalid length: length " + self.length() + " != validitySegment length " + validity.length());
   }
 
   MemorySegment dataSegment();
 
-  static DatasetImpl impl(Dataset dataset) {
-    return (DatasetImpl) dataset;
+  static VecImpl impl(Vec vec) {
+    return (VecImpl) vec;
   }
-  static U1Impl impl(U1Dataset dataset) {
+  static U1Impl impl(U1Vec dataset) {
     return (U1Impl) dataset;
   }
-  static U16Impl impl(U16Dataset dataset) {
+  static U16Impl impl(U16Vec dataset) {
     return (U16Impl) dataset;
   }
-  static U32Impl impl(U32Dataset dataset) {
+  static U32Impl impl(U32Vec dataset) {
     return (U32Impl) dataset;
   }
 
-  static MemorySegment implDataOrNull(U1Dataset validity) {
+  static MemorySegment implDataOrNull(U1Vec validity) {
     if (validity == null) {
       return null;
     }
     return impl(validity).dataSegment;
   }
 
-  record U1Impl(MemorySegment dataSegment, MemorySegment validitySegment) implements DatasetImpl, U1Dataset {
+  record U1Impl(MemorySegment dataSegment, MemorySegment validitySegment) implements VecImpl, U1Vec {
     static final VarHandle HANDLE = ofSequence(ofValueBits(64, LITTLE_ENDIAN))
         .varHandle(long.class, sequenceElement());
 
@@ -130,7 +130,7 @@ interface DatasetImpl {
     }
 
     @Override
-    public U1Dataset withValidity(U1Dataset validity) {
+    public U1Vec withValidity(U1Vec validity) {
       Objects.requireNonNull(validity);
       if (length() > validity.length()) {
         throw invalidLength(this, validity);
@@ -139,7 +139,7 @@ interface DatasetImpl {
     }
   }
 
-  record U8Impl(MemorySegment dataSegment, MemorySegment validitySegment) implements DatasetImpl, U8Dataset {
+  record U8Impl(MemorySegment dataSegment, MemorySegment validitySegment) implements VecImpl, U8Vec {
     static final VarHandle BYTE_HANDLE = ofSequence(ofValueBits(8, LITTLE_ENDIAN))
         .varHandle(byte.class, sequenceElement());
 
@@ -209,7 +209,7 @@ interface DatasetImpl {
     }
 
     @Override
-    public U8Dataset withValidity(U1Dataset validity) {
+    public U8Vec withValidity(U1Vec validity) {
       Objects.requireNonNull(validity);
       if (length() > validity.length()) {
         throw invalidLength(this, validity);
@@ -218,7 +218,7 @@ interface DatasetImpl {
     }
   }
 
-  record U16Impl(MemorySegment dataSegment, MemorySegment validitySegment) implements DatasetImpl, U16Dataset {
+  record U16Impl(MemorySegment dataSegment, MemorySegment validitySegment) implements VecImpl, U16Vec {
     static final VarHandle SHORT_HANDLE = ofSequence(ofValueBits(16, LITTLE_ENDIAN))
         .varHandle(short.class, sequenceElement());
     static final VarHandle CHAR_HANDLE = ofSequence(ofValueBits(16, LITTLE_ENDIAN))
@@ -320,7 +320,7 @@ interface DatasetImpl {
     }
 
     @Override
-    public U16Dataset withValidity(U1Dataset validity) {
+    public U16Vec withValidity(U1Vec validity) {
       Objects.requireNonNull(validity);
       if (length() > validity.length()) {
         throw invalidLength(this, validity);
@@ -329,7 +329,7 @@ interface DatasetImpl {
     }
   }
 
-  record U32Impl(MemorySegment dataSegment, MemorySegment validitySegment) implements DatasetImpl, U32Dataset {
+  record U32Impl(MemorySegment dataSegment, MemorySegment validitySegment) implements VecImpl, U32Vec {
     static final VarHandle INT_HANDLE = ofSequence(ofValueBits(32, LITTLE_ENDIAN))
         .varHandle(int.class, sequenceElement());
     static final VarHandle FLOAT_HANDLE = ofSequence(ofValueBits(32, LITTLE_ENDIAN))
@@ -435,7 +435,7 @@ interface DatasetImpl {
     }
 
     @Override
-    public U32Dataset withValidity(U1Dataset validity) {
+    public U32Vec withValidity(U1Vec validity) {
       Objects.requireNonNull(validity);
       if (length() > validity.length()) {
         throw invalidLength(this, validity);
@@ -444,7 +444,7 @@ interface DatasetImpl {
     }
   }
 
-  record U64Impl(MemorySegment dataSegment, MemorySegment validitySegment) implements DatasetImpl, U64Dataset {
+  record U64Impl(MemorySegment dataSegment, MemorySegment validitySegment) implements VecImpl, U64Vec {
     static final VarHandle LONG_HANDLE = ofSequence(ofValueBits(64, LITTLE_ENDIAN))
         .varHandle(long.class, sequenceElement());
     static final VarHandle DOUBLE_HANDLE = ofSequence(ofValueBits(64, LITTLE_ENDIAN))
@@ -546,7 +546,7 @@ interface DatasetImpl {
     }
 
     @Override
-    public U64Dataset withValidity(U1Dataset validity) {
+    public U64Vec withValidity(U1Vec validity) {
       Objects.requireNonNull(validity);
       if (length() > validity.length()) {
         throw invalidLength(this, validity);
@@ -555,7 +555,7 @@ interface DatasetImpl {
     }
   }
 
-  record ListImpl<D extends Dataset>(D data, MemorySegment dataSegment, MemorySegment offsetSegment, MemorySegment validitySegment) implements DatasetImpl, ListDataset<D> {
+  record ListImpl<D extends Vec>(D data, MemorySegment dataSegment, MemorySegment offsetSegment, MemorySegment validitySegment) implements VecImpl, ListVec<D> {
     @Override
     public void close() {
       try {
@@ -628,7 +628,7 @@ interface DatasetImpl {
     }
 
     @Override
-    public ListDataset<D> withValidity(U1Dataset validity) {
+    public ListVec<D> withValidity(U1Vec validity) {
       Objects.requireNonNull(validity);
       if (length() > validity.length()) {
         throw invalidLength(this, validity);
@@ -637,7 +637,7 @@ interface DatasetImpl {
     }
   }
 
-  record StructImpl(MemorySegment validitySegment, List<Dataset> fields) implements DatasetImpl, StructDataset {
+  record StructImpl(MemorySegment validitySegment, List<Vec> fields) implements VecImpl, StructVec {
     @Override
     public MemorySegment dataSegment() {
       throw new UnsupportedOperationException("list of struct are not supported yet");
@@ -655,7 +655,7 @@ interface DatasetImpl {
 
     @Override
     public long length() {
-      return fields.stream().mapToLong(Dataset::length).min().orElse(0);
+      return fields.stream().mapToLong(Vec::length).min().orElse(0);
     }
 
     @Override
@@ -675,12 +675,12 @@ interface DatasetImpl {
     }
 
     @Override
-    public StructDataset withValidity(U1Dataset validity) {
+    public StructVec withValidity(U1Vec validity) {
       Objects.requireNonNull(validity);
       if (length() > validity.length()) {
         throw invalidLength(this, validity);
       }
-      return StructDataset.from(validity, fields);
+      return StructVec.from(validity, fields);
     }
   }
 }

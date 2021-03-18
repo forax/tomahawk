@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SuppressWarnings("static-method")
-public class DatasetStructBuilderTest {
+public class VecStructBuilderTest {
   @Test
   public void builder() throws IOException {
     var pathNameData = createTempFile("struct-dataset-name-data--", ".dtst");
@@ -22,24 +22,24 @@ public class DatasetStructBuilderTest {
     var pathAgeValidity = createTempFile("struct-dataset-age-validity--", ".dtst");
     var pathValidity = createTempFile("struct-dataset-validity--", ".dtst");
     try {
-      StructDataset dataset;
-      ListDataset<U16Dataset> name;
-      U32Dataset age;
-      try (var nameValidityB = U1Dataset.builder(null, pathNameValidity, CREATE);
-           var nameOffsetB = U32Dataset.builder(null, pathNameOffset, CREATE);
-           var nameDataB = U16Dataset.builder(null, pathNameData, CREATE);
-           var nameB = ListDataset.builder(nameDataB, nameOffsetB, nameValidityB);
-           var ageValidityB = U1Dataset.builder(null, pathAgeValidity, CREATE);
-           var ageB = U32Dataset.builder(ageValidityB, pathAge, CREATE);
-           var validityB = U1Dataset.builder(null, pathValidity, CREATE);
-           var builder = StructDataset.builder(validityB, nameB, ageB)) {
+      StructVec dataset;
+      ListVec<U16Vec> name;
+      U32Vec age;
+      try (var nameValidityB = U1Vec.builder(null, pathNameValidity, CREATE);
+           var nameOffsetB = U32Vec.builder(null, pathNameOffset, CREATE);
+           var nameDataB = U16Vec.builder(null, pathNameData, CREATE);
+           var nameB = ListVec.builder(nameDataB, nameOffsetB, nameValidityB);
+           var ageValidityB = U1Vec.builder(null, pathAgeValidity, CREATE);
+           var ageB = U32Vec.builder(ageValidityB, pathAge, CREATE);
+           var validityB = U1Vec.builder(null, pathValidity, CREATE);
+           var builder = StructVec.builder(validityB, nameB, ageB)) {
         builder
             .appendRow(row -> row.appendString(nameB, "Bob").appendInt(ageB, 42))
             .appendNull()
             .appendRow(row -> row.appendValues(nameB, b -> b.appendString("Ana")));
-        name = nameB.toDataset();
-        age = ageB.toDataset();
-        dataset = builder.toDataset();
+        name = nameB.toVec();
+        age = ageB.toVec();
+        dataset = builder.toVec();
       }
 
       assertAll(

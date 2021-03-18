@@ -12,10 +12,10 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.function.Consumer;
 
-import com.github.forax.tomahawk.Dataset.BaseBuilder;
-import com.github.forax.tomahawk.StructDataset.RowBuilder;
+import com.github.forax.tomahawk.Vec.BaseBuilder;
+import com.github.forax.tomahawk.StructVec.RowBuilder;
 
-interface DatasetBuilderImpl {
+interface VecBuilderImpl {
   private static IllegalStateException doNotSupportNull() {
     throw new IllegalStateException("this builder does not support null");
   }
@@ -24,19 +24,19 @@ interface DatasetBuilderImpl {
     throw new IllegalStateException("field already has a value");
   }
 
-  static BaseImpl builderImpl(Dataset.BaseBuilder<?> builder) {
+  static BaseImpl builderImpl(Vec.BaseBuilder<?> builder) {
     return (BaseImpl) builder;
   }
-  static U1Builder builderImpl(U1Dataset.Builder builder) {
+  static U1Builder builderImpl(U1Vec.Builder builder) {
     return (U1Builder) builder;
   }
-  static U16Builder builderImpl(U16Dataset.Builder builder) {
+  static U16Builder builderImpl(U16Vec.Builder builder) {
     return (U16Builder) builder;
   }
-  static U32Builder builderImpl(U32Dataset.Builder builder) {
+  static U32Builder builderImpl(U32Vec.Builder builder) {
     return (U32Builder) builder;
   }
-  static <D extends Dataset, B extends BaseBuilder<D>> ListBuilder<D, B> builderImpl(ListDataset.Builder<D, B> builder) {
+  static <D extends Vec, B extends BaseBuilder<D>> ListBuilder<D, B> builderImpl(ListVec.Builder<D, B> builder) {
     return (ListBuilder<D, B>) builder;
   }
 
@@ -58,7 +58,7 @@ interface DatasetBuilderImpl {
     }
   }
 
-  final class U1Builder extends BaseImpl implements U1Dataset.Builder {
+  final class U1Builder extends BaseImpl implements U1Vec.Builder {
     private final Path path;
     private final OutputStream output;
     private final U1Builder validityBuilder;
@@ -113,7 +113,7 @@ interface DatasetBuilderImpl {
     }
 
     @Override
-    public U1Dataset.Builder appendBoolean(boolean value) {
+    public U1Vec.Builder appendBoolean(boolean value) {
       if (value) {
         current |= 1L << position;
       }
@@ -132,7 +132,7 @@ interface DatasetBuilderImpl {
     }
 
     @Override
-    public U1Dataset.Builder appendNull() {
+    public U1Vec.Builder appendNull() {
       if (validityBuilder == null) {
         throw doNotSupportNull();
       }
@@ -149,17 +149,17 @@ interface DatasetBuilderImpl {
     }
 
     @Override
-    public U1Dataset toDataset() {
+    public U1Vec toVec() {
       close();
       try {
-        return U1Dataset.map(path, validityBuilder == null ? null: validityBuilder.toDataset());
+        return U1Vec.map(path, validityBuilder == null ? null: validityBuilder.toVec());
       } catch (IOException e) {
         throw new UncheckedIOException(e);
       }
     }
   }
 
-  final class U8Builder extends BaseImpl implements U8Dataset.Builder {
+  final class U8Builder extends BaseImpl implements U8Vec.Builder {
     private final Path path;
     private final OutputStream output;
     private final U1Builder validityBuilder;
@@ -205,7 +205,7 @@ interface DatasetBuilderImpl {
     }
 
     @Override
-    public U8Dataset.Builder appendByte(byte value) {
+    public U8Vec.Builder appendByte(byte value) {
       if (!buffer.hasRemaining()) {
         flush();
       }
@@ -218,7 +218,7 @@ interface DatasetBuilderImpl {
     }
 
     @Override
-    public U8Dataset.Builder appendNull() {
+    public U8Vec.Builder appendNull() {
       if (validityBuilder == null) {
         throw doNotSupportNull();
       }
@@ -232,17 +232,17 @@ interface DatasetBuilderImpl {
     }
 
     @Override
-    public U8Dataset toDataset() {
+    public U8Vec toVec() {
       close();
       try {
-        return U8Dataset.map(path, validityBuilder == null? null: validityBuilder.toDataset());
+        return U8Vec.map(path, validityBuilder == null? null: validityBuilder.toVec());
       } catch (IOException e) {
         throw new UncheckedIOException(e);
       }
     }
   }
 
-  final class U16Builder extends BaseImpl implements U16Dataset.Builder {
+  final class U16Builder extends BaseImpl implements U16Vec.Builder {
     private final Path path;
     private final OutputStream output;
     private final U1Builder validityBuilder;
@@ -288,7 +288,7 @@ interface DatasetBuilderImpl {
     }
 
     @Override
-    public U16Dataset.Builder appendShort(short value) {
+    public U16Vec.Builder appendShort(short value) {
       if (!buffer.hasRemaining()) {
         flush();
       }
@@ -301,7 +301,7 @@ interface DatasetBuilderImpl {
     }
 
     @Override
-    public U16Dataset.Builder appendChar(char value) {
+    public U16Vec.Builder appendChar(char value) {
       if (!buffer.hasRemaining()) {
         flush();
       }
@@ -314,7 +314,7 @@ interface DatasetBuilderImpl {
     }
 
     @Override
-    public U16Dataset.Builder appendNull() {
+    public U16Vec.Builder appendNull() {
       if (validityBuilder == null) {
         throw doNotSupportNull();
       }
@@ -328,7 +328,7 @@ interface DatasetBuilderImpl {
     }
 
     @Override
-    public U16Dataset.Builder appendString(String s) throws UncheckedIOException {
+    public U16Vec.Builder appendString(String s) throws UncheckedIOException {
       for(var i = 0; i < s.length(); i++) {
         appendChar(s.charAt(i));
       }
@@ -336,7 +336,7 @@ interface DatasetBuilderImpl {
     }
 
     @Override
-    public U16Dataset.Builder appendCharArray(char... array) throws UncheckedIOException {
+    public U16Vec.Builder appendCharArray(char... array) throws UncheckedIOException {
       for (char value : array) {
         appendChar(value);
       }
@@ -344,7 +344,7 @@ interface DatasetBuilderImpl {
     }
 
     @Override
-    public U16Dataset.Builder appendShortArray(short... array) throws UncheckedIOException {
+    public U16Vec.Builder appendShortArray(short... array) throws UncheckedIOException {
       for (short value : array) {
         appendShort(value);
       }
@@ -352,17 +352,17 @@ interface DatasetBuilderImpl {
     }
 
     @Override
-    public U16Dataset toDataset() {
+    public U16Vec toVec() {
       close();
       try {
-        return U16Dataset.map(path, validityBuilder == null? null: validityBuilder.toDataset());
+        return U16Vec.map(path, validityBuilder == null? null: validityBuilder.toVec());
       } catch (IOException e) {
         throw new UncheckedIOException(e);
       }
     }
   }
 
-  final class U32Builder extends BaseImpl implements U32Dataset.Builder {
+  final class U32Builder extends BaseImpl implements U32Vec.Builder {
     private final Path path;
     private final OutputStream output;
     private final U1Builder validityBuilder;
@@ -408,7 +408,7 @@ interface DatasetBuilderImpl {
     }
 
     @Override
-    public U32Dataset.Builder appendInt(int value) {
+    public U32Vec.Builder appendInt(int value) {
       if (!buffer.hasRemaining()) {
         flush();
       }
@@ -421,7 +421,7 @@ interface DatasetBuilderImpl {
     }
 
     @Override
-    public U32Dataset.Builder appendFloat(float value) {
+    public U32Vec.Builder appendFloat(float value) {
       if (!buffer.hasRemaining()) {
         flush();
       }
@@ -434,7 +434,7 @@ interface DatasetBuilderImpl {
     }
 
     @Override
-    public U32Dataset.Builder appendNull() {
+    public U32Vec.Builder appendNull() {
       if (validityBuilder == null) {
         throw doNotSupportNull();
       }
@@ -448,17 +448,17 @@ interface DatasetBuilderImpl {
     }
 
     @Override
-    public U32Dataset toDataset() {
+    public U32Vec toVec() {
       close();
       try {
-        return U32Dataset.map(path, validityBuilder == null? null: validityBuilder.toDataset());
+        return U32Vec.map(path, validityBuilder == null? null: validityBuilder.toVec());
       } catch (IOException e) {
         throw new UncheckedIOException(e);
       }
     }
   }
 
-  final class U64Builder extends BaseImpl implements U64Dataset.Builder {
+  final class U64Builder extends BaseImpl implements U64Vec.Builder {
     private final Path path;
     private final OutputStream output;
     private final U1Builder validityBuilder;
@@ -504,7 +504,7 @@ interface DatasetBuilderImpl {
     }
 
     @Override
-    public U64Dataset.Builder appendLong(long value) {
+    public U64Vec.Builder appendLong(long value) {
       if (!buffer.hasRemaining()) {
         flush();
       }
@@ -517,7 +517,7 @@ interface DatasetBuilderImpl {
     }
 
     @Override
-    public U64Dataset.Builder appendDouble(double value) {
+    public U64Vec.Builder appendDouble(double value) {
       if (!buffer.hasRemaining()) {
         flush();
       }
@@ -530,7 +530,7 @@ interface DatasetBuilderImpl {
     }
 
     @Override
-    public U64Dataset.Builder appendNull() {
+    public U64Vec.Builder appendNull() {
       if (validityBuilder == null) {
         throw doNotSupportNull();
       }
@@ -544,17 +544,17 @@ interface DatasetBuilderImpl {
     }
 
     @Override
-    public U64Dataset toDataset() {
+    public U64Vec toVec() {
       close();
       try {
-        return U64Dataset.map(path, validityBuilder == null? null: validityBuilder.toDataset());
+        return U64Vec.map(path, validityBuilder == null? null: validityBuilder.toVec());
       } catch (IOException e) {
         throw new UncheckedIOException(e);
       }
     }
   }
 
-  final class ListBuilder<D extends Dataset, B extends BaseBuilder<D>> extends BaseImpl implements ListDataset.Builder<D, B> {
+  final class ListBuilder<D extends Vec, B extends BaseBuilder<D>> extends BaseImpl implements ListVec.Builder<D, B> {
     private final B dataBuilder;
     private final U32Builder offsetBuilder;
     private final U1Builder validityBuilder;
@@ -587,7 +587,7 @@ interface DatasetBuilderImpl {
     }
 
     @Override
-    public ListDataset.Builder<D, B> appendValues(Consumer<? super B> consumer) {
+    public ListVec.Builder<D, B> appendValues(Consumer<? super B> consumer) {
       requireNonNull(consumer);
       consumer.accept(dataBuilder);
       offsetBuilder.appendInt(offset);
@@ -603,7 +603,7 @@ interface DatasetBuilderImpl {
     }
 
     @Override
-    public ListDataset.Builder<D, B> appendNull() {
+    public ListVec.Builder<D, B> appendNull() {
       if (validityBuilder == null) {
         throw doNotSupportNull();
       }
@@ -613,7 +613,7 @@ interface DatasetBuilderImpl {
     }
 
     @Override
-    public ListDataset.Builder<D, B> appendString(String s) {
+    public ListVec.Builder<D, B> appendString(String s) {
       if (s == null) {
         return appendNull();
       }
@@ -627,13 +627,13 @@ interface DatasetBuilderImpl {
     }
 
     @Override
-    public ListDataset<D> toDataset() {
+    public ListVec<D> toVec() {
       close();
-      return ListDataset.from(dataBuilder.toDataset(), offsetBuilder.toDataset(), validityBuilder == null? null: validityBuilder.toDataset());
+      return ListVec.from(dataBuilder.toVec(), offsetBuilder.toVec(), validityBuilder == null? null: validityBuilder.toVec());
     }
   }
 
-  final class StructBuilder extends BaseImpl implements StructDataset.Builder {
+  final class StructBuilder extends BaseImpl implements StructVec.Builder {
     private final U1Builder validityBuilder;
     private final ArrayList<BaseBuilder<?>> fieldBuilders = new ArrayList<>();
     private long length;
@@ -673,7 +673,7 @@ interface DatasetBuilderImpl {
     }
 
     @Override
-    public StructDataset.Builder appendNull() throws UncheckedIOException {
+    public StructVec.Builder appendNull() throws UncheckedIOException {
       if (validityBuilder == null) {
         throw doNotSupportNull();
       }
@@ -688,7 +688,7 @@ interface DatasetBuilderImpl {
     }
 
     @Override
-    public StructDataset.Builder appendRow(Consumer<? super RowBuilder> consumer) throws UncheckedIOException {
+    public StructVec.Builder appendRow(Consumer<? super RowBuilder> consumer) throws UncheckedIOException {
       requireNonNull(consumer);
       consumer.accept(rowBuilder);
       rowBuilder.end();
@@ -716,7 +716,7 @@ interface DatasetBuilderImpl {
       }
 
       @Override
-      public RowBuilder appendShort(U16Dataset.Builder field, short value) {
+      public RowBuilder appendShort(U16Vec.Builder field, short value) {
         requireNonNull(field);
         var impl =  builderImpl(field);
         var ordinal = impl.ordinal();
@@ -729,7 +729,7 @@ interface DatasetBuilderImpl {
       }
 
       @Override
-      public RowBuilder appendChar(U16Dataset.Builder field, char value) {
+      public RowBuilder appendChar(U16Vec.Builder field, char value) {
         requireNonNull(field);
         var impl =  builderImpl(field);
         var ordinal = impl.ordinal();
@@ -742,7 +742,7 @@ interface DatasetBuilderImpl {
       }
 
       @Override
-      public RowBuilder appendInt(U32Dataset.Builder field, int value) {
+      public RowBuilder appendInt(U32Vec.Builder field, int value) {
         requireNonNull(field);
         var impl =  builderImpl(field);
         var ordinal = impl.ordinal();
@@ -755,7 +755,7 @@ interface DatasetBuilderImpl {
       }
 
       @Override
-      public RowBuilder appendFloat(U32Dataset.Builder field, float value) {
+      public RowBuilder appendFloat(U32Vec.Builder field, float value) {
         requireNonNull(field);
         var impl =  builderImpl(field);
         var ordinal = impl.ordinal();
@@ -768,7 +768,7 @@ interface DatasetBuilderImpl {
       }
 
       @Override
-      public <D extends Dataset, B extends BaseBuilder<D>> RowBuilder appendValues(ListDataset.Builder<D, B> field, Consumer<? super B> consumer) {
+      public <D extends Vec, B extends BaseBuilder<D>> RowBuilder appendValues(ListVec.Builder<D, B> field, Consumer<? super B> consumer) {
         requireNonNull(field);
         var impl =  builderImpl(field);
         var ordinal = impl.ordinal();
@@ -781,12 +781,12 @@ interface DatasetBuilderImpl {
       }
 
       @Override
-      public RowBuilder appendString(ListDataset.Builder<U16Dataset, U16Dataset.Builder> field, String s) {
+      public RowBuilder appendString(ListVec.Builder<U16Vec, U16Vec.Builder> field, String s) {
         return appendValues(field, b -> b.appendString(s));
       }
 
       void end() {
-        // add null to all column values that were not appended
+        // add nulls to all column values that were not appended
         for(var i = bits.nextClearBit(0); i != -1 && i < fieldBuilders.size(); i = bits.nextClearBit(i + 1)) {
           fieldBuilders.get(i).appendNull();
         }
@@ -795,10 +795,10 @@ interface DatasetBuilderImpl {
     }
 
     @Override
-    public StructDataset toDataset() {
+    public StructVec toVec() {
       close();
-      var fields = fieldBuilders.stream().<Dataset>map(BaseBuilder::toDataset).toList();
-      return StructDataset.from(validityBuilder == null? null: validityBuilder.toDataset(), fields);
+      var fields = fieldBuilders.stream().<Vec>map(BaseBuilder::toVec).toList();
+      return StructVec.from(validityBuilder == null? null: validityBuilder.toVec(), fields);
     }
   }
 }

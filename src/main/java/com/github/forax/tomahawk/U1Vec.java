@@ -1,7 +1,7 @@
 package com.github.forax.tomahawk;
 
-import static com.github.forax.tomahawk.DatasetBuilderImpl.builderImpl;
-import static com.github.forax.tomahawk.DatasetImpl.implDataOrNull;
+import static com.github.forax.tomahawk.VecBuilderImpl.builderImpl;
+import static com.github.forax.tomahawk.VecImpl.implDataOrNull;
 import static java.nio.channels.FileChannel.MapMode.READ_ONLY;
 import static java.util.Objects.requireNonNull;
 
@@ -12,44 +12,44 @@ import java.nio.file.Path;
 
 import jdk.incubator.foreign.MemorySegment;
 
-public interface U1Dataset extends Dataset {
+public interface U1Vec extends Vec {
   boolean getBoolean(long index);
   void setBoolean(long index, boolean value);
   void getBoolean(long index, BooleanExtractor extractor);
 
   @Override
-  U1Dataset withValidity(U1Dataset validity);
+  U1Vec withValidity(U1Vec validity);
 
-  interface Builder extends BaseBuilder<U1Dataset> {
-    U1Dataset.Builder appendBoolean(boolean value);
+  interface Builder extends BaseBuilder<U1Vec> {
+    U1Vec.Builder appendBoolean(boolean value);
     @Override
-    U1Dataset.Builder appendNull();
+    U1Vec.Builder appendNull();
 
     @Override
-    U1Dataset toDataset();
+    U1Vec toVec();
   }
 
-  static U1Dataset wrap(long[] array) {
+  static U1Vec wrap(long[] array) {
     requireNonNull(array);
     var memorySegment = MemorySegment.ofArray(array);
     return from(memorySegment, null);
   }
 
-  static U1Dataset map(Path path, U1Dataset validity) throws IOException {
+  static U1Vec map(Path path, U1Vec validity) throws IOException {
     requireNonNull(path);
     var memorySegment = MemorySegment.mapFile(path, 0, Files.size(path), READ_ONLY);
     return from(memorySegment, validity);
   }
 
-  static U1Dataset from(MemorySegment memorySegment, U1Dataset validity) {
+  static U1Vec from(MemorySegment memorySegment, U1Vec validity) {
     requireNonNull(memorySegment);
-    return new DatasetImpl.U1Impl(memorySegment, implDataOrNull(validity));
+    return new VecImpl.U1Impl(memorySegment, implDataOrNull(validity));
   }
 
-  static U1Dataset.Builder builder(U1Dataset.Builder validityBuilder, Path path, OpenOption... openOptions) throws IOException {
+  static U1Vec.Builder builder(U1Vec.Builder validityBuilder, Path path, OpenOption... openOptions) throws IOException {
     requireNonNull(path);
     requireNonNull(openOptions);
     var output = Files.newOutputStream(path, openOptions);
-    return new DatasetBuilderImpl.U1Builder(path, output, builderImpl(validityBuilder));
+    return new VecBuilderImpl.U1Builder(path, output, builderImpl(validityBuilder));
   }
 }

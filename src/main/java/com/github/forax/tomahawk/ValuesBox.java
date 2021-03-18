@@ -16,12 +16,12 @@ public class ValuesBox implements ValuesExtractor {
     this.endOffset = endOffset;
   }
 
-  public String getString(U16Dataset dataset) {
+  public String getString(U16Vec dataset) {
     requireNonNull(dataset);
     if (!validity) {
       return null;
     }
-    var dataSegment = DatasetImpl.impl(dataset).dataSegment();
+    var dataSegment = VecImpl.impl(dataset).dataSegment();
     var start = startOffset;
     var end = endOffset;
     var length = end - start;
@@ -30,12 +30,12 @@ public class ValuesBox implements ValuesExtractor {
     return new String(charArray);
   }
 
-  public int[] getIntArray(U32Dataset dataset) {
+  public int[] getIntArray(U32Vec dataset) {
     requireNonNull(dataset);
     if (!validity) {
       return null;
     }
-    var dataSegment = DatasetImpl.impl(dataset).dataSegment();
+    var dataSegment = VecImpl.impl(dataset).dataSegment();
     var start = startOffset;
     var end = endOffset;
     var length = end - start;

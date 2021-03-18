@@ -14,33 +14,33 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SuppressWarnings("static-method")
-public class DatasetU16Test {
+public class VecU16Test {
   @SuppressWarnings("unused")
-  public static Stream<LongFunction<U16Dataset>> provideShortDatasets() {
+  public static Stream<LongFunction<U16Vec>> provideShortDatasets() {
     return Stream.of(
-        length -> U16Dataset.wrap(new short[(int) length]),
-        length -> U16Dataset.from(MemorySegment.allocateNative(length * 2), null)
+        length -> U16Vec.wrap(new short[(int) length]),
+        length -> U16Vec.from(MemorySegment.allocateNative(length * 2), null)
     );
   }
   @SuppressWarnings("unused")
-  public static Stream<LongFunction<U16Dataset>> provideCharDatasets() {
+  public static Stream<LongFunction<U16Vec>> provideCharDatasets() {
     return Stream.of(
-        length -> U16Dataset.wrap(new char[(int) length]),
-        length -> U16Dataset.from(MemorySegment.allocateNative(length * 2), null)
+        length -> U16Vec.wrap(new char[(int) length]),
+        length -> U16Vec.from(MemorySegment.allocateNative(length * 2), null)
     );
   }
   @SuppressWarnings("unused")
-  public static Stream<LongFunction<U16Dataset>> provideAllDatasets() {
+  public static Stream<LongFunction<U16Vec>> provideAllDatasets() {
     return Stream.of(
-        length -> U16Dataset.wrap(new short[(int) length]),
-        length -> U16Dataset.wrap(new char[(int) length]),
-        length -> U16Dataset.from(MemorySegment.allocateNative(length * 2), null)
+        length -> U16Vec.wrap(new short[(int) length]),
+        length -> U16Vec.wrap(new char[(int) length]),
+        length -> U16Vec.from(MemorySegment.allocateNative(length * 2), null)
     );
   }
 
   @ParameterizedTest
   @MethodSource("provideAllDatasets")
-  public void length(LongFunction<? extends U16Dataset> factory) {
+  public void length(LongFunction<? extends U16Vec> factory) {
     assertAll(
         () -> assertEquals(13, factory.apply(13).length()),
         () -> assertEquals(42, factory.apply(42).length())
@@ -49,7 +49,7 @@ public class DatasetU16Test {
 
   @ParameterizedTest
   @MethodSource("provideAllDatasets")
-  public void notNullableByDefault(LongFunction<? extends U16Dataset> factory) {
+  public void notNullableByDefault(LongFunction<? extends U16Vec> factory) {
     try(var dataset = factory.apply(5)) {
       assertAll(
           () -> assertFalse(dataset.isNull(3)),
@@ -61,7 +61,7 @@ public class DatasetU16Test {
 
   @ParameterizedTest
   @MethodSource("provideShortDatasets")
-  public void getSetBytes(LongFunction<? extends U16Dataset> factory) {
+  public void getSetBytes(LongFunction<? extends U16Vec> factory) {
     try(var dataset = factory.apply(5)) {
       assertEquals((short) 0, dataset.getShort(0));
       assertEquals(0, dataset.getShort(3));
@@ -74,9 +74,9 @@ public class DatasetU16Test {
 
   @ParameterizedTest
   @MethodSource("provideShortDatasets")
-  public void getBoxBytes(LongFunction<? extends U16Dataset> factory) {
+  public void getBoxBytes(LongFunction<? extends U16Vec> factory) {
     try(var base = factory.apply(5);
-        var dataset = base.withValidity(U1Dataset.wrap(new long[1]))) {
+        var dataset = base.withValidity(U1Vec.wrap(new long[1]))) {
       dataset.setShort(1, (short) 1324);
       dataset.setNull(2);
       dataset.setShort(3, (short) 2768);
@@ -97,7 +97,7 @@ public class DatasetU16Test {
 
   @ParameterizedTest
   @MethodSource("provideShortDatasets")
-  public void wrapOutOfBoundsBytes(LongFunction<? extends U16Dataset> factory) {
+  public void wrapOutOfBoundsBytes(LongFunction<? extends U16Vec> factory) {
     try(var dataset = factory.apply(5)) {
       assertAll(
           () -> assertThrows(IndexOutOfBoundsException.class, () -> dataset.getShort(7)),
@@ -110,9 +110,9 @@ public class DatasetU16Test {
 
   @ParameterizedTest
   @MethodSource("provideShortDatasets")
-  public void validityBytes(LongFunction<? extends U16Dataset> factory) {
+  public void validityBytes(LongFunction<? extends U16Vec> factory) {
     try(var simpleDataset = factory.apply(5);
-        var dataset = simpleDataset.withValidity(U1Dataset.wrap(new long[1]))) {
+        var dataset = simpleDataset.withValidity(U1Vec.wrap(new long[1]))) {
       dataset.setShort(0, (short) 42);
       dataset.setShort(3, (short) 56);
       dataset.setNull(0);
@@ -132,7 +132,7 @@ public class DatasetU16Test {
 
   @ParameterizedTest
   @MethodSource("provideCharDatasets")
-  public void getSetChars(LongFunction<? extends U16Dataset> factory) {
+  public void getSetChars(LongFunction<? extends U16Vec> factory) {
     try(var dataset = factory.apply(5)) {
       assertEquals('\0', dataset.getChar(0));
       assertEquals('\0', dataset.getChar(3));
@@ -145,9 +145,9 @@ public class DatasetU16Test {
 
   @ParameterizedTest
   @MethodSource("provideCharDatasets")
-  public void getBoxChars(LongFunction<? extends U16Dataset> factory) {
+  public void getBoxChars(LongFunction<? extends U16Vec> factory) {
     try(var base = factory.apply(5);
-        var dataset = base.withValidity(U1Dataset.wrap(new long[1]))) {
+        var dataset = base.withValidity(U1Vec.wrap(new long[1]))) {
       dataset.setChar(1, 'A');
       dataset.setNull(2);
       dataset.setChar(3, 'z');
@@ -168,7 +168,7 @@ public class DatasetU16Test {
 
   @ParameterizedTest
   @MethodSource("provideCharDatasets")
-  public void wrapOutOfBoundsChars(LongFunction<? extends U16Dataset> factory) {
+  public void wrapOutOfBoundsChars(LongFunction<? extends U16Vec> factory) {
     try(var dataset = factory.apply(5)) {
       assertAll(
           () -> assertThrows(IndexOutOfBoundsException.class, () -> dataset.getChar(7)),
@@ -181,9 +181,9 @@ public class DatasetU16Test {
 
   @ParameterizedTest
   @MethodSource("provideCharDatasets")
-  public void validityChars(LongFunction<? extends U16Dataset> factory) {
+  public void validityChars(LongFunction<? extends U16Vec> factory) {
     try(var simpleDataset = factory.apply(5);
-        var dataset = simpleDataset.withValidity(U1Dataset.wrap(new long[1]))) {
+        var dataset = simpleDataset.withValidity(U1Vec.wrap(new long[1]))) {
       dataset.setChar(0, 'A');
       dataset.setChar(3, 'z');
       dataset.setNull(0);
