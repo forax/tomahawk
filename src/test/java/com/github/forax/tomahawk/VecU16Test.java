@@ -16,21 +16,21 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SuppressWarnings("static-method")
 public class VecU16Test {
   @SuppressWarnings("unused")
-  public static Stream<LongFunction<U16Vec>> provideShortDatasets() {
+  public static Stream<LongFunction<U16Vec>> provideShortVecs() {
     return Stream.of(
         length -> U16Vec.wrap(new short[(int) length]),
         length -> U16Vec.from(MemorySegment.allocateNative(length * 2), null)
     );
   }
   @SuppressWarnings("unused")
-  public static Stream<LongFunction<U16Vec>> provideCharDatasets() {
+  public static Stream<LongFunction<U16Vec>> provideCharVecs() {
     return Stream.of(
         length -> U16Vec.wrap(new char[(int) length]),
         length -> U16Vec.from(MemorySegment.allocateNative(length * 2), null)
     );
   }
   @SuppressWarnings("unused")
-  public static Stream<LongFunction<U16Vec>> provideAllDatasets() {
+  public static Stream<LongFunction<U16Vec>> provideAllVecs() {
     return Stream.of(
         length -> U16Vec.wrap(new short[(int) length]),
         length -> U16Vec.wrap(new char[(int) length]),
@@ -39,7 +39,7 @@ public class VecU16Test {
   }
 
   @ParameterizedTest
-  @MethodSource("provideAllDatasets")
+  @MethodSource("provideAllVecs")
   public void length(LongFunction<? extends U16Vec> factory) {
     assertAll(
         () -> assertEquals(13, factory.apply(13).length()),
@@ -48,154 +48,154 @@ public class VecU16Test {
   }
 
   @ParameterizedTest
-  @MethodSource("provideAllDatasets")
+  @MethodSource("provideAllVecs")
   public void notNullableByDefault(LongFunction<? extends U16Vec> factory) {
-    try(var dataset = factory.apply(5)) {
+    try(var vec = factory.apply(5)) {
       assertAll(
-          () -> assertFalse(dataset.isNull(3)),
-          () -> assertThrows(IllegalStateException.class, () -> dataset.setNull(3))
+          () -> assertFalse(vec.isNull(3)),
+          () -> assertThrows(IllegalStateException.class, () -> vec.setNull(3))
       );
     }
   }
 
 
   @ParameterizedTest
-  @MethodSource("provideShortDatasets")
+  @MethodSource("provideShortVecs")
   public void getSetBytes(LongFunction<? extends U16Vec> factory) {
-    try(var dataset = factory.apply(5)) {
-      assertEquals((short) 0, dataset.getShort(0));
-      assertEquals(0, dataset.getShort(3));
-      dataset.setShort(0, (short) 42);
-      dataset.setShort(3, (short) 56);
-      assertEquals((short) 42, dataset.getShort(0));
-      assertEquals((short) 56, dataset.getShort(3));
+    try(var vec = factory.apply(5)) {
+      assertEquals((short) 0, vec.getShort(0));
+      assertEquals(0, vec.getShort(3));
+      vec.setShort(0, (short) 42);
+      vec.setShort(3, (short) 56);
+      assertEquals((short) 42, vec.getShort(0));
+      assertEquals((short) 56, vec.getShort(3));
     }
   }
 
   @ParameterizedTest
-  @MethodSource("provideShortDatasets")
+  @MethodSource("provideShortVecs")
   public void getBoxBytes(LongFunction<? extends U16Vec> factory) {
     try(var base = factory.apply(5);
-        var dataset = base.withValidity(U1Vec.wrap(new long[1]))) {
-      dataset.setShort(1, (short) 1324);
-      dataset.setNull(2);
-      dataset.setShort(3, (short) 2768);
+        var vec = base.withValidity(U1Vec.wrap(new long[1]))) {
+      vec.setShort(1, (short) 1324);
+      vec.setNull(2);
+      vec.setShort(3, (short) 2768);
 
       var box = new ShortBox();
-      dataset.getShort(0, box);
+      vec.getShort(0, box);
       assertFalse(box.validity);
-      dataset.getShort(1, box);
+      vec.getShort(1, box);
       assertTrue(box.validity);
       assertEquals((short) 1324, box.value);
-      dataset.getShort(2, box);
+      vec.getShort(2, box);
       assertFalse(box.validity);
-      dataset.getShort(3, box);
+      vec.getShort(3, box);
       assertTrue(box.validity);
       assertEquals((short) 2768, box.value);
     }
   }
 
   @ParameterizedTest
-  @MethodSource("provideShortDatasets")
+  @MethodSource("provideShortVecs")
   public void wrapOutOfBoundsBytes(LongFunction<? extends U16Vec> factory) {
-    try(var dataset = factory.apply(5)) {
+    try(var vec = factory.apply(5)) {
       assertAll(
-          () -> assertThrows(IndexOutOfBoundsException.class, () -> dataset.getShort(7)),
-          () -> assertThrows(IndexOutOfBoundsException.class, () -> dataset.getShort(-1)),
-          () -> assertThrows(IndexOutOfBoundsException.class, () -> dataset.setShort(7, (short) 42)),
-          () -> assertThrows(IndexOutOfBoundsException.class, () -> dataset.setShort(-1, (short) 42))
+          () -> assertThrows(IndexOutOfBoundsException.class, () -> vec.getShort(7)),
+          () -> assertThrows(IndexOutOfBoundsException.class, () -> vec.getShort(-1)),
+          () -> assertThrows(IndexOutOfBoundsException.class, () -> vec.setShort(7, (short) 42)),
+          () -> assertThrows(IndexOutOfBoundsException.class, () -> vec.setShort(-1, (short) 42))
       );
     }
   }
 
   @ParameterizedTest
-  @MethodSource("provideShortDatasets")
+  @MethodSource("provideShortVecs")
   public void validityBytes(LongFunction<? extends U16Vec> factory) {
     try(var simpleDataset = factory.apply(5);
-        var dataset = simpleDataset.withValidity(U1Vec.wrap(new long[1]))) {
-      dataset.setShort(0, (short) 42);
-      dataset.setShort(3, (short) 56);
-      dataset.setNull(0);
-      dataset.setNull(3);
+        var vec = simpleDataset.withValidity(U1Vec.wrap(new long[1]))) {
+      vec.setShort(0, (short) 42);
+      vec.setShort(3, (short) 56);
+      vec.setNull(0);
+      vec.setNull(3);
       assertAll(
-          () -> assertTrue(dataset.isNull(0)),
-          () -> assertThrows(NullPointerException.class, () -> dataset.getShort(0)),
-          () -> dataset.getShort(0, (validity, __) -> assertFalse(validity)),
+          () -> assertTrue(vec.isNull(0)),
+          () -> assertThrows(NullPointerException.class, () -> vec.getShort(0)),
+          () -> vec.getShort(0, (validity, __) -> assertFalse(validity)),
 
-          () -> assertTrue(dataset.isNull(3)),
-          () -> assertThrows(NullPointerException.class, () -> dataset.getShort(3)),
-          () -> dataset.getShort(3, (validity, __) -> assertFalse(validity))
+          () -> assertTrue(vec.isNull(3)),
+          () -> assertThrows(NullPointerException.class, () -> vec.getShort(3)),
+          () -> vec.getShort(3, (validity, __) -> assertFalse(validity))
       );
     }
   }
 
 
   @ParameterizedTest
-  @MethodSource("provideCharDatasets")
+  @MethodSource("provideCharVecs")
   public void getSetChars(LongFunction<? extends U16Vec> factory) {
-    try(var dataset = factory.apply(5)) {
-      assertEquals('\0', dataset.getChar(0));
-      assertEquals('\0', dataset.getChar(3));
-      dataset.setChar(0, 'A');
-      dataset.setChar(3, 'z');
-      assertEquals('A', dataset.getChar(0));
-      assertEquals('z', dataset.getChar(3));
+    try(var vec = factory.apply(5)) {
+      assertEquals('\0', vec.getChar(0));
+      assertEquals('\0', vec.getChar(3));
+      vec.setChar(0, 'A');
+      vec.setChar(3, 'z');
+      assertEquals('A', vec.getChar(0));
+      assertEquals('z', vec.getChar(3));
     }
   }
 
   @ParameterizedTest
-  @MethodSource("provideCharDatasets")
+  @MethodSource("provideCharVecs")
   public void getBoxChars(LongFunction<? extends U16Vec> factory) {
     try(var base = factory.apply(5);
-        var dataset = base.withValidity(U1Vec.wrap(new long[1]))) {
-      dataset.setChar(1, 'A');
-      dataset.setNull(2);
-      dataset.setChar(3, 'z');
+        var vec = base.withValidity(U1Vec.wrap(new long[1]))) {
+      vec.setChar(1, 'A');
+      vec.setNull(2);
+      vec.setChar(3, 'z');
 
       var box = new CharBox();
-      dataset.getChar(0, box);
+      vec.getChar(0, box);
       assertFalse(box.validity);
-      dataset.getChar(1, box);
+      vec.getChar(1, box);
       assertTrue(box.validity);
       assertEquals('A', box.value);
-      dataset.getChar(2, box);
+      vec.getChar(2, box);
       assertFalse(box.validity);
-      dataset.getChar(3, box);
+      vec.getChar(3, box);
       assertTrue(box.validity);
       assertEquals('z', box.value);
     }
   }
 
   @ParameterizedTest
-  @MethodSource("provideCharDatasets")
+  @MethodSource("provideCharVecs")
   public void wrapOutOfBoundsChars(LongFunction<? extends U16Vec> factory) {
-    try(var dataset = factory.apply(5)) {
+    try(var vec = factory.apply(5)) {
       assertAll(
-          () -> assertThrows(IndexOutOfBoundsException.class, () -> dataset.getChar(7)),
-          () -> assertThrows(IndexOutOfBoundsException.class, () -> dataset.getChar(-1)),
-          () -> assertThrows(IndexOutOfBoundsException.class, () -> dataset.setChar(7, 'A')),
-          () -> assertThrows(IndexOutOfBoundsException.class, () -> dataset.setChar(-1, 'A'))
+          () -> assertThrows(IndexOutOfBoundsException.class, () -> vec.getChar(7)),
+          () -> assertThrows(IndexOutOfBoundsException.class, () -> vec.getChar(-1)),
+          () -> assertThrows(IndexOutOfBoundsException.class, () -> vec.setChar(7, 'A')),
+          () -> assertThrows(IndexOutOfBoundsException.class, () -> vec.setChar(-1, 'A'))
       );
     }
   }
 
   @ParameterizedTest
-  @MethodSource("provideCharDatasets")
+  @MethodSource("provideCharVecs")
   public void validityChars(LongFunction<? extends U16Vec> factory) {
     try(var simpleDataset = factory.apply(5);
-        var dataset = simpleDataset.withValidity(U1Vec.wrap(new long[1]))) {
-      dataset.setChar(0, 'A');
-      dataset.setChar(3, 'z');
-      dataset.setNull(0);
-      dataset.setNull(3);
+        var vec = simpleDataset.withValidity(U1Vec.wrap(new long[1]))) {
+      vec.setChar(0, 'A');
+      vec.setChar(3, 'z');
+      vec.setNull(0);
+      vec.setNull(3);
       assertAll(
-          () -> assertTrue(dataset.isNull(0)),
-          () -> assertThrows(NullPointerException.class, () -> dataset.getChar(0)),
-          () -> dataset.getChar(0, (validity, __) -> assertFalse(validity)),
+          () -> assertTrue(vec.isNull(0)),
+          () -> assertThrows(NullPointerException.class, () -> vec.getChar(0)),
+          () -> vec.getChar(0, (validity, __) -> assertFalse(validity)),
 
-          () -> assertTrue(dataset.isNull(3)),
-          () -> assertThrows(NullPointerException.class, () -> dataset.getChar(3)),
-          () -> dataset.getChar(3, (validity, __) -> assertFalse(validity))
+          () -> assertTrue(vec.isNull(3)),
+          () -> assertThrows(NullPointerException.class, () -> vec.getChar(3)),
+          () -> vec.getChar(3, (validity, __) -> assertFalse(validity))
       );
     }
   }

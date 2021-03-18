@@ -15,11 +15,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class VecListBuilderTest {
   @Test
   public void builder() throws IOException {
-    var pathData = createTempFile("utf8dataset--builder--", ".dtst");
-    var pathOffset = createTempFile("utf8dataset-offsetSegment--builder--", ".dtst");
-    var pathValidity = createTempFile("utf8dataset-validitySegment--builder--", ".dtst");
+    var pathData = createTempFile("list-vec--builder--", ".dtst");
+    var pathOffset = createTempFile("list-vec-offset--builder--", ".dtst");
+    var pathValidity = createTempFile("list-vec-validity--builder--", ".dtst");
     try {
-      ListVec<U16Vec> dataset;
+      ListVec<U16Vec> vec;
       try (var validity = U1Vec.builder(null, pathValidity, CREATE);
            var offset = U32Vec.builder(null, pathOffset, CREATE);
            var data = U16Vec.builder(null, pathData, CREATE);
@@ -28,14 +28,14 @@ public class VecListBuilderTest {
             .appendValues(b -> b.appendString("foo"))
             .appendValues(b -> b.appendString(""))
             .appendValues(b -> b.appendString("bar"));
-        dataset = builder.toVec();
+        vec = builder.toVec();
       }
 
       assertAll(
-          () -> assertEquals(3, dataset.length()),
-          () -> assertEquals("foo", dataset.getString(0)),
-          () -> assertEquals("", dataset.getString(1)),
-          () -> assertEquals("bar", dataset.getString(2))
+          () -> assertEquals(3, vec.length()),
+          () -> assertEquals("foo", vec.getString(0)),
+          () -> assertEquals("", vec.getString(1)),
+          () -> assertEquals("bar", vec.getString(2))
       );
     } finally {
       Files.deleteIfExists(pathValidity);
@@ -46,10 +46,10 @@ public class VecListBuilderTest {
 
   /*@Test
   public void builderNullableBoxed() throws IOException {
-    var pathMask = Files.createTempFile("utf8dataset-mask--builder--", ".dtst");
-    var pathArray = Files.createTempFile("utf8dataset-dataSegment--builder--", ".dtst");
+    var pathMask = Files.createTempFile("utf8vec-mask--builder--", ".dtst");
+    var pathArray = Files.createTempFile("utf8vec-dataSegment--builder--", ".dtst");
     try {
-      IntDataset dataset;
+      IntDataset vec;
       try (var mask = BooleanDataset.builder(null, pathMask, CREATE);
            var builder = IntDataset.builder(mask, pathArray, CREATE)) {
         builder
@@ -57,26 +57,26 @@ public class VecListBuilderTest {
             .appendNull()
             .append(777)
             .appendNull();
-        dataset = builder.toDataset();
+        vec = builder.toDataset();
       }
       assertAll(
-          () -> assertEquals(4, dataset.length()),
+          () -> assertEquals(4, vec.length()),
 
-          () -> assertFalse(dataset.isNull(0)),
-          () -> assertEquals(-99, dataset.get(0)),
-          () -> assertEquals(-99, dataset.getBoxed(0)),
+          () -> assertFalse(vec.isNull(0)),
+          () -> assertEquals(-99, vec.get(0)),
+          () -> assertEquals(-99, vec.getBoxed(0)),
 
-          () -> assertTrue(dataset.isNull(1)),
-          () -> assertNull(dataset.getBoxed(1)),
-          () -> assertThrows(NullPointerException.class, () -> dataset.get(1)),
+          () -> assertTrue(vec.isNull(1)),
+          () -> assertNull(vec.getBoxed(1)),
+          () -> assertThrows(NullPointerException.class, () -> vec.get(1)),
 
-          () -> assertFalse(dataset.isNull(2)),
-          () -> assertEquals(777, dataset.get(2)),
-          () -> assertEquals(777, dataset.getBoxed(2)),
+          () -> assertFalse(vec.isNull(2)),
+          () -> assertEquals(777, vec.get(2)),
+          () -> assertEquals(777, vec.getBoxed(2)),
 
-          () -> assertTrue(dataset.isNull(3)),
-          () -> assertNull(dataset.getBoxed(3)),
-          () -> assertThrows(NullPointerException.class, () -> dataset.get(3))
+          () -> assertTrue(vec.isNull(3)),
+          () -> assertNull(vec.getBoxed(3)),
+          () -> assertThrows(NullPointerException.class, () -> vec.get(3))
       );
     } finally {
       Files.deleteIfExists(pathArray);
@@ -86,20 +86,20 @@ public class VecListBuilderTest {
 
   @Test
   public void builderALot() throws IOException {
-    var offsetPath = createTempFile("listdataset--builderALot--", ".dtst");
-    var dataPath = createTempFile("listdataset--builderALot--", ".dtst");
+    var offsetPath = createTempFile("list-vec--builderALot--", ".dtst");
+    var dataPath = createTempFile("list-vec--builderALot--", ".dtst");
     try {
-      ListVec<U16Vec> dataset;
+      ListVec<U16Vec> vec;
       try (var offsetBuilder = U32Vec.builder(null, offsetPath, CREATE);
            var dataBuilder = U16Vec.builder(null, dataPath, CREATE);
            var builder = ListVec.builder(dataBuilder, offsetBuilder, null)) {
         IntStream.range(0, 10_000_000)
             .mapToObj(i -> "" + i)
             .forEach(s -> builder.appendValues(b -> b.appendString(s)));
-        dataset = builder.toVec();
+        vec = builder.toVec();
       }
-      try(dataset) {
-        IntStream.range(0, 10_000_000).forEach(i -> assertEquals("" + i, dataset.getString(i)));
+      try(vec) {
+        IntStream.range(0, 10_000_000).forEach(i -> assertEquals("" + i, vec.getString(i)));
       }
     } finally {
       Files.delete(dataPath);

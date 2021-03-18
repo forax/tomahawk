@@ -15,14 +15,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class VecStructBuilderTest {
   @Test
   public void builder() throws IOException {
-    var pathNameData = createTempFile("struct-dataset-name-data--", ".dtst");
-    var pathNameOffset = createTempFile("struct-dataset-name-offset--", ".dtst");
-    var pathNameValidity = createTempFile("struct-dataset-name-validity--", ".dtst");
-    var pathAge = createTempFile("struct-dataset-age--", ".dtst");
-    var pathAgeValidity = createTempFile("struct-dataset-age-validity--", ".dtst");
-    var pathValidity = createTempFile("struct-dataset-validity--", ".dtst");
+    var pathNameData = createTempFile("struct-vec-name-data--", ".dtst");
+    var pathNameOffset = createTempFile("struct-vec-name-offset--", ".dtst");
+    var pathNameValidity = createTempFile("struct-vec-name-validity--", ".dtst");
+    var pathAge = createTempFile("struct-vec-age--", ".dtst");
+    var pathAgeValidity = createTempFile("struct-vec-age-validity--", ".dtst");
+    var pathValidity = createTempFile("struct-vec-validity--", ".dtst");
     try {
-      StructVec dataset;
+      StructVec vec;
       ListVec<U16Vec> name;
       U32Vec age;
       try (var nameValidityB = U1Vec.builder(null, pathNameValidity, CREATE);
@@ -39,14 +39,14 @@ public class VecStructBuilderTest {
             .appendRow(row -> row.appendValues(nameB, b -> b.appendString("Ana")));
         name = nameB.toVec();
         age = ageB.toVec();
-        dataset = builder.toVec();
+        vec = builder.toVec();
       }
 
       assertAll(
-          () -> assertEquals(3, dataset.length()),
+          () -> assertEquals(3, vec.length()),
           () -> assertEquals("Bob", name.getString(0)),
           () -> assertEquals(42, age.getInt(0)),
-          () -> assertTrue(dataset.isNull(1)),
+          () -> assertTrue(vec.isNull(1)),
           () -> assertEquals("Ana", name.getString(2)),
           () -> assertTrue(age.isNull(2))
       );

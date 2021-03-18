@@ -18,21 +18,21 @@ import org.junit.jupiter.api.Test;
 public class VecU32BuilderTest {
   @Test
   public void builderWithInts() throws IOException {
-    var path = createTempFile("u32dataset--builder--", ".dtst");
+    var path = createTempFile("u32-vec--builder--", ".dtst");
     try {
-      U32Vec dataset;
+      U32Vec vec;
       try (var builder = U32Vec.builder(null, path, CREATE)) {
         builder
             .appendInt(123)
             .appendInt(42)
             .appendInt(-5);
-        dataset = builder.toVec();
+        vec = builder.toVec();
       }
       assertAll(
-          () -> assertEquals(3, dataset.length()),
-          () -> assertEquals(123, dataset.getInt(0)),
-          () -> assertEquals(42, dataset.getInt(1)),
-          () -> assertEquals(-5, dataset.getInt(2))
+          () -> assertEquals(3, vec.length()),
+          () -> assertEquals(123, vec.getInt(0)),
+          () -> assertEquals(42, vec.getInt(1)),
+          () -> assertEquals(-5, vec.getInt(2))
       );
     } finally {
       Files.deleteIfExists(path);
@@ -41,10 +41,10 @@ public class VecU32BuilderTest {
 
   @Test
   public void builderWithNullableInts() throws IOException {
-    var pathValidity = createTempFile("u32dataset-validitySegment--builder--", ".dtst");
-    var pathData = createTempFile("u32dataset-dataSegment--builder--", ".dtst");
+    var pathValidity = createTempFile("u32-vec-validity--builder--", ".dtst");
+    var pathData = createTempFile("u32-vec-data--builder--", ".dtst");
     try {
-      U32Vec dataset;
+      U32Vec vec;
       try (var validity = U1Vec.builder(null, pathValidity, CREATE);
            var builder = U32Vec.builder(validity, pathData, CREATE)) {
         builder
@@ -52,32 +52,32 @@ public class VecU32BuilderTest {
             .appendNull()
             .appendInt(777)
             .appendNull();
-        dataset = builder.toVec();
+        vec = builder.toVec();
       }
       assertAll(
-          () -> assertEquals(4, dataset.length()),
+          () -> assertEquals(4, vec.length()),
 
-          () -> assertFalse(dataset.isNull(0)),
-          () -> assertEquals(-99, dataset.getInt(0)),
-          () -> dataset.getInt(0, (validity, value) -> {
+          () -> assertFalse(vec.isNull(0)),
+          () -> assertEquals(-99, vec.getInt(0)),
+          () -> vec.getInt(0, (validity, value) -> {
             assertTrue(validity);
             assertEquals(-99, value);
           }),
 
-          () -> assertTrue(dataset.isNull(1)),
-          () -> dataset.getInt(1, (validity, __) -> assertFalse(validity)),
-          () -> assertThrows(NullPointerException.class, () -> dataset.getInt(1)),
+          () -> assertTrue(vec.isNull(1)),
+          () -> vec.getInt(1, (validity, __) -> assertFalse(validity)),
+          () -> assertThrows(NullPointerException.class, () -> vec.getInt(1)),
 
-          () -> assertFalse(dataset.isNull(2)),
-          () -> assertEquals(777, dataset.getInt(2)),
-          () -> dataset.getInt(2, (validity, value) -> {
+          () -> assertFalse(vec.isNull(2)),
+          () -> assertEquals(777, vec.getInt(2)),
+          () -> vec.getInt(2, (validity, value) -> {
             assertTrue(validity);
             assertEquals(777, value);
           }),
 
-          () -> assertTrue(dataset.isNull(3)),
-          () -> dataset.getInt(3, (validity, __) -> assertFalse(validity)),
-          () -> assertThrows(NullPointerException.class, () -> dataset.getInt(3))
+          () -> assertTrue(vec.isNull(3)),
+          () -> vec.getInt(3, (validity, __) -> assertFalse(validity)),
+          () -> assertThrows(NullPointerException.class, () -> vec.getInt(3))
       );
     } finally {
       Files.deleteIfExists(pathData);
@@ -87,21 +87,21 @@ public class VecU32BuilderTest {
 
   @Test
   public void builderWithFloats() throws IOException {
-    var path = createTempFile("u32dataset--builder--", ".dtst");
+    var path = createTempFile("u32-vec--builder--", ".dtst");
     try {
-      U32Vec dataset;
+      U32Vec vec;
       try (var builder = U32Vec.builder(null, path, CREATE)) {
         builder
             .appendFloat(12.0f)
             .appendFloat(42)
             .appendFloat(-8);
-        dataset = builder.toVec();
+        vec = builder.toVec();
       }
       assertAll(
-          () -> assertEquals(3, dataset.length()),
-          () -> assertEquals(12.0f, dataset.getFloat(0)),
-          () -> assertEquals(42.0f, dataset.getFloat(1)),
-          () -> assertEquals(-8.0f, dataset.getFloat(2))
+          () -> assertEquals(3, vec.length()),
+          () -> assertEquals(12.0f, vec.getFloat(0)),
+          () -> assertEquals(42.0f, vec.getFloat(1)),
+          () -> assertEquals(-8.0f, vec.getFloat(2))
       );
     } finally {
       Files.deleteIfExists(path);
@@ -110,10 +110,10 @@ public class VecU32BuilderTest {
 
   @Test
   public void builderWithNullableFloats() throws IOException {
-    var pathValidity = createTempFile("u32dataset-validitySegment--builder--", ".dtst");
-    var pathData = createTempFile("u32dataset-dataSegment--builder--", ".dtst");
+    var pathValidity = createTempFile("u32-vec-validity--builder--", ".dtst");
+    var pathData = createTempFile("u32-vec-data--builder--", ".dtst");
     try {
-      U32Vec dataset;
+      U32Vec vec;
       try (var validity = U1Vec.builder(null, pathValidity, CREATE);
            var builder = U32Vec.builder(validity, pathData, CREATE)) {
         builder
@@ -121,32 +121,32 @@ public class VecU32BuilderTest {
             .appendNull()
             .appendFloat(44.0f)
             .appendNull();
-        dataset = builder.toVec();
+        vec = builder.toVec();
       }
       assertAll(
-          () -> assertEquals(4, dataset.length()),
+          () -> assertEquals(4, vec.length()),
 
-          () -> assertFalse(dataset.isNull(0)),
-          () -> assertEquals(-888.0f, dataset.getFloat(0)),
-          () -> dataset.getFloat(0, (validity, value) -> {
+          () -> assertFalse(vec.isNull(0)),
+          () -> assertEquals(-888.0f, vec.getFloat(0)),
+          () -> vec.getFloat(0, (validity, value) -> {
             assertTrue(validity);
             assertEquals(-888.0f, value);
           }),
 
-          () -> assertTrue(dataset.isNull(1)),
-          () -> dataset.getFloat(1, (validity, __) -> assertFalse(validity)),
-          () -> assertThrows(NullPointerException.class, () -> dataset.getFloat(1)),
+          () -> assertTrue(vec.isNull(1)),
+          () -> vec.getFloat(1, (validity, __) -> assertFalse(validity)),
+          () -> assertThrows(NullPointerException.class, () -> vec.getFloat(1)),
 
-          () -> assertFalse(dataset.isNull(2)),
-          () -> assertEquals(44.0f, dataset.getFloat(2)),
-          () -> dataset.getFloat(2, (validity, value) -> {
+          () -> assertFalse(vec.isNull(2)),
+          () -> assertEquals(44.0f, vec.getFloat(2)),
+          () -> vec.getFloat(2, (validity, value) -> {
             assertTrue(validity);
             assertEquals(44.0f, value);
           }),
 
-          () -> assertTrue(dataset.isNull(3)),
-          () -> dataset.getInt(3, (validity, __) -> assertFalse(validity)),
-          () -> assertThrows(NullPointerException.class, () -> dataset.getInt(3))
+          () -> assertTrue(vec.isNull(3)),
+          () -> vec.getInt(3, (validity, __) -> assertFalse(validity)),
+          () -> assertThrows(NullPointerException.class, () -> vec.getInt(3))
       );
     } finally {
       Files.deleteIfExists(pathData);
@@ -156,15 +156,15 @@ public class VecU32BuilderTest {
 
   @Test
   public void builderALot() throws IOException {
-    var path = createTempFile("u32dataset--builderALot--", ".dtst");
-    U32Vec dataset;
+    var path = createTempFile("u32-vec--builder-a-lot--", ".dtst");
+    U32Vec vec;
     try(var builder = U32Vec.builder(null, path, CREATE)) {
       range(0, 100_000_000)
           .forEach(builder::appendInt);
-      dataset = builder.toVec();
+      vec = builder.toVec();
     }
-    try(dataset) {
-      range(0, 100_000_000).forEach(i -> assertEquals(i, dataset.getInt(i)));
+    try(vec) {
+      range(0, 100_000_000).forEach(i -> assertEquals(i, vec.getInt(i)));
     }
     Files.delete(path);
   }
