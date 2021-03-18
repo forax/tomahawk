@@ -140,6 +140,85 @@ interface DatasetImpl {
     }
   }
 
+  record U8Impl(MemorySegment dataSegment, MemorySegment validitySegment) implements DatasetImpl, U8Dataset {
+    static final VarHandle BYTE_HANDLE = ofSequence(ofValueBits(8, LITTLE_ENDIAN))
+        .varHandle(byte.class, sequenceElement());
+
+    @Override
+    public void close() {
+      try {
+        if (dataSegment.isAlive()) {
+          dataSegment.close();
+        }
+      } finally {
+        if (validitySegment != null && validitySegment.isAlive()) {
+          validitySegment.close();
+        }
+      }
+    }
+
+    @Override
+    public long length() {
+      return dataSegment.byteSize();
+    }
+
+    @Override
+    public boolean isNull(long index) {
+      if (validitySegment == null) {
+        return false;
+      }
+      return !U1Impl.getRawBoolean(validitySegment, index);
+    }
+
+    @Override
+    public void setNull(long index) {
+      if (validitySegment == null) {
+        throw doNotSupportNull();
+      }
+      BYTE_HANDLE.set(dataSegment, index, (byte) 0);
+      U1Impl.setRawBoolean(validitySegment, index, false);
+    }
+
+    @Override
+    public byte getByte(long index) {
+      if (validitySegment != null) {
+        if (!U1Impl.getRawBoolean(validitySegment, index)) {
+          throw valueIsNull();
+        }
+      }
+      return (byte) BYTE_HANDLE.get(dataSegment, index);
+    }
+
+    @Override
+    public void setByte(long index, byte value) {
+      BYTE_HANDLE.set(dataSegment, index, value);
+      if (validitySegment != null) {
+        U1Impl.setRawBoolean(validitySegment, index, true);
+      }
+    }
+
+    @Override
+    public void getByte(long index, ByteExtractor extractor) {
+      if (validitySegment != null) {
+        if (!U1Impl.getRawBoolean(validitySegment, index)) {
+          extractor.consume(false, (byte) 0);
+          return;
+        }
+      }
+      var value = (byte) BYTE_HANDLE.get(dataSegment, index);
+      extractor.consume(true, value);
+    }
+
+    @Override
+    public U8Dataset withValidity(U1Dataset validity) {
+      Objects.requireNonNull(validity);
+      if (length() > validity.length()) {
+        throw invalidLength(this, validity);
+      }
+      return new U8Impl(dataSegment, impl(validity).dataSegment);
+    }
+  }
+
   record U16Impl(MemorySegment dataSegment, MemorySegment validitySegment) implements DatasetImpl, U16Dataset {
     static final VarHandle SHORT_HANDLE = ofSequence(ofValueBits(16, LITTLE_ENDIAN))
         .varHandle(short.class, sequenceElement());
@@ -177,7 +256,7 @@ interface DatasetImpl {
       if (validitySegment == null) {
         throw doNotSupportNull();
       }
-      SHORT_HANDLE.set(dataSegment, index, 0);
+      SHORT_HANDLE.set(dataSegment, index, (short) 0);
       U1Impl.setRawBoolean(validitySegment, index, false);
     }
 

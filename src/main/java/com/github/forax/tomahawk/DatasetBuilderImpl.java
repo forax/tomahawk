@@ -31,6 +31,9 @@ interface DatasetBuilderImpl {
   static U1Builder builderImpl(U1Dataset.Builder builder) {
     return (U1Builder) builder;
   }
+  static U8Builder builderImpl(U8Dataset.Builder builder) {
+    return (U8Builder) builder;
+  }
   static U16Builder builderImpl(U16Dataset.Builder builder) {
     return (U16Builder) builder;
   }
@@ -154,6 +157,89 @@ interface DatasetBuilderImpl {
       close();
       try {
         return U1Dataset.map(path, validityBuilder == null ? null: validityBuilder.toDataset());
+      } catch (IOException e) {
+        throw new UncheckedIOException(e);
+      }
+    }
+  }
+
+  final class U8Builder extends BaseImpl implements U8Dataset.Builder {
+    private final Path path;
+    private final OutputStream output;
+    private final U1Builder validityBuilder;
+    private final ByteBuffer buffer;
+    private long length;
+
+    U8Builder(Path path, OutputStream output, U1Builder validityBuilder, ByteBuffer buffer) {
+      this.path = path;
+      this.output = output;
+      this.validityBuilder = validityBuilder;
+      this.buffer = buffer;
+    }
+
+    U8Builder(Path path, OutputStream output, U1Builder validityBuilder) {
+      this(path, output, validityBuilder, ByteBuffer.allocate(8192).order(LITTLE_ENDIAN));
+    }
+
+    private void flush() {
+      try {
+        output.write(buffer.array(), 0, buffer.position());
+      } catch (IOException e) {
+        throw new UncheckedIOException(e);
+      }
+      buffer.clear();
+    }
+
+    @Override
+    public void close() throws UncheckedIOException {
+      flush();
+      try {
+        output.close();
+      } catch (IOException e) {
+        throw new UncheckedIOException(e);
+      }
+      if (validityBuilder != null) {
+        validityBuilder.close();
+      }
+    }
+
+    @Override
+    public long length() {
+      return length;
+    }
+
+    @Override
+    public U8Dataset.Builder appendByte(byte value) {
+      if (!buffer.hasRemaining()) {
+        flush();
+      }
+      buffer.put(value);
+      if (validityBuilder != null) {
+        validityBuilder.appendBoolean(true);
+      }
+      length++;
+      return this;
+    }
+
+    @Override
+    public U8Dataset.Builder appendNull() {
+      if (validityBuilder == null) {
+        throw doNotSupportNull();
+      }
+      if (!buffer.hasRemaining()) {
+        flush();
+      }
+      buffer.put((byte) 0);
+      validityBuilder.appendBoolean(false);
+      length++;
+      return this;
+    }
+
+    @Override
+    public U8Dataset toDataset() {
+      close();
+      try {
+        return U8Dataset.map(path, validityBuilder == null? null: validityBuilder.toDataset());
       } catch (IOException e) {
         throw new UncheckedIOException(e);
       }

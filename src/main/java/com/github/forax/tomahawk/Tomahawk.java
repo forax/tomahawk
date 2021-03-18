@@ -31,6 +31,19 @@ public interface Tomahawk {
       this.value = value;
     }
   }
+  interface ByteExtractor {
+    void consume(boolean validity, byte value);
+  }
+  class ByteBox implements ByteExtractor {
+    public boolean validity;
+    public byte value;
+
+    @Override
+    public void consume(boolean validity, byte value) {
+      this.validity = validity;
+      this.value = value;
+    }
+  }
   interface ShortExtractor {
     void consume(boolean validity, short value);
   }
@@ -192,14 +205,12 @@ public interface Tomahawk {
   interface U8Dataset extends Dataset {
     byte getByte(long index);
     void setByte(long index, byte value);
-    boolean getBoolean(long index);
-    void setBoolean(long index, boolean value);
+    void getByte(long index, ByteExtractor extractor);
     @Override
     U8Dataset withValidity(U1Dataset validity);
 
     interface Builder extends BaseBuilder<U8Dataset> {
       Builder appendByte(byte value) throws UncheckedIOException;
-      Builder appendBoolean(boolean value) throws UncheckedIOException;
       @Override
       Builder appendNull() throws UncheckedIOException;
 
@@ -208,22 +219,27 @@ public interface Tomahawk {
     }
 
     static U8Dataset wrap(byte[] array) {
-      return null;
-    }
-    static U8Dataset wrap(boolean[] array) {
-      return null;
-    }
-
-    static U8Dataset allocate(long length) {
-      return null;
+      requireNonNull(array);
+      var memorySegment = MemorySegment.ofArray(array);
+      return from(memorySegment, null);
     }
 
-    static U8Dataset map(Path path) {
-      return null;
+    static U8Dataset map(Path path, U1Dataset validity) throws IOException {
+      requireNonNull(path);
+      var memorySegment = MemorySegment.mapFile(path, 0, Files.size(path), READ_ONLY);
+      return from(memorySegment, validity);
     }
 
-    static Builder builder(U1Dataset.Builder validityBuilder, Path path, OpenOption... openOptions) {
-      return null;
+    static U8Dataset from(MemorySegment data, U1Dataset validity) {
+      requireNonNull(data);
+      return new DatasetImpl.U8Impl(data, implDataOrNull(validity));
+    }
+
+    static U8Dataset.Builder builder(U1Dataset.Builder validityBuilder, Path path, OpenOption... openOptions) throws IOException {
+      requireNonNull(path);
+      requireNonNull(openOptions);
+      var output = Files.newOutputStream(path, openOptions);
+      return new DatasetBuilderImpl.U8Builder(path, output, builderImpl(validityBuilder));
     }
   }
 
