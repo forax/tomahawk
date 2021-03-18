@@ -1,8 +1,7 @@
 package com.github.forax.tomahawk;
 
-import com.github.forax.tomahawk.Tomahawk.*;
-import com.github.forax.tomahawk.Tomahawk.Dataset.BaseBuilder;
-import com.github.forax.tomahawk.Tomahawk.StructDataset.RowBuilder;
+import static java.nio.ByteOrder.LITTLE_ENDIAN;
+import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -13,8 +12,8 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.function.Consumer;
 
-import static java.nio.ByteOrder.LITTLE_ENDIAN;
-import static java.util.Objects.requireNonNull;
+import com.github.forax.tomahawk.Dataset.BaseBuilder;
+import com.github.forax.tomahawk.StructDataset.RowBuilder;
 
 interface DatasetBuilderImpl {
   private static IllegalStateException doNotSupportNull() {
@@ -30,9 +29,6 @@ interface DatasetBuilderImpl {
   }
   static U1Builder builderImpl(U1Dataset.Builder builder) {
     return (U1Builder) builder;
-  }
-  static U8Builder builderImpl(U8Dataset.Builder builder) {
-    return (U8Builder) builder;
   }
   static U16Builder builderImpl(U16Dataset.Builder builder) {
     return (U16Builder) builder;

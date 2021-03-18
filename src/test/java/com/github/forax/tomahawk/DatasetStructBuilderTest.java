@@ -1,10 +1,5 @@
 package com.github.forax.tomahawk;
 
-import com.github.forax.tomahawk.Tomahawk.ListDataset;
-import com.github.forax.tomahawk.Tomahawk.StructDataset;
-import com.github.forax.tomahawk.Tomahawk.U16Dataset;
-import com.github.forax.tomahawk.Tomahawk.U32Dataset;
-import com.github.forax.tomahawk.Tomahawk.U1Dataset;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

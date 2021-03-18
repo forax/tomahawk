@@ -1,9 +1,5 @@
 package com.github.forax.tomahawk;
 
-import com.github.forax.tomahawk.Tomahawk.CharBox;
-import com.github.forax.tomahawk.Tomahawk.ShortBox;
-import com.github.forax.tomahawk.Tomahawk.U16Dataset;
-import com.github.forax.tomahawk.Tomahawk.U1Dataset;
 import jdk.incubator.foreign.MemorySegment;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;

@@ -1,17 +1,16 @@
 package com.github.forax.tomahawk;
 
-import com.github.forax.tomahawk.Tomahawk.*;
-import jdk.incubator.foreign.MemorySegment;
+import static java.nio.ByteOrder.LITTLE_ENDIAN;
+import static jdk.incubator.foreign.MemoryLayout.ofSequence;
+import static jdk.incubator.foreign.MemoryLayout.ofValueBits;
+import static jdk.incubator.foreign.MemoryLayout.PathElement.sequenceElement;
 
 import java.io.UncheckedIOException;
 import java.lang.invoke.VarHandle;
 import java.util.List;
 import java.util.Objects;
 
-import static java.nio.ByteOrder.LITTLE_ENDIAN;
-import static jdk.incubator.foreign.MemoryLayout.PathElement.sequenceElement;
-import static jdk.incubator.foreign.MemoryLayout.ofSequence;
-import static jdk.incubator.foreign.MemoryLayout.ofValueBits;
+import jdk.incubator.foreign.MemorySegment;
 
 interface DatasetImpl {
   private static IllegalStateException doNotSupportNull() {
