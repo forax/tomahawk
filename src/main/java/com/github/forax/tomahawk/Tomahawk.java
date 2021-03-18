@@ -98,6 +98,34 @@ public interface Tomahawk {
       this.value = value;
     }
   }
+  @FunctionalInterface
+  interface LongExtractor {
+    void consume(boolean validity, long value);
+  }
+  class LongBox implements LongExtractor {
+    public boolean validity;
+    public long value;
+
+    @Override
+    public void consume(boolean validity, long value) {
+      this.validity = validity;
+      this.value = value;
+    }
+  }
+  @FunctionalInterface
+  interface DoubleExtractor {
+    void consume(boolean validity, double value);
+  }
+  class DoubleBox implements DoubleExtractor {
+    public boolean validity;
+    public double value;
+
+    @Override
+    public void consume(boolean validity, double value) {
+      this.validity = validity;
+      this.value = value;
+    }
+  }
   interface ValuesExtractor {
     void consume(boolean validity, long startOffset, long endOffset);
   }
@@ -352,6 +380,8 @@ public interface Tomahawk {
     void setLong(long index, long value);
     double getDouble(long index);
     void setDouble(long index, double value);
+    void getLong(long index, LongExtractor extractor);
+    void getDouble(long index, DoubleExtractor extractor);
 
     @Override
     U64Dataset withValidity(U1Dataset validity);
@@ -367,22 +397,32 @@ public interface Tomahawk {
     }
 
     static U64Dataset wrap(long[] array) {
-      return null;
+      requireNonNull(array);
+      var memorySegment = MemorySegment.ofArray(array);
+      return from(memorySegment, null);
     }
     static U64Dataset wrap(double[] array) {
-      return null;
+      requireNonNull(array);
+      var memorySegment = MemorySegment.ofArray(array);
+      return from(memorySegment, null);
     }
 
-    static U64Dataset from(MemorySegment memorySegment) {
-      return null;
+    static U64Dataset map(Path path, U1Dataset validity) throws IOException {
+      requireNonNull(path);
+      var memorySegment = MemorySegment.mapFile(path, 0, Files.size(path), READ_ONLY);
+      return from(memorySegment, validity);
     }
 
-    static U64Dataset map(Path path) {
-      return null;
+    static U64Dataset from(MemorySegment data, U1Dataset validity) {
+      requireNonNull(data);
+      return new DatasetImpl.U64Impl(data, implDataOrNull(validity));
     }
 
-    static Builder builder(U1Dataset.Builder validityBuilder, Path path, OpenOption... openOptions) {
-      return null;
+    static Builder builder(U1Dataset.Builder validityBuilder, Path path, OpenOption... openOptions) throws IOException {
+      requireNonNull(path);
+      requireNonNull(openOptions);
+      var output = Files.newOutputStream(path, openOptions);
+      return new DatasetBuilderImpl.U64Builder(path, output, builderImpl(validityBuilder));
     }
   }
 

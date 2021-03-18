@@ -462,6 +462,102 @@ interface DatasetBuilderImpl {
     }
   }
 
+  final class U64Builder extends BaseImpl implements U64Dataset.Builder {
+    private final Path path;
+    private final OutputStream output;
+    private final U1Builder validityBuilder;
+    private final ByteBuffer buffer;
+    private long length;
+
+    U64Builder(Path path, OutputStream output, U1Builder validityBuilder, ByteBuffer buffer) {
+      this.path = path;
+      this.output = output;
+      this.validityBuilder = validityBuilder;
+      this.buffer = buffer;
+    }
+
+    U64Builder(Path path, OutputStream output, U1Builder validityBuilder) {
+      this(path, output, validityBuilder, ByteBuffer.allocate(8192).order(LITTLE_ENDIAN));
+    }
+
+    private void flush() {
+      try {
+        output.write(buffer.array(), 0, buffer.position());
+      } catch (IOException e) {
+        throw new UncheckedIOException(e);
+      }
+      buffer.clear();
+    }
+
+    @Override
+    public void close() throws UncheckedIOException {
+      flush();
+      try {
+        output.close();
+      } catch (IOException e) {
+        throw new UncheckedIOException(e);
+      }
+      if (validityBuilder != null) {
+        validityBuilder.close();
+      }
+    }
+
+    @Override
+    public long length() {
+      return length;
+    }
+
+    @Override
+    public U64Dataset.Builder appendLong(long value) {
+      if (!buffer.hasRemaining()) {
+        flush();
+      }
+      buffer.putLong(value);
+      if (validityBuilder != null) {
+        validityBuilder.appendBoolean(true);
+      }
+      length++;
+      return this;
+    }
+
+    @Override
+    public U64Dataset.Builder appendDouble(double value) {
+      if (!buffer.hasRemaining()) {
+        flush();
+      }
+      buffer.putDouble(value);
+      if (validityBuilder != null) {
+        validityBuilder.appendBoolean(true);
+      }
+      length++;
+      return this;
+    }
+
+    @Override
+    public U64Dataset.Builder appendNull() {
+      if (validityBuilder == null) {
+        throw doNotSupportNull();
+      }
+      if (!buffer.hasRemaining()) {
+        flush();
+      }
+      buffer.putLong(0);
+      validityBuilder.appendBoolean(false);
+      length++;
+      return this;
+    }
+
+    @Override
+    public U64Dataset toDataset() {
+      close();
+      try {
+        return U64Dataset.map(path, validityBuilder == null? null: validityBuilder.toDataset());
+      } catch (IOException e) {
+        throw new UncheckedIOException(e);
+      }
+    }
+  }
+
   final class ListBuilder<D extends Dataset, B extends BaseBuilder<D>> extends BaseImpl implements ListDataset.Builder<D, B> {
     private final B dataBuilder;
     private final U32Builder offsetBuilder;

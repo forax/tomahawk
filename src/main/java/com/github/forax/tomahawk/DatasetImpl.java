@@ -445,6 +445,117 @@ interface DatasetImpl {
     }
   }
 
+  record U64Impl(MemorySegment dataSegment, MemorySegment validitySegment) implements DatasetImpl, U64Dataset {
+    static final VarHandle LONG_HANDLE = ofSequence(ofValueBits(64, LITTLE_ENDIAN))
+        .varHandle(long.class, sequenceElement());
+    static final VarHandle DOUBLE_HANDLE = ofSequence(ofValueBits(64, LITTLE_ENDIAN))
+        .varHandle(double.class, sequenceElement());
+
+    @Override
+    public void close() {
+      try {
+        if (dataSegment.isAlive()) {
+          dataSegment.close();
+        }
+      } finally {
+        if (validitySegment != null && validitySegment.isAlive()) {
+          validitySegment.close();
+        }
+      }
+    }
+
+    @Override
+    public long length() {
+      return dataSegment.byteSize() >> 3;
+    }
+
+    @Override
+    public boolean isNull(long index) {
+      if (validitySegment == null) {
+        return false;
+      }
+      return !U1Impl.getRawBoolean(validitySegment, index);
+    }
+
+    @Override
+    public void setNull(long index) {
+      if (validitySegment == null) {
+        throw doNotSupportNull();
+      }
+      LONG_HANDLE.set(dataSegment, index, 0L);
+      U1Impl.setRawBoolean(validitySegment, index, false);
+    }
+
+    @Override
+    public long getLong(long index) {
+      if (validitySegment != null) {
+        if (!U1Impl.getRawBoolean(validitySegment, index)) {
+          throw valueIsNull();
+        }
+      }
+      return (long) LONG_HANDLE.get(dataSegment, index);
+    }
+
+    @Override
+    public void setLong(long index, long value) {
+      LONG_HANDLE.set(dataSegment, index, value);
+      if (validitySegment != null) {
+        U1Impl.setRawBoolean(validitySegment, index, true);
+      }
+    }
+
+    @Override
+    public double getDouble(long index) {
+      if (validitySegment != null) {
+        if (!U1Impl.getRawBoolean(validitySegment, index)) {
+          throw valueIsNull();
+        }
+      }
+      return (double) DOUBLE_HANDLE.get(dataSegment, index);
+    }
+
+    @Override
+    public void setDouble(long index, double value) {
+      DOUBLE_HANDLE.set(dataSegment, index, value);
+      if (validitySegment != null) {
+        U1Impl.setRawBoolean(validitySegment, index, true);
+      }
+    }
+
+    @Override
+    public void getLong(long index, LongExtractor extractor) {
+      if (validitySegment != null) {
+        if (!U1Impl.getRawBoolean(validitySegment, index)) {
+          extractor.consume(false, 0);
+          return;
+        }
+      }
+      var value = (long) LONG_HANDLE.get(dataSegment, index);
+      extractor.consume(true, value);
+    }
+
+    @Override
+    public void getDouble(long index, DoubleExtractor extractor) {
+      if (validitySegment != null) {
+        if (!U1Impl.getRawBoolean(validitySegment, index)) {
+          extractor.consume(false, 0);
+          return;
+        }
+      }
+      var value = (double) DOUBLE_HANDLE.get(dataSegment, index);
+      extractor.consume(true, value);
+    }
+
+    @Override
+    public U64Dataset withValidity(U1Dataset validity) {
+      Objects.requireNonNull(validity);
+      if (length() > validity.length()) {
+        throw invalidLength(this, validity);
+      }
+      return new U64Impl(dataSegment, impl(validity).dataSegment);
+    }
+  }
+
   record ListImpl<D extends Dataset>(D data, MemorySegment dataSegment, MemorySegment offsetSegment, MemorySegment validitySegment) implements DatasetImpl, ListDataset<D> {
     @Override
     public void close() {
