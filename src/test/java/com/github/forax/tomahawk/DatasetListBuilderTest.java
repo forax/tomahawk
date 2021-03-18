@@ -15,6 +15,7 @@ import static java.nio.file.StandardOpenOption.CREATE;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@SuppressWarnings("static-method")
 public class DatasetListBuilderTest {
   @Test
   public void builder() throws IOException {
@@ -101,8 +102,9 @@ public class DatasetListBuilderTest {
             .forEach(s -> builder.appendValues(b -> b.appendString(s)));
         dataset = builder.toDataset();
       }
-      IntStream.range(0, 10_000_000).forEach(i -> assertEquals("" + i, dataset.getString(i)));
-      dataset.close();
+      try(dataset) {
+        IntStream.range(0, 10_000_000).forEach(i -> assertEquals("" + i, dataset.getString(i)));
+      }
     } finally {
       Files.delete(dataPath);
       Files.delete(offsetPath);

@@ -17,23 +17,24 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@SuppressWarnings("static-method")
 public class DatasetU32Test {
   @SuppressWarnings("unused")
-  private static Stream<LongFunction<U32Dataset>> provideIntDatasets() {
+  public static Stream<LongFunction<U32Dataset>> provideIntDatasets() {
     return Stream.of(
         length -> U32Dataset.wrap(new int[(int) length]),
         length -> U32Dataset.from(MemorySegment.allocateNative(length * 4), null)
     );
   }
   @SuppressWarnings("unused")
-  private static Stream<LongFunction<U32Dataset>> provideFloatDatasets() {
+  public static Stream<LongFunction<U32Dataset>> provideFloatDatasets() {
     return Stream.of(
         length -> U32Dataset.wrap(new float[(int) length]),
         length -> U32Dataset.from(MemorySegment.allocateNative(length * 4), null)
     );
   }
   @SuppressWarnings("unused")
-  private static Stream<LongFunction<U32Dataset>> provideAllDatasets() {
+  public static Stream<LongFunction<U32Dataset>> provideAllDatasets() {
     return Stream.of(
         length -> U32Dataset.wrap(new float[(int) length]),
         length -> U32Dataset.wrap(new float[(int) length]),

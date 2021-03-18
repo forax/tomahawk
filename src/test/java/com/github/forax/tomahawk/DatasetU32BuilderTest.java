@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@SuppressWarnings("static-method")
 public class DatasetU32BuilderTest {
   @Test
   public void builderWithInts() throws IOException {
@@ -163,8 +164,9 @@ public class DatasetU32BuilderTest {
           .forEach(builder::appendInt);
       dataset = builder.toDataset();
     }
-    range(0, 100_000_000).forEach(i -> assertEquals(i, dataset.getInt(i)));
-    dataset.close();
+    try(dataset) {
+      range(0, 100_000_000).forEach(i -> assertEquals(i, dataset.getInt(i)));
+    }
     Files.delete(path);
   }
 }

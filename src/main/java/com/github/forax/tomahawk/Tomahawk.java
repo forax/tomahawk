@@ -130,6 +130,7 @@ public interface Tomahawk {
   }
 
   interface UncheckedCloseable extends AutoCloseable {
+    @Override
     void close() throws UncheckedIOException;
   }
 
@@ -151,12 +152,15 @@ public interface Tomahawk {
     void setBoolean(long index, boolean value);
     void getBoolean(long index, BooleanExtractor extractor);
 
+    @Override
     U1Dataset withValidity(U1Dataset validity);
 
     interface Builder extends BaseBuilder<U1Dataset> {
       Builder appendBoolean(boolean value);
+      @Override
       Builder appendNull();
 
+      @Override
       U1Dataset toDataset();
     }
 
@@ -190,13 +194,16 @@ public interface Tomahawk {
     void setByte(long index, byte value);
     boolean getBoolean(long index);
     void setBoolean(long index, boolean value);
+    @Override
     U8Dataset withValidity(U1Dataset validity);
 
     interface Builder extends BaseBuilder<U8Dataset> {
       Builder appendByte(byte value) throws UncheckedIOException;
       Builder appendBoolean(boolean value) throws UncheckedIOException;
+      @Override
       Builder appendNull() throws UncheckedIOException;
 
+      @Override
       U8Dataset toDataset();
     }
 
@@ -227,17 +234,20 @@ public interface Tomahawk {
     void setChar(long index, char value);
     void getShort(long index, ShortExtractor extractor);
     void getChar(long index, CharExtractor extractor);
+    @Override
     U16Dataset withValidity(U1Dataset validity);
 
     interface Builder extends BaseBuilder<U16Dataset> {
       Builder appendShort(short value) throws UncheckedIOException;
       Builder appendChar(char value) throws UncheckedIOException;
+      @Override
       Builder appendNull() throws UncheckedIOException;
 
       Builder appendShortArray(short... array) throws UncheckedIOException;
       Builder appendCharArray(char... array) throws UncheckedIOException;
       Builder appendString(String s) throws UncheckedIOException;
 
+      @Override
       U16Dataset toDataset();
     }
 
@@ -278,13 +288,16 @@ public interface Tomahawk {
     void setFloat(long index, float value);
     void getInt(long index, IntExtractor extractor);
     void getFloat(long index, FloatExtractor extractor);
+    @Override
     U32Dataset withValidity(U1Dataset validity);
 
     interface Builder extends BaseBuilder<U32Dataset> {
       Builder appendInt(int value) throws UncheckedIOException;
       Builder appendFloat(float value) throws UncheckedIOException;
+      @Override
       Builder appendNull() throws UncheckedIOException;
 
+      @Override
       U32Dataset toDataset() throws UncheckedIOException;
     }
 
@@ -324,13 +337,16 @@ public interface Tomahawk {
     double getDouble(long index);
     void setDouble(long index, double value);
 
+    @Override
     U64Dataset withValidity(U1Dataset validity);
 
     interface Builder extends BaseBuilder<U64Dataset> {
       Builder appendLong(long value) throws UncheckedIOException;
       Builder appendDouble(double value) throws UncheckedIOException;
+      @Override
       Builder appendNull() throws UncheckedIOException;
 
+      @Override
       U64Dataset toDataset();
     }
 
@@ -358,14 +374,17 @@ public interface Tomahawk {
     D data();
     String getString(long index);
     void getValues(long index, ValuesExtractor extractor);
+    @Override
     ListDataset<D> withValidity(U1Dataset validity);
 
     interface Builder<D extends Dataset, B extends BaseBuilder<D>> extends BaseBuilder<ListDataset<D>> {
       Builder<D, B> appendValues(Consumer<? super B> consumer) throws UncheckedIOException;
+      @Override
       Builder<D, B> appendNull() throws UncheckedIOException;
 
       Builder<D, B> appendString(String s) throws UncheckedIOException;
 
+      @Override
       ListDataset<D> toDataset();
     }
 
@@ -389,13 +408,16 @@ public interface Tomahawk {
   interface StructDataset extends Dataset {
     List<Dataset> fields();
 
+    @Override
     StructDataset withValidity(U1Dataset validity);
 
     interface Builder extends BaseBuilder<StructDataset> {
       void attachField(BaseBuilder<?> fieldBuilder);
       Builder appendRow(Consumer<? super RowBuilder> consumer) throws UncheckedIOException;
+      @Override
       Builder appendNull() throws UncheckedIOException;
 
+      @Override
       StructDataset toDataset();
     }
 
