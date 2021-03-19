@@ -40,4 +40,41 @@ public class LayoutTest {
     assertEquals(Map.of("id", int32(false), "admin", u1(false)), layout.field("user").fields());
     assertEquals(layout.field("addresses"), list(true, string(false)));
   }
+
+  @Test
+  public void parser() {
+    var text = """
+        struct(true,
+            field("name", string(false)),
+            field("age", byte8(true)),
+            field("user", struct(false,
+                field("id", int32(false)),
+                field("admin", u1(false))
+            )),
+            field("addresses", list(true, string(false)))
+        )
+        """;
+
+    var layout = Layout.parse(text);
+    assertEquals(struct(true,
+        field("name", string(false)),
+        field("age", byte8(true)),
+        field("user", struct(false,
+            field("id", int32(false)),
+            field("admin", u1(false))
+        )),
+        field("addresses", list(true, string(false)))
+    ), layout);
+
+    assertEquals(string(false), layout.field("name"));
+    assertEquals(byte8(true), layout.field("age"));
+    assertEquals(struct(false,
+        field("id", int32(false)),
+        field("admin", u1(false))
+    ), layout.field("user"));
+    assertEquals(int32(false), layout.field("user").field("id"));
+    assertEquals(u1(false), layout.field("user").field("admin"));
+    assertEquals(Map.of("id", int32(false), "admin", u1(false)), layout.field("user").fields());
+    assertEquals(layout.field("addresses"), list(true, string(false)));
+  }
 }

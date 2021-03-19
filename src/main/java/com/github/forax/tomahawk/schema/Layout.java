@@ -30,6 +30,10 @@ interface Layout /*permits Layout.PrimitiveLayout, Layout.ListLayout, Layout.Str
     throw new IllegalArgumentException("no element");
   }
 
+  static Layout parse(String text) {
+    return LayoutParser.parse(text);
+  }
+
   static PrimitiveLayout u1(boolean nullable) {
     return new PrimitiveLayout(nullable, boolean.class);
   }
