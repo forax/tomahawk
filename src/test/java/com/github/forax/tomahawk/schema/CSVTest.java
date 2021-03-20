@@ -44,13 +44,13 @@ public class CSVTest {
         field("Price",       double64(true))
     );
     var directory = createTempDirectory("data");
-    Closeable defer = () -> {
+    Closeable andClean = () -> {
       for (var temp : list(directory).toList()) {
         delete(temp);
       }
       delete(directory);
     };
-    try(defer) {
+    try(andClean) {
       CSV.fetch(csv, layout, directory, "cars");
     }
   }
@@ -72,13 +72,13 @@ public class CSVTest {
         )
         """);
     var directory = createTempDirectory("jobs");
-    Closeable defer = () -> {
+    Closeable andClean = () -> {
       for (var temp : list(directory).toList()) {
         delete(temp);
       }
       delete(directory);
     };
-    try(defer) {
+    try(andClean) {
       CSV.fetch(csv, (StructLayout) layout, directory, "jobs");
       var vec = (StructVec) Table.map(directory, "jobs");
       var name = (ListVec<?>) vec.fields().get(0);
