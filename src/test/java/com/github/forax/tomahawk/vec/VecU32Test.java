@@ -20,14 +20,14 @@ public class VecU32Test {
   public static Stream<LongFunction<U32Vec>> provideIntVecs() {
     return Stream.of(
         length -> U32Vec.wrap(new int[(int) length]),
-        length -> U32Vec.from(MemorySegment.allocateNative(length * 4), null)
+        length -> U32Vec.from(null, MemorySegment.allocateNative(length * 4))
     );
   }
   @SuppressWarnings("unused")
   public static Stream<LongFunction<U32Vec>> provideFloatVecs() {
     return Stream.of(
         length -> U32Vec.wrap(new float[(int) length]),
-        length -> U32Vec.from(MemorySegment.allocateNative(length * 4), null)
+        length -> U32Vec.from(null, MemorySegment.allocateNative(length * 4))
     );
   }
   @SuppressWarnings("unused")
@@ -35,7 +35,7 @@ public class VecU32Test {
     return Stream.of(
         length -> U32Vec.wrap(new float[(int) length]),
         length -> U32Vec.wrap(new float[(int) length]),
-        length -> U32Vec.from(MemorySegment.allocateNative(length * 4), null)
+        length -> U32Vec.from(null, MemorySegment.allocateNative(length * 4))
     );
   }
 

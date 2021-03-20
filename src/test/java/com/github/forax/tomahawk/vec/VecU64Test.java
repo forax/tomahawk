@@ -20,14 +20,14 @@ public class VecU64Test {
   public static Stream<LongFunction<U64Vec>> provideLongVecs() {
     return Stream.of(
         length -> U64Vec.wrap(new long[(int) length]),
-        length -> U64Vec.from(MemorySegment.allocateNative(length * 8), null)
+        length -> U64Vec.from(null, MemorySegment.allocateNative(length * 8))
     );
   }
   @SuppressWarnings("unused")
   public static Stream<LongFunction<U64Vec>> provideDoubleVecs() {
     return Stream.of(
         length -> U64Vec.wrap(new double[(int) length]),
-        length -> U64Vec.from(MemorySegment.allocateNative(length * 8), null)
+        length -> U64Vec.from(null, MemorySegment.allocateNative(length * 8))
     );
   }
   @SuppressWarnings("unused")
@@ -35,7 +35,7 @@ public class VecU64Test {
     return Stream.of(
         length -> U64Vec.wrap(new long[(int) length]),
         length -> U64Vec.wrap(new double[(int) length]),
-        length -> U64Vec.from(MemorySegment.allocateNative(length * 8), null)
+        length -> U64Vec.from(null, MemorySegment.allocateNative(length * 8))
     );
   }
 

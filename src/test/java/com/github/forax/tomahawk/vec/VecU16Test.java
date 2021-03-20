@@ -20,14 +20,14 @@ public class VecU16Test {
   public static Stream<LongFunction<U16Vec>> provideShortVecs() {
     return Stream.of(
         length -> U16Vec.wrap(new short[(int) length]),
-        length -> U16Vec.from(MemorySegment.allocateNative(length * 2), null)
+        length -> U16Vec.from(null, MemorySegment.allocateNative(length * 2))
     );
   }
   @SuppressWarnings("unused")
   public static Stream<LongFunction<U16Vec>> provideCharVecs() {
     return Stream.of(
         length -> U16Vec.wrap(new char[(int) length]),
-        length -> U16Vec.from(MemorySegment.allocateNative(length * 2), null)
+        length -> U16Vec.from(null, MemorySegment.allocateNative(length * 2))
     );
   }
   @SuppressWarnings("unused")
@@ -35,7 +35,7 @@ public class VecU16Test {
     return Stream.of(
         length -> U16Vec.wrap(new short[(int) length]),
         length -> U16Vec.wrap(new char[(int) length]),
-        length -> U16Vec.from(MemorySegment.allocateNative(length * 2), null)
+        length -> U16Vec.from(null, MemorySegment.allocateNative(length * 2))
     );
   }
 

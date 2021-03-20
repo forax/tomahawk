@@ -32,16 +32,16 @@ public interface U1Vec extends Vec {
   static U1Vec wrap(long[] array) {
     requireNonNull(array);
     var memorySegment = MemorySegment.ofArray(array);
-    return from(memorySegment, null);
+    return from(null, memorySegment);
   }
 
-  static U1Vec map(Path path, U1Vec validity) throws IOException {
+  static U1Vec map(U1Vec validity, Path path) throws IOException {
     requireNonNull(path);
     var memorySegment = MemorySegment.mapFile(path, 0, Files.size(path), READ_ONLY);
-    return from(memorySegment, validity);
+    return from(validity, memorySegment);
   }
 
-  static U1Vec from(MemorySegment memorySegment, U1Vec validity) {
+  static U1Vec from(U1Vec validity, MemorySegment memorySegment) {
     requireNonNull(memorySegment);
     return new VecImpl.U1Impl(memorySegment, implDataOrNull(validity));
   }

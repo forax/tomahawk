@@ -1,7 +1,7 @@
 package com.github.forax.tomahawk.vec;
 
-import static java.nio.ByteOrder.LITTLE_ENDIAN;
-import static java.util.Objects.requireNonNull;
+import com.github.forax.tomahawk.vec.StructVec.RowBuilder;
+import com.github.forax.tomahawk.vec.Vec.BaseBuilder;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -10,10 +10,12 @@ import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.List;
 import java.util.function.Consumer;
 
-import com.github.forax.tomahawk.vec.StructVec.RowBuilder;
-import com.github.forax.tomahawk.vec.Vec.BaseBuilder;
+import static java.nio.ByteOrder.LITTLE_ENDIAN;
+import static java.util.Collections.unmodifiableList;
+import static java.util.Objects.requireNonNull;
 
 interface VecBuilderImpl {
   private static IllegalStateException doNotSupportNull() {
@@ -152,7 +154,7 @@ interface VecBuilderImpl {
     public U1Vec toVec() {
       close();
       try {
-        return U1Vec.map(path, validityBuilder == null ? null: validityBuilder.toVec());
+        return U1Vec.map(validityBuilder == null ? null: validityBuilder.toVec(), path);
       } catch (IOException e) {
         throw new UncheckedIOException(e);
       }
@@ -235,7 +237,7 @@ interface VecBuilderImpl {
     public U8Vec toVec() {
       close();
       try {
-        return U8Vec.map(path, validityBuilder == null? null: validityBuilder.toVec());
+        return U8Vec.map(validityBuilder == null? null: validityBuilder.toVec(), path);
       } catch (IOException e) {
         throw new UncheckedIOException(e);
       }
@@ -355,7 +357,7 @@ interface VecBuilderImpl {
     public U16Vec toVec() {
       close();
       try {
-        return U16Vec.map(path, validityBuilder == null? null: validityBuilder.toVec());
+        return U16Vec.map(validityBuilder == null? null: validityBuilder.toVec(), path);
       } catch (IOException e) {
         throw new UncheckedIOException(e);
       }
@@ -451,7 +453,7 @@ interface VecBuilderImpl {
     public U32Vec toVec() {
       close();
       try {
-        return U32Vec.map(path, validityBuilder == null? null: validityBuilder.toVec());
+        return U32Vec.map(validityBuilder == null? null: validityBuilder.toVec(), path);
       } catch (IOException e) {
         throw new UncheckedIOException(e);
       }
@@ -547,7 +549,7 @@ interface VecBuilderImpl {
     public U64Vec toVec() {
       close();
       try {
-        return U64Vec.map(path, validityBuilder == null? null: validityBuilder.toVec());
+        return U64Vec.map(validityBuilder == null? null: validityBuilder.toVec(), path);
       } catch (IOException e) {
         throw new UncheckedIOException(e);
       }
@@ -565,6 +567,11 @@ interface VecBuilderImpl {
       this.dataBuilder = dataBuilder;
       this.offsetBuilder = offsetBuilder;
       this.validityBuilder = validityBuilder;
+    }
+
+    @Override
+    public B dataBuilder() {
+      return dataBuilder;
     }
 
     @Override
@@ -629,7 +636,7 @@ interface VecBuilderImpl {
     @Override
     public ListVec<D> toVec() {
       close();
-      return ListVec.from(dataBuilder.toVec(), offsetBuilder.toVec(), validityBuilder == null? null: validityBuilder.toVec());
+      return ListVec.from(validityBuilder == null? null: validityBuilder.toVec(), offsetBuilder.toVec(), dataBuilder.toVec());
     }
   }
 
@@ -641,6 +648,11 @@ interface VecBuilderImpl {
 
     StructBuilder(U1Builder validityBuilder) {
       this.validityBuilder = validityBuilder;
+    }
+
+    @Override
+    public List<BaseBuilder<?>> fieldBuilders() {
+      return unmodifiableList(fieldBuilders);
     }
 
     @Override
@@ -716,6 +728,32 @@ interface VecBuilderImpl {
       }
 
       @Override
+      public RowBuilder appendBoolean(U1Vec.Builder field, boolean value) throws UncheckedIOException {
+        requireNonNull(field);
+        var impl =  builderImpl(field);
+        var ordinal = impl.ordinal();
+        if (bits.get(ordinal)) {
+          throw fieldValueAlreadyAppended();
+        }
+        field.appendBoolean(value);
+        bits.set(ordinal);
+        return this;
+      }
+
+      @Override
+      public RowBuilder appendByte(U8Vec.Builder field, byte value) throws UncheckedIOException {
+        requireNonNull(field);
+        var impl =  builderImpl(field);
+        var ordinal = impl.ordinal();
+        if (bits.get(ordinal)) {
+          throw fieldValueAlreadyAppended();
+        }
+        field.appendByte(value);
+        bits.set(ordinal);
+        return this;
+      }
+
+      @Override
       public RowBuilder appendShort(U16Vec.Builder field, short value) {
         requireNonNull(field);
         var impl =  builderImpl(field);
@@ -763,6 +801,32 @@ interface VecBuilderImpl {
           throw fieldValueAlreadyAppended();
         }
         field.appendFloat(value);
+        bits.set(ordinal);
+        return this;
+      }
+
+      @Override
+      public RowBuilder appendLong(U64Vec.Builder field, long value) throws UncheckedIOException {
+        requireNonNull(field);
+        var impl =  builderImpl(field);
+        var ordinal = impl.ordinal();
+        if (bits.get(ordinal)) {
+          throw fieldValueAlreadyAppended();
+        }
+        field.appendLong(value);
+        bits.set(ordinal);
+        return this;
+      }
+
+      @Override
+      public RowBuilder appendDouble(U64Vec.Builder field, double value) throws UncheckedIOException {
+        requireNonNull(field);
+        var impl =  builderImpl(field);
+        var ordinal = impl.ordinal();
+        if (bits.get(ordinal)) {
+          throw fieldValueAlreadyAppended();
+        }
+        field.appendDouble(value);
         bits.set(ordinal);
         return this;
       }

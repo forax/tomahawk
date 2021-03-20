@@ -36,21 +36,21 @@ public interface U32Vec extends Vec {
   static U32Vec wrap(int[] array) {
     requireNonNull(array);
     var memorySegment = MemorySegment.ofArray(array);
-    return from(memorySegment, null);
+    return from(null, memorySegment);
   }
   static U32Vec wrap(float[] array) {
     requireNonNull(array);
     var memorySegment = MemorySegment.ofArray(array);
-    return from(memorySegment, null);
+    return from(null, memorySegment);
   }
 
-  static U32Vec map(Path path, U1Vec validity) throws IOException {
+  static U32Vec map(U1Vec validity, Path path) throws IOException {
     requireNonNull(path);
     var memorySegment = MemorySegment.mapFile(path, 0, Files.size(path), READ_ONLY);
-    return from(memorySegment, validity);
+    return from(validity, memorySegment);
   }
 
-  static U32Vec from(MemorySegment data, U1Vec validity) {
+  static U32Vec from(U1Vec validity, MemorySegment data) {
     requireNonNull(data);
     return new VecImpl.U32Impl(data, implDataOrNull(validity));
   }

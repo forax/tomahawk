@@ -23,11 +23,11 @@ public class VecListBuilderTest {
       try (var validity = U1Vec.builder(null, pathValidity, CREATE);
            var offset = U32Vec.builder(null, pathOffset, CREATE);
            var data = U16Vec.builder(null, pathData, CREATE);
-           var builder = ListVec.builder(data, offset, validity)) {
+           var builder = ListVec.builder(validity, offset, data)) {
         builder
-            .appendValues(b -> b.appendString("foo"))
-            .appendValues(b -> b.appendString(""))
-            .appendValues(b -> b.appendString("bar"));
+            .appendString("foo")
+            .appendString("")
+            .appendString("bar");
         vec = builder.toVec();
       }
 
@@ -92,10 +92,10 @@ public class VecListBuilderTest {
       ListVec<U16Vec> vec;
       try (var offsetBuilder = U32Vec.builder(null, offsetPath, CREATE);
            var dataBuilder = U16Vec.builder(null, dataPath, CREATE);
-           var builder = ListVec.builder(dataBuilder, offsetBuilder, null)) {
+           var builder = ListVec.builder(null, offsetBuilder, dataBuilder)) {
         IntStream.range(0, 10_000_000)
             .mapToObj(i -> "" + i)
-            .forEach(s -> builder.appendValues(b -> b.appendString(s)));
+            .forEach(builder::appendString);
         vec = builder.toVec();
       }
       try(vec) {

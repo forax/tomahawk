@@ -28,7 +28,7 @@ public class VecStructBuilderTest {
       try (var nameValidityB = U1Vec.builder(null, pathNameValidity, CREATE);
            var nameOffsetB = U32Vec.builder(null, pathNameOffset, CREATE);
            var nameDataB = U16Vec.builder(null, pathNameData, CREATE);
-           var nameB = ListVec.builder(nameDataB, nameOffsetB, nameValidityB);
+           var nameB = ListVec.builder(nameValidityB, nameOffsetB, nameDataB);
            var ageValidityB = U1Vec.builder(null, pathAgeValidity, CREATE);
            var ageB = U32Vec.builder(ageValidityB, pathAge, CREATE);
            var validityB = U1Vec.builder(null, pathValidity, CREATE);

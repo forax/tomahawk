@@ -16,6 +16,8 @@ public interface ListVec<D extends Vec> extends Vec {
   ListVec<D> withValidity(U1Vec validity);
 
   interface Builder<D extends Vec, B extends BaseBuilder<D>> extends BaseBuilder<ListVec<D>> {
+    B dataBuilder();
+
     ListVec.Builder<D, B> appendValues(Consumer<? super B> consumer) throws UncheckedIOException;
     @Override
     ListVec.Builder<D, B> appendNull() throws UncheckedIOException;
@@ -26,7 +28,7 @@ public interface ListVec<D extends Vec> extends Vec {
     ListVec<D> toVec();
   }
 
-  static <D extends Vec> ListVec<D> from(D data, U32Vec offset, U1Vec validity) throws UncheckedIOException {
+  static <D extends Vec> ListVec<D> from(U1Vec validity, U32Vec offset, D data) throws UncheckedIOException {
     if (offset.length() <= 1) {
       throw new IllegalArgumentException("offsetSegment.length is too small");
     }
@@ -36,7 +38,7 @@ public interface ListVec<D extends Vec> extends Vec {
     return new VecImpl.ListImpl<>(data, impl(data).dataSegment(), impl(offset).dataSegment(), implDataOrNull(validity));
   }
 
-  static <D extends Vec, B extends BaseBuilder<D>> ListVec.Builder<D, B> builder(B dataBuilder, U32Vec.Builder offsetBuilder, U1Vec.Builder validityBuilder) {
+  static <D extends Vec, B extends BaseBuilder<D>> ListVec.Builder<D, B> builder(U1Vec.Builder validityBuilder, U32Vec.Builder offsetBuilder, B dataBuilder) {
     requireNonNull(dataBuilder);
     requireNonNull(offsetBuilder);
     return new VecBuilderImpl.ListBuilder<>(dataBuilder, builderImpl(offsetBuilder), builderImpl(validityBuilder));

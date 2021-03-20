@@ -1,9 +1,13 @@
 package com.github.forax.tomahawk.schema;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static com.github.forax.tomahawk.schema.Layout.PrimitiveLayout.Kind.*;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
@@ -30,33 +34,29 @@ interface Layout /*permits Layout.PrimitiveLayout, Layout.ListLayout, Layout.Str
     throw new IllegalArgumentException("no element");
   }
 
-  static Layout parse(String text) {
-    return LayoutParser.parse(text);
-  }
-
   static PrimitiveLayout u1(boolean nullable) {
-    return new PrimitiveLayout(nullable, boolean.class);
+    return new PrimitiveLayout(nullable, u1);
   }
   static PrimitiveLayout byte8(boolean nullable) {
-    return new PrimitiveLayout(nullable, byte.class);
+    return new PrimitiveLayout(nullable, byte8);
   }
   static PrimitiveLayout short16(boolean nullable) {
-    return new PrimitiveLayout(nullable, short.class);
+    return new PrimitiveLayout(nullable, short16);
   }
   static PrimitiveLayout char16(boolean nullable) {
-    return new PrimitiveLayout(nullable, char.class);
+    return new PrimitiveLayout(nullable, char16);
   }
   static PrimitiveLayout int32(boolean nullable) {
-    return new PrimitiveLayout(nullable, int.class);
+    return new PrimitiveLayout(nullable, int32);
   }
   static PrimitiveLayout float32(boolean nullable) {
-    return new PrimitiveLayout(nullable, float.class);
-  }
-  static PrimitiveLayout double64(boolean nullable) {
-    return new PrimitiveLayout(nullable, double.class);
+    return new PrimitiveLayout(nullable, float32);
   }
   static PrimitiveLayout long64(boolean nullable) {
-    return new PrimitiveLayout(nullable, long.class);
+    return new PrimitiveLayout(nullable, long64);
+  }
+  static PrimitiveLayout double64(boolean nullable) {
+    return new PrimitiveLayout(nullable, double64);
   }
 
   static ListLayout list(boolean nullable, Layout layout) {
@@ -73,12 +73,27 @@ interface Layout /*permits Layout.PrimitiveLayout, Layout.ListLayout, Layout.Str
     return new StructLayout(nullable, Arrays.stream(fields).collect(toMap(Field::name, Field::layout, (_1, _2) -> null, LinkedHashMap::new)));
   }
 
+  static void save(Path path, Layout layout) throws IOException {
+    try(var writer = Files.newBufferedWriter(path)) {
+      writer.write(layout.toString());
+    }
+  }
+
+  static Layout load(Path path) throws IOException {
+    var text = Files.readString(path);
+    return parse(text);
+  }
+
+  static Layout parse(String text) {
+    return LayoutParser.parse(text);
+  }
+
   private static String toString(String space, Layout layout) {
     if (layout instanceof PrimitiveLayout primitiveLayout) {
       return primitiveLayout.toString();
     }
     if (layout instanceof ListLayout listLayout) {
-      if (listLayout.element instanceof PrimitiveLayout elementLayout && elementLayout.type == char.class) {
+      if (listLayout.element instanceof PrimitiveLayout elementLayout && elementLayout.kind == char16) {
         return "string(" + elementLayout.nullable + ")";
       }
       return "list(" + listLayout.nullable + ", " + toString(space, listLayout.element);
@@ -95,34 +110,27 @@ interface Layout /*permits Layout.PrimitiveLayout, Layout.ListLayout, Layout.Str
     throw new AssertionError();
   }
 
-  record PrimitiveLayout(boolean nullable, Class<?> type) implements Layout {
+  record PrimitiveLayout(boolean nullable, Kind kind) implements Layout {
+    enum Kind {
+      u1, byte8, short16, char16, int32, float32, long64, double64
+    }
+
     public PrimitiveLayout {
-      requireNonNull(type);
-      if (!type.isPrimitive()) {
-        throw new IllegalArgumentException("only primitive types are allowed");
-      }
+      requireNonNull(kind);
     }
 
     @Override
     public String toString() {
-      var name = switch(type.getName()) {
-        case "boolean" -> "u1";
-        case "byte" -> "byte8";
-        case "short" -> "short16";
-        case "char" -> "char16";
-        case "int" -> "int32";
-        case "float" -> "float32";
-        case "long" -> "long64";
-        case "double" -> "double64";
-        default -> throw new AssertionError();
-      };
-      return name + "(" + nullable + ")";
+      return kind + "(" + nullable + ")";
     }
   }
 
   record ListLayout(boolean nullable, Layout element) implements Layout {
     public ListLayout {
       requireNonNull(element);
+      if (element instanceof StructLayout) {
+        throw new IllegalArgumentException("a struct layout is already a list");
+      }
     }
 
     @Override

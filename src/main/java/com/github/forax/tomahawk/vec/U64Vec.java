@@ -37,21 +37,21 @@ public interface U64Vec extends Vec {
   static U64Vec wrap(long[] array) {
     requireNonNull(array);
     var memorySegment = MemorySegment.ofArray(array);
-    return from(memorySegment, null);
+    return from(null, memorySegment);
   }
   static U64Vec wrap(double[] array) {
     requireNonNull(array);
     var memorySegment = MemorySegment.ofArray(array);
-    return from(memorySegment, null);
+    return from(null, memorySegment);
   }
 
-  static U64Vec map(Path path, U1Vec validity) throws IOException {
+  static U64Vec map(U1Vec validity, Path path) throws IOException {
     requireNonNull(path);
     var memorySegment = MemorySegment.mapFile(path, 0, Files.size(path), READ_ONLY);
-    return from(memorySegment, validity);
+    return from(validity, memorySegment);
   }
 
-  static U64Vec from(MemorySegment data, U1Vec validity) {
+  static U64Vec from(U1Vec validity, MemorySegment data) {
     requireNonNull(data);
     return new VecImpl.U64Impl(data, implDataOrNull(validity));
   }

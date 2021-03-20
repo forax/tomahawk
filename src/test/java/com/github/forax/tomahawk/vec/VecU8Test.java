@@ -20,7 +20,7 @@ public class VecU8Test {
   public static Stream<LongFunction<U8Vec>> provideByteVecs() {
     return Stream.of(
         length -> U8Vec.wrap(new byte[(int) length]),
-        length -> U8Vec.from(MemorySegment.allocateNative(length), null)
+        length -> U8Vec.from(null, MemorySegment.allocateNative(length))
     );
   }
 
