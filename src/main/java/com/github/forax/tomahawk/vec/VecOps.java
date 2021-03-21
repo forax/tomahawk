@@ -177,26 +177,26 @@ interface VecOps {
     }
 
     private static int shift(Vec vec) {
-      if (vec instanceof VecImpl.U8Impl u8Impl) {
+      if (vec instanceof VecImpl.U8Impl) {
         return 2;
       }
-      if (vec instanceof VecImpl.U16Impl u16Impl) {
+      if (vec instanceof VecImpl.U16Impl) {
         return 1;
       }
-      if (vec instanceof VecImpl.U32Impl u32Impl) {
+      if (vec instanceof VecImpl.U32Impl) {
         return 0;
       }
       throw new AssertionError();
     }
 
     private static int vectorByteSize(Vec vec) {
-      if (vec instanceof VecImpl.U8Impl u8Impl) {
+      if (vec instanceof VecImpl.U8Impl) {
         return U8_SPECIES.vectorByteSize();
       }
-      if (vec instanceof VecImpl.U16Impl u16Impl) {
+      if (vec instanceof VecImpl.U16Impl) {
         return U16_SPECIES.vectorByteSize();
       }
-      if (vec instanceof VecImpl.U32Impl u32Impl) {
+      if (vec instanceof VecImpl.U32Impl) {
         return U32_SPECIES.vectorByteSize();
       }
       throw new AssertionError();
