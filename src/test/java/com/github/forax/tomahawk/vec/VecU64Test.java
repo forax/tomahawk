@@ -208,9 +208,7 @@ public class VecU64Test {
   @Test
   public void mapNew() throws IOException {
     var path = Files.createTempFile("map-new", "");
-    Closeable andClean = () -> {
-      Files.delete(path);
-    };
+    Closeable andClean = () -> Files.delete(path);
     try(andClean) {
       var vec = U64Vec.mapNew(null, path, 128);
       assertEquals(128, vec.length());

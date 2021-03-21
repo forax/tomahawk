@@ -122,9 +122,7 @@ public class VecU8Test {
   @Test
   public void mapNew() throws IOException {
     var path = Files.createTempFile("map-new", "");
-    Closeable andClean = () -> {
-      Files.delete(path);
-    };
+    Closeable andClean = () -> Files.delete(path);
     try(andClean) {
       var vec = U8Vec.mapNew(null, path, 128);
       assertEquals(128, vec.length());
