@@ -116,26 +116,25 @@ interface VecOps {
       var buffer1 = byteBuffer(vec1);
       var buffer2 = byteBuffer(vec2);
 
-      var sliceLength = IntSpecies.U32_SPECIES.vectorByteSize();
-      var sliceDest = sliceLength >> shift(vDest);
-      var slice1 = sliceLength >> shift(vec1);
-      var slice2 = sliceLength >> shift(vec2);
+      var scaleLength = IntSpecies.U32_SPECIES.vectorByteSize();
+      var scaleDest = scaleLength / scale(vDest);
+      var scale1 = scaleLength / scale(vec1);
+      var scale2 = scaleLength / scale(vec2);
 
       //System.err.println("slice1 " + slice1 + " slice2 " + slice2);
 
-      var iDestLoopBounds = bufferDest.capacity() - vectorByteSize(vDest);
-      var i1LoopBounds = buffer1.capacity() - vectorByteSize(vec1);
-      var i2LoopBounds = buffer2.capacity() - vectorByteSize(vec2);
+      var loopBound =
+          Math.min((bufferDest.capacity() - vectorByteSize(vDest)) / scaleDest,
+              Math.min((buffer1.capacity() - vectorByteSize(vec1)) / scale1,
+                       (buffer2.capacity() - vectorByteSize(vec2)) / scale2));
 
       //System.err.println("i1LoopBounds " + i1LoopBounds + " i2LoopBounds " + i2LoopBounds);
 
       // main loop
-      var iDest = 0;
-      var i1 = 0;
-      var i2 = 0;
-      while (iDest < iDestLoopBounds && i1 < i1LoopBounds && i2 < i2LoopBounds) {
-        var v1 = loadInt(vec1, buffer1, i1);
-        var v2 = loadInt(vec2, buffer2, i2);
+      var i = 0;
+      for (; i < loopBound; i++) {
+        var v1 = loadInt(vec1, buffer1, i * scale1);
+        var v2 = loadInt(vec2, buffer2, i * scale2);
 
         //System.err.println("load v1 " + v1);
         //System.err.println("load v2 " + v2);
@@ -144,27 +143,25 @@ interface VecOps {
 
         //System.err.println("result " + result);
 
-        storeInt(vDest, bufferDest, iDest, result);
-
-        iDest += sliceDest;
-        i1 += slice1;
-        i2 += slice2;
+        storeInt(vDest, bufferDest, i * scaleDest, result);
       }
 
+      var plainScaleDest = 4 / scale(vDest);
+      var plainScale1 = 4 / scale(vec1);
+      var plainScale2 = 4 / scale(vec2);
+      var length = Math.min(bufferDest.capacity() / plainScaleDest,
+          Math.min(buffer1.capacity() / plainScale1, buffer2.capacity() / plainScale2));
+
       // post loop
-      while (iDest < bufferDest.capacity() && i1 < buffer1.capacity() && i2 < buffer2.capacity()) {
-        var v1 = plainLoadInt(vec1, buffer1, i1);
-        var v2 = plainLoadInt(vec2, buffer2, i2);
+      for (;i < length; i++) {
+        var v1 = plainLoadInt(vec1, buffer1, i * plainScale1);
+        var v2 = plainLoadInt(vec2, buffer2, i * plainScale2);
 
         //System.err.println("plain load v1 " + v1);
         //System.err.println("plain load v2 " + v2);
 
         var result = plainOp(v1, v2);
-        plainStoreInt(vDest, bufferDest, iDest, result);
-
-        iDest += 4 >> shift(vDest);
-        i1 += 4 >> shift(vec1);
-        i2 += 4 >> shift(vec2);
+        plainStoreInt(vDest, bufferDest, i * plainScaleDest, result);
       }
     }
 
@@ -176,15 +173,15 @@ interface VecOps {
       return v1 + v2;
     }
 
-    private static int shift(Vec vec) {
+    private static int scale(Vec vec) {
       if (vec instanceof VecImpl.U8Impl) {
-        return 2;
+        return 4;
       }
       if (vec instanceof VecImpl.U16Impl) {
-        return 1;
+        return 2;
       }
       if (vec instanceof VecImpl.U32Impl) {
-        return 0;
+        return 1;
       }
       throw new AssertionError();
     }
