@@ -1,16 +1,21 @@
 package com.github.forax.tomahawk.vec;
 
-import static java.nio.ByteOrder.LITTLE_ENDIAN;
-import static jdk.incubator.foreign.MemoryLayout.ofSequence;
-import static jdk.incubator.foreign.MemoryLayout.ofValueBits;
-import static jdk.incubator.foreign.MemoryLayout.PathElement.sequenceElement;
+import jdk.incubator.foreign.MemorySegment;
 
+import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.lang.invoke.VarHandle;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
-import java.util.Objects;
 
-import jdk.incubator.foreign.MemorySegment;
+import static java.nio.ByteOrder.LITTLE_ENDIAN;
+import static java.util.Objects.requireNonNull;
+import static jdk.incubator.foreign.MemoryLayout.PathElement.sequenceElement;
+import static jdk.incubator.foreign.MemoryLayout.ofSequence;
+import static jdk.incubator.foreign.MemoryLayout.ofValueBits;
 
 interface VecImpl {
   private static IllegalStateException doNotSupportNull() {
@@ -43,6 +48,19 @@ interface VecImpl {
       return null;
     }
     return impl(validity).dataSegment;
+  }
+
+  static void initFile(Path path, long length) throws IOException {
+    requireNonNull(path);
+    if (length < 0) {
+      throw new IllegalArgumentException("length < 0");
+    }
+    if (length == 0) {  // empty file
+      return;
+    }
+    try(var channel = FileChannel.open(path, StandardOpenOption.READ,  StandardOpenOption.WRITE)) {
+      channel.write(ByteBuffer.wrap(new byte[1]), length - 1);
+    }
   }
 
   record U1Impl(MemorySegment dataSegment, MemorySegment validitySegment) implements VecImpl, U1Vec {
@@ -131,7 +149,7 @@ interface VecImpl {
 
     @Override
     public U1Vec withValidity(U1Vec validity) {
-      Objects.requireNonNull(validity);
+      requireNonNull(validity);
       if (length() > validity.length()) {
         throw invalidLength(this, validity);
       }
@@ -210,7 +228,7 @@ interface VecImpl {
 
     @Override
     public U8Vec withValidity(U1Vec validity) {
-      Objects.requireNonNull(validity);
+      requireNonNull(validity);
       if (length() > validity.length()) {
         throw invalidLength(this, validity);
       }
@@ -321,7 +339,7 @@ interface VecImpl {
 
     @Override
     public U16Vec withValidity(U1Vec validity) {
-      Objects.requireNonNull(validity);
+      requireNonNull(validity);
       if (length() > validity.length()) {
         throw invalidLength(this, validity);
       }
@@ -436,7 +454,7 @@ interface VecImpl {
 
     @Override
     public U32Vec withValidity(U1Vec validity) {
-      Objects.requireNonNull(validity);
+      requireNonNull(validity);
       if (length() > validity.length()) {
         throw invalidLength(this, validity);
       }
@@ -547,7 +565,7 @@ interface VecImpl {
 
     @Override
     public U64Vec withValidity(U1Vec validity) {
-      Objects.requireNonNull(validity);
+      requireNonNull(validity);
       if (length() > validity.length()) {
         throw invalidLength(this, validity);
       }
@@ -629,7 +647,7 @@ interface VecImpl {
 
     @Override
     public ListVec<D> withValidity(U1Vec validity) {
-      Objects.requireNonNull(validity);
+      requireNonNull(validity);
       if (length() > validity.length()) {
         throw invalidLength(this, validity);
       }
@@ -676,7 +694,7 @@ interface VecImpl {
 
     @Override
     public StructVec withValidity(U1Vec validity) {
-      Objects.requireNonNull(validity);
+      requireNonNull(validity);
       if (length() > validity.length()) {
         throw invalidLength(this, validity);
       }

@@ -1,9 +1,6 @@
 package com.github.forax.tomahawk.vec;
 
-import static com.github.forax.tomahawk.vec.VecBuilderImpl.builderImpl;
-import static com.github.forax.tomahawk.vec.VecImpl.implDataOrNull;
-import static java.nio.channels.FileChannel.MapMode.READ_ONLY;
-import static java.util.Objects.requireNonNull;
+import jdk.incubator.foreign.MemorySegment;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -11,7 +8,10 @@ import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 
-import jdk.incubator.foreign.MemorySegment;
+import static com.github.forax.tomahawk.vec.VecBuilderImpl.builderImpl;
+import static com.github.forax.tomahawk.vec.VecImpl.implDataOrNull;
+import static java.nio.channels.FileChannel.MapMode.READ_WRITE;
+import static java.util.Objects.requireNonNull;
 
 public interface U64Vec extends Vec {
   long getLong(long index);
@@ -47,8 +47,14 @@ public interface U64Vec extends Vec {
 
   static U64Vec map(U1Vec validity, Path path) throws IOException {
     requireNonNull(path);
-    var memorySegment = MemorySegment.mapFile(path, 0, Files.size(path), READ_ONLY);
+    var memorySegment = MemorySegment.mapFile(path, 0, Files.size(path), READ_WRITE);
     return from(validity, memorySegment);
+  }
+
+  static U64Vec mapNew(U1Vec validity, Path path, long length) throws IOException {
+    requireNonNull(path);
+    VecImpl.initFile(path, length << 3);
+    return map(validity, path);
   }
 
   static U64Vec from(U1Vec validity, MemorySegment data) {

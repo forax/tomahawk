@@ -6,9 +6,13 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.Closeable;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.function.LongFunction;
 import java.util.stream.Stream;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -198,6 +202,18 @@ public class VecU64Test {
           () -> assertThrows(NullPointerException.class, () -> vec.getDouble(3)),
           () -> vec.getDouble(3, (validity, __) -> assertFalse(validity))
       );
+    }
+  }
+
+  @Test
+  public void mapNew() throws IOException {
+    var path = Files.createTempFile("map-new", "");
+    Closeable andClean = () -> {
+      Files.delete(path);
+    };
+    try(andClean) {
+      var vec = U64Vec.mapNew(null, path, 128);
+      assertEquals(128, vec.length());
     }
   }
 }
