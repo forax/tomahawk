@@ -59,8 +59,12 @@ public class VecOpTest {
 
     var factories = List.of(byte8Factory, short16Factory, int32Factory);
     return factories.stream()
-        .flatMap(factory1 -> factories.stream().map(factory2 -> Arguments.of(factory1, factory2)));
+        .flatMap(factory1 -> factories.stream().map(factory2 -> Arguments.of(factory1, factory2)))
+        .flatMap(arguments -> Stream.of(arguments, arguments));  // test each twice
   }
+
+
+  private static final VecOp VEC_OP = VecOp.of(MethodHandles.lookup());
 
   @ParameterizedTest
   @MethodSource("provideIntVecs")
@@ -79,8 +83,7 @@ public class VecOpTest {
           var v2 = factory2.apply(path2)) {
 
         //System.err.println("v1 " + v1.getClass() + " v2 " + v2.getClass());
-        var vecOp = VecOp.of(MethodHandles.lookup());
-        vecOp.applyInt(vDest, v1, v2, (a, b) -> a + b);
+        VEC_OP.applyInt(vDest, v1, v2, (a, b) -> a + b);
 
         for(var i = 0; i < vDest.length(); i++) {
           assertEquals(i * 2, vDest.getInt(i));

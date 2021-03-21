@@ -4,4 +4,6 @@ module com.github.forax.tomahawk {
 
   requires com.fasterxml.jackson.core;
   requires com.fasterxml.jackson.dataformat.csv;
+
+  requires static jmh.core;
 }
