@@ -123,17 +123,17 @@ interface VecOps {
 
       //System.err.println("slice1 " + slice1 + " slice2 " + slice2);
 
-      var iDestLoopBounds = bufferDest.capacity() - vectorByteSize(vDest);
-      var i1LoopBounds = buffer1.capacity() - vectorByteSize(vec1);
-      var i2LoopBounds = buffer2.capacity() - vectorByteSize(vec2);
+      var iDestLoopBound = bufferDest.capacity() - vectorByteSize(vDest);
+      var i1LoopBound = buffer1.capacity() - vectorByteSize(vec1);
+      var i2LoopBound = buffer2.capacity() - vectorByteSize(vec2);
 
-      //System.err.println("i1LoopBounds " + i1LoopBounds + " i2LoopBounds " + i2LoopBounds);
+      //System.err.println("i1LoopBound " + i1LoopBound + " i2LoopBound " + i2LoopBound);
 
       // main loop
       var iDest = 0;
       var i1 = 0;
       var i2 = 0;
-      while (iDest < iDestLoopBounds && i1 < i1LoopBounds && i2 < i2LoopBounds) {
+      while (iDest < iDestLoopBound && i1 < i1LoopBound && i2 < i2LoopBound) {
         var v1 = loadInt(vec1, buffer1, i1);
         var v2 = loadInt(vec2, buffer2, i2);
 
