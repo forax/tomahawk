@@ -25,5 +25,5 @@ jobs:
           mvn --batch-mode --no-transfer-progress verify
       - name: 'Perf test with JMH'
         run: |
-          java -jar targettarget/benchmarks.jar
+          java -jar target/benchmarks.jar
 
