@@ -78,8 +78,8 @@ public class VecOpTest {
           var v1 = factory1.apply(path1);
           var v2 = factory2.apply(path2)) {
 
-        System.err.println("v1 " + v1.getClass() + " v2 " + v2.getClass());
-        var vecOp = VecOp.create(MethodHandles.lookup());
+        //System.err.println("v1 " + v1.getClass() + " v2 " + v2.getClass());
+        var vecOp = VecOp.of(MethodHandles.lookup());
         vecOp.applyInt(vDest, v1, v2, (a, b) -> a + b);
 
         for(var i = 0; i < vDest.length(); i++) {
