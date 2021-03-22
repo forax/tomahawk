@@ -38,12 +38,50 @@ import static java.util.Objects.requireNonNull;
  * or using {@link #withValidity(U1Vec)}.
  */
 public interface U32Vec extends Vec {
+  /**
+   * Returns the value as index {@code index} as an int
+   * @param index the index of the value
+   * @return the value as index {@code index} as an int
+   * @throws NullPointerException if the value is null
+   */
   int getInt(long index);
+
+  /**
+   * Set the value at index {@index} to {@code value}
+   * @param index the index of the value
+   * @param value the value to set
+   */
   void setInt(long index, int value);
+
+  /**
+   * Returns the value as index {@code index} as a float
+   * @param index the index of the value
+   * @return the value as index {@code index} as a float
+   * @throws NullPointerException if the value is null
+   */
   float getFloat(long index);
+
+  /**
+   * Set the value at index {@index} to {@code value}
+   * @param index the index of the value
+   * @param value the value to set
+   */
   void setFloat(long index, float value);
+
+  /**
+   * Send the {@code validity} and the {@code value} at index {@code index} to the {@code extractor}
+   * @param index the index of the value
+   * @see IntBox
+   */
   void getInt(long index, IntExtractor extractor);
+
+  /**
+   * Send the {@code validity} and the {@code value} at index {@code index} to the {@code extractor}
+   * @param index the index of the value
+   * @see FloatBox
+   */
   void getFloat(long index, FloatExtractor extractor);
+
   @Override
   U32Vec withValidity(U1Vec validity);
 
@@ -57,34 +95,86 @@ public interface U32Vec extends Vec {
     U32Vec toVec() throws UncheckedIOException;
   }
 
+  /**
+   * Wraps an array of ints as a Vec
+   * Any change to the array will be reflected to the Vec and vice versa
+   *
+   * @param array an array of ints
+   * @return a new Vec that wraps the array
+   */
   static U32Vec wrap(int[] array) {
     requireNonNull(array);
     var memorySegment = MemorySegment.ofArray(array);
     return from(null, memorySegment);
   }
+
+  /**
+   * Wraps an array of floats as a Vec
+   * Any change to the array will be reflected to the Vec and vice versa
+   *
+   * @param array an array of ints
+   * @return a new Vec that wraps the array
+   */
   static U32Vec wrap(float[] array) {
     requireNonNull(array);
     var memorySegment = MemorySegment.ofArray(array);
     return from(null, memorySegment);
   }
 
+  /**
+   * Map an existing file in memory as a Vec
+   *
+   * @param validity the validity bitset or {@code null}
+   * @param path the path of the file to map
+   * @return a new Vec using the file content as memory
+   * @throws IOException if an IO error occurs
+   */
   static U32Vec map(U1Vec validity, Path path) throws IOException {
     requireNonNull(path);
     var memorySegment = MemorySegment.mapFile(path, 0, Files.size(path), READ_WRITE);
     return from(validity, memorySegment);
   }
 
+  /**
+   * Creates a new file able to store {@code length} values and memory map it to a new Vec
+   *
+   * @param validity the validity bitset or {@code null}
+   * @param path the path of the file to create
+   * @param length the maximum number of values
+   * @return a new file able to store {@code length} values and memory map it to a new Vec
+   * @throws IOException if an IO error occurs
+   */
   static U32Vec mapNew(U1Vec validity, Path path, long length) throws IOException {
     requireNonNull(path);
     VecImpl.initFile(path, length << 2);
     return map(validity, path);
   }
 
+  /**
+   * Creates a new Vec from an optional validity bitset (to represent null values) and a memory segment
+   *
+   * @param validity the validity bitset or {@code null}
+   * @param data a memory segment containing the data, the byte size should be a multiple of 4
+   * @return a new Vec from an optional validity bitset (to represent null values) and a memory segment
+   * @throws IllegalArgumentException if the byte size of the memory segment is not a multiple of 4
+   */
   static U32Vec from(U1Vec validity, MemorySegment data) {
     requireNonNull(data);
+    if ((data.byteSize() & 3) != 0) {
+      throw new IllegalArgumentException("the memory segment byte size should be a multiple of 4");
+    }
     return new VecImpl.U32Impl(data, implDataOrNull(validity));
   }
 
+  /**
+   * Create a Vec builder that will append values to a file before creating a Vec on the values appended
+   *
+   * @param validityBuilder a builder able to create the validity bit set or {@code null}
+   * @param path a path to the file that will be created
+   * @param openOptions the option used to create the file
+   * @return a Vec builder that will append values to a file before creating a Vec on the values appended
+   * @throws IOException if an IO error occurs
+   */
   static U32Vec.Builder builder(U1Vec.Builder validityBuilder, Path path, OpenOption... openOptions) throws IOException {
     requireNonNull(path);
     requireNonNull(openOptions);

@@ -39,8 +39,26 @@ import static java.util.Objects.requireNonNull;
  * or using {@link #withValidity(U1Vec)}.
  */
 public interface U1Vec extends Vec {
+  /**
+   * Returns the value as index {@code index} as a boolean
+   * @param index the index of the value
+   * @return the value as index {@code index} as a boolean
+   * @throws NullPointerException if the value is null
+   */
   boolean getBoolean(long index);
+
+  /**
+   * Set the value at index {@index} to {@code value}
+   * @param index the index of the value
+   * @param value the value to set
+   */
   void setBoolean(long index, boolean value);
+
+  /**
+   * Send the {@code validity} and the {@code value} at index {@code index} to the {@code extractor}
+   * @param index the index of the value
+   * @see BooleanBox
+   */
   void getBoolean(long index, BooleanExtractor extractor);
 
   @Override
@@ -55,29 +73,73 @@ public interface U1Vec extends Vec {
     U1Vec toVec();
   }
 
+  /**
+   * Wraps an array of longs as a bit set
+   * Any change to the array will be reflected to the Vec and vice versa
+   *
+   * @param array an array of ints
+   * @return a new Vec that wraps the array
+   */
   static U1Vec wrap(long[] array) {
     requireNonNull(array);
     var memorySegment = MemorySegment.ofArray(array);
     return from(null, memorySegment);
   }
 
+  /**
+   * Map an existing file in memory as a Vec
+   *
+   * @param validity the validity bitset or {@code null}
+   * @param path the path of the file to map
+   * @return a new Vec using the file content as memory
+   * @throws IOException if an IO error occurs
+   */
   static U1Vec map(U1Vec validity, Path path) throws IOException {
     requireNonNull(path);
     var memorySegment = MemorySegment.mapFile(path, 0, Files.size(path), READ_WRITE);
     return from(validity, memorySegment);
   }
 
+  /**
+   * Creates a new file able to store {@code length} values and memory map it to a new Vec
+   *
+   * @param validity the validity bitset or {@code null}
+   * @param path the path of the file to create
+   * @param length the maximum number of values
+   * @return a new file able to store {@code length} values and memory map it to a new Vec
+   * @throws IOException if an IO error occurs
+   */
   static U1Vec mapNew(U1Vec validity, Path path, long length) throws IOException {
     requireNonNull(path);
     VecImpl.initFile(path, length >> 3);
     return map(validity, path);
   }
 
-  static U1Vec from(U1Vec validity, MemorySegment memorySegment) {
-    requireNonNull(memorySegment);
-    return new VecImpl.U1Impl(memorySegment, implDataOrNull(validity));
+  /**
+   * Creates a new Vec from an optional validity bitset (to represent null values) and a memory segment
+   *
+   * @param validity the validity bitset or {@code null}
+   * @param data a memory segment containing the data, the byte size should be a multiple of 8
+   * @return a new Vec from an optional validity bitset (to represent null values) and a memory segment
+   * @throws IllegalArgumentException if the byte size of the memory segment is not a multiple of 8
+   */
+  static U1Vec from(U1Vec validity, MemorySegment data) {
+    requireNonNull(data);
+    if ((data.byteSize() & 7) != 0) {
+      throw new IllegalArgumentException("the memory segment byte size should be a multiple of 8");
+    }
+    return new VecImpl.U1Impl(data, implDataOrNull(validity));
   }
 
+  /**
+   * Create a Vec builder that will append values to a file before creating a Vec on the values appended
+   *
+   * @param validityBuilder a builder able to create the validity bit set or {@code null}
+   * @param path a path to the file that will be created
+   * @param openOptions the option used to create the file
+   * @return a Vec builder that will append values to a file before creating a Vec on the values appended
+   * @throws IOException if an IO error occurs
+   */
   static U1Vec.Builder builder(U1Vec.Builder validityBuilder, Path path, OpenOption... openOptions) throws IOException {
     requireNonNull(path);
     requireNonNull(openOptions);
