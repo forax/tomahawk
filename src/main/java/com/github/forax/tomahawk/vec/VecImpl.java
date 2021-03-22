@@ -141,6 +141,7 @@ interface VecImpl {
 
     @Override
     public void getBoolean(long index, BooleanExtractor extractor) {
+      requireNonNull(extractor);
       if (validitySegment != null) {
         if (!U1Impl.getRawBoolean(validitySegment, index)) {
           extractor.consume(false, false);
@@ -219,6 +220,7 @@ interface VecImpl {
 
     @Override
     public void getByte(long index, ByteExtractor extractor) {
+      requireNonNull(extractor);
       if (validitySegment != null) {
         if (!U1Impl.getRawBoolean(validitySegment, index)) {
           extractor.consume(false, (byte) 0);
@@ -318,6 +320,7 @@ interface VecImpl {
 
     @Override
     public void getShort(long index, ShortExtractor extractor) {
+      requireNonNull(extractor);
       if (validitySegment != null) {
         if (!U1Impl.getRawBoolean(validitySegment, index)) {
           extractor.consume(false, (short) 0);
@@ -330,6 +333,7 @@ interface VecImpl {
 
     @Override
     public void getChar(long index, CharExtractor extractor) {
+      requireNonNull(extractor);
       if (validitySegment != null) {
         if (!U1Impl.getRawBoolean(validitySegment, index)) {
           extractor.consume(false, '\0');
@@ -433,6 +437,7 @@ interface VecImpl {
 
     @Override
     public void getInt(long index, IntExtractor extractor) {
+      requireNonNull(extractor);
       if (validitySegment != null) {
         if (!U1Impl.getRawBoolean(validitySegment, index)) {
           extractor.consume(false, 0);
@@ -445,6 +450,7 @@ interface VecImpl {
 
     @Override
     public void getFloat(long index, FloatExtractor extractor) {
+      requireNonNull(extractor);
       if (validitySegment != null) {
         if (!U1Impl.getRawBoolean(validitySegment, index)) {
           extractor.consume(false, 0);
@@ -544,6 +550,7 @@ interface VecImpl {
 
     @Override
     public void getLong(long index, LongExtractor extractor) {
+      requireNonNull(extractor);
       if (validitySegment != null) {
         if (!U1Impl.getRawBoolean(validitySegment, index)) {
           extractor.consume(false, 0);
@@ -556,6 +563,7 @@ interface VecImpl {
 
     @Override
     public void getDouble(long index, DoubleExtractor extractor) {
+      requireNonNull(extractor);
       if (validitySegment != null) {
         if (!U1Impl.getRawBoolean(validitySegment, index)) {
           extractor.consume(false, 0);
@@ -619,6 +627,7 @@ interface VecImpl {
 
     @Override
     public void getValues(long index, ValuesExtractor extractor) {
+      requireNonNull(extractor);
       if (validitySegment != null) {
         if (!U1Impl.getRawBoolean(validitySegment, index)) {
           extractor.consume(false, -1, -1);
