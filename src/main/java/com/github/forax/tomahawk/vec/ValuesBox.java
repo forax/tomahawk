@@ -38,17 +38,17 @@ public class ValuesBox implements ValuesExtractor {
 
   /**
    * Extract the values from {@link #startOffset} to {@link #endOffset} into a String.
-   * @param vec the Vec containing the characters of the String.
+   * @param data the Vec containing the characters as U16 values of the String.
    * @return a String using the characters from {@link #startOffset} to {@link #endOffset}
    * 
    * @see ListVec#getString(long)
    */
-  public String getString(U16Vec vec) {
-    requireNonNull(vec);
+  public String getString(U16Vec data) {
+    requireNonNull(data);
     if (!validity) {
       return null;
     }
-    var dataSegment = VecImpl.impl(vec).dataSegment();
+    var dataSegment = VecImpl.impl(data).dataSegment();
     var start = startOffset;
     var end = endOffset;
     var length = end - start;

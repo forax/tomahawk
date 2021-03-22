@@ -63,7 +63,30 @@ public interface U8Vec extends Vec {
   @Override
   U8Vec withValidity(U1Vec validity);
 
+  /**
+   * A builder of {@link U8Vec}
+   *
+   * Example of usage
+   * <pre>
+   *   var path = Path.of("a_file_name");
+   *   U8Vec vec;
+   *   try(var builder = U8Vec.builder(null, path)) {
+   *     builder.appendInt((byte) 3)
+   *       .append((byte) -5);
+   *     vec = builder.toVec();
+   *   }
+   *   // vec is available here
+   * </pre>
+   *
+   * @see #builder(U1Vec.Builder, Path, OpenOption...)
+   */
   interface Builder extends BaseBuilder<U8Vec> {
+    /**
+     * Appends a byte value to the file that is mapped to a Vec
+     * @param value the value to append to the file
+     * @return this builder
+     * @throws UncheckedIOException if an IO error occurs
+     */
     U8Vec.Builder appendByte(byte value) throws UncheckedIOException;
     @Override
     U8Vec.Builder appendNull() throws UncheckedIOException;
@@ -132,7 +155,7 @@ public interface U8Vec extends Vec {
    * @param validityBuilder a builder able to create the validity bit set or {@code null}
    * @param path a path to the file that will be created
    * @param openOptions the option used to create the file
-   * @return a Vec builder that will append values to a file before creating a Vec on the values appended
+   * @return a Vec builder that will append the values to a file before creating a Vec on that file
    * @throws IOException if an IO error occurs
    */
   static U8Vec.Builder builder(U1Vec.Builder validityBuilder, Path path, OpenOption... openOptions) throws IOException {

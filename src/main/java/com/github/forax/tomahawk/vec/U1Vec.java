@@ -3,6 +3,7 @@ package com.github.forax.tomahawk.vec;
 import jdk.incubator.foreign.MemorySegment;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
@@ -64,8 +65,32 @@ public interface U1Vec extends Vec {
   @Override
   U1Vec withValidity(U1Vec validity);
 
+  /**
+   * A builder of {@link U1Vec}
+   *
+   * Example of usage
+   * <pre>
+   *   var path = Path.of("a_file_name");
+   *   U1Vec vec;
+   *   try(var builder = U1Vec.builder(null, path)) {
+   *     builder.appendBoolean(true)
+   *       .appendBoolean(false);
+   *     vec = builder.toVec();
+   *   }
+   *   // vec is available here
+   * </pre>
+   *
+   * @see #builder(U1Vec.Builder, Path, OpenOption...)
+   */
   interface Builder extends BaseBuilder<U1Vec> {
+    /**
+     * Appends a boolean value to the file that is mapped to a Vec
+     * @param value the value to append to the file
+     * @return this builder
+     * @throws UncheckedIOException if an IO error occurs
+     */
     U1Vec.Builder appendBoolean(boolean value);
+
     @Override
     U1Vec.Builder appendNull();
 
@@ -137,7 +162,7 @@ public interface U1Vec extends Vec {
    * @param validityBuilder a builder able to create the validity bit set or {@code null}
    * @param path a path to the file that will be created
    * @param openOptions the option used to create the file
-   * @return a Vec builder that will append values to a file before creating a Vec on the values appended
+   * @return a Vec builder that will append the values to a file before creating a Vec on that file
    * @throws IOException if an IO error occurs
    */
   static U1Vec.Builder builder(U1Vec.Builder validityBuilder, Path path, OpenOption... openOptions) throws IOException {

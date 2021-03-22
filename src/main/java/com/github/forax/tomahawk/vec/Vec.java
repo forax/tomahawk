@@ -60,20 +60,21 @@ public interface Vec extends UncheckedCloseable {
     long length();
 
     /**
-     * Append {@code null} to the current builder
-     *
-     * @return the current builder
+     * Appends a {@code null} value to the file that will be mapped to a Vec
+     * @return this builder
      * @throws UncheckedIOException if an IO error occurs
-     * @throws IllegalStateException if the builder has no validity bit set
+     * @throws IllegalStateException if the builder has no validity Vec
      */
     Vec.BaseBuilder<V> appendNull() throws UncheckedIOException;
 
     /**
-     * Returns a fresh new Vec that map all the values appended by this builder
-     * It also {@link #close()} the current builder so it can not be reused
+     * Returns a new Vec that contains all the values appended by this builder
+     * This method also {@link #close()} the current builder
      *
-     * @return a fresh new Vec that map all the values appended by this builder
+     * @returna new Vec that contains all the values appended by this builder
      * @throws UncheckedIOException if an IO error occurs
+     *
+     * @see #close()
      */
     V toVec() throws UncheckedIOException;
   }

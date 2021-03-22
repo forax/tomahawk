@@ -659,7 +659,7 @@ interface VecBuilderImpl {
     }
 
     @Override
-    public void attachField(BaseBuilder<?> fieldBuilder) {
+    public void addFieldBuilder(BaseBuilder<?> fieldBuilder) {
       if (fieldBuilder.length() > length) {
         throw new IllegalStateException("fieldBuilder.length > length");
       }
@@ -835,8 +835,14 @@ interface VecBuilderImpl {
       }
 
       @Override
+      public RowBuilder appendString(ListVec.Builder<U16Vec, U16Vec.Builder> field, String s) {
+        return appendValues(field, b -> b.appendString(s));
+      }
+
+      @Override
       public <D extends Vec, B extends BaseBuilder<D>> RowBuilder appendValues(ListVec.Builder<D, B> field, Consumer<? super B> consumer) {
         requireNonNull(field);
+        requireNonNull(consumer);
         var impl =  builderImpl(field);
         var ordinal = impl.ordinal();
         if (bits.get(ordinal)) {
@@ -848,8 +854,17 @@ interface VecBuilderImpl {
       }
 
       @Override
-      public RowBuilder appendString(ListVec.Builder<U16Vec, U16Vec.Builder> field, String s) {
-        return appendValues(field, b -> b.appendString(s));
+      public RowBuilder appendRow(StructVec.Builder field, Consumer<? super RowBuilder> consumer) throws UncheckedIOException {
+        requireNonNull(field);
+        requireNonNull(consumer);
+        var impl =  builderImpl(field);
+        var ordinal = impl.ordinal();
+        if (bits.get(ordinal)) {
+          throw fieldValueAlreadyAppended();
+        }
+        field.appendRow(consumer);
+        bits.set(ordinal);
+        return this;
       }
 
       void end() {

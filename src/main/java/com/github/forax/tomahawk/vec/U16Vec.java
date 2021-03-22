@@ -86,9 +86,40 @@ public interface U16Vec extends Vec {
   @Override
   U16Vec withValidity(U1Vec validity);
 
+  /**
+   * A builder of {@link U16Vec}
+   *
+   * Example of usage
+   * <pre>
+   *   var path = Path.of("a_file_name");
+   *   U16Vec vec;
+   *   try(var builder = U16Vec.builder(null, path)) {
+   *     builder.appendShort((short) 3)
+   *       .append('A');
+   *     vec = builder.toVec();
+   *   }
+   *   // vec is available here
+   * </pre>
+   *
+   * @see #builder(U1Vec.Builder, Path, OpenOption...)
+   */
   interface Builder extends BaseBuilder<U16Vec> {
+    /**
+     * Appends a short value to the file that is mapped to a Vec
+     * @param value the value to append to the file
+     * @return this builder
+     * @throws UncheckedIOException if an IO error occurs
+     */
     U16Vec.Builder appendShort(short value) throws UncheckedIOException;
+
+    /**
+     * Appends a char value to the file that is mapped to a Vec
+     * @param value the value to append to the file
+     * @return this builder
+     * @throws UncheckedIOException if an IO error occurs
+     */
     U16Vec.Builder appendChar(char value) throws UncheckedIOException;
+
     @Override
     U16Vec.Builder appendNull() throws UncheckedIOException;
 
@@ -177,7 +208,7 @@ public interface U16Vec extends Vec {
    * @param validityBuilder a builder able to create the validity bit set or {@code null}
    * @param path a path to the file that will be created
    * @param openOptions the option used to create the file
-   * @return a Vec builder that will append values to a file before creating a Vec on the values appended
+   * @return a Vec builder that will append the values to a file before creating a Vec on that file
    * @throws IOException if an IO error occurs
    */
   static U16Vec.Builder builder(U1Vec.Builder validityBuilder, Path path, OpenOption... openOptions) throws IOException {

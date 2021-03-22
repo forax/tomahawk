@@ -85,9 +85,40 @@ public interface U32Vec extends Vec {
   @Override
   U32Vec withValidity(U1Vec validity);
 
+  /**
+   * A builder of {@link U32Vec}
+   *
+   * Example of usage
+   * <pre>
+   *   var path = Path.of("a_file_name");
+   *   U32Vec vec;
+   *   try(var builder = U32Vec.builder(null, path)) {
+   *     builder.appendInt(3)
+   *       .append(5.2f);
+   *     vec = builder.toVec();
+   *   }
+   *   // vec is available here
+   * </pre>
+   * 
+   * @see #builder(U1Vec.Builder, Path, OpenOption...)
+   */
   interface Builder extends BaseBuilder<U32Vec> {
+    /**
+     * Appends an int value to the file that is mapped to a Vec
+     * @param value the value to append to the file
+     * @return this builder
+     * @throws UncheckedIOException if an IO error occurs
+     */
     U32Vec.Builder appendInt(int value) throws UncheckedIOException;
+
+    /**
+     * Appends a float value to the file that is mapped to a Vec
+     * @param value the value to append to the file
+     * @return this builder
+     * @throws UncheckedIOException if an IO error occurs
+     */
     U32Vec.Builder appendFloat(float value) throws UncheckedIOException;
+
     @Override
     U32Vec.Builder appendNull() throws UncheckedIOException;
 
@@ -172,7 +203,7 @@ public interface U32Vec extends Vec {
    * @param validityBuilder a builder able to create the validity bit set or {@code null}
    * @param path a path to the file that will be created
    * @param openOptions the option used to create the file
-   * @return a Vec builder that will append values to a file before creating a Vec on the values appended
+   * @return a Vec builder that will append the values to a file before creating a Vec on that file
    * @throws IOException if an IO error occurs
    */
   static U32Vec.Builder builder(U1Vec.Builder validityBuilder, Path path, OpenOption... openOptions) throws IOException {
