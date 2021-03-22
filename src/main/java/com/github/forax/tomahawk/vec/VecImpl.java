@@ -109,7 +109,7 @@ interface VecImpl {
       if (validitySegment == null) {
         return false;
       }
-      return U1Impl.getRawBoolean(validitySegment, index);
+      return !U1Impl.getRawBoolean(validitySegment, index);
     }
 
     @Override

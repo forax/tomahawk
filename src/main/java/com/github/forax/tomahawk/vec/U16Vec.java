@@ -16,7 +16,7 @@ import static java.util.Objects.requireNonNull;
 /**
  * A fixed size, mutable column of 16 bits values.
  *
- * It can be created from several ways
+ * It can be created
  * <ul>
  *   <li>By wrapping an array of Java shorts {@link #wrap(short[])}, or an array of Java chars {@link #wrap(char[])}
  *   <li>By mapping into memory an existing file {@link #map(U1Vec, Path)}
@@ -34,6 +34,26 @@ import static java.util.Objects.requireNonNull;
  *   <li>{@link #isNull(long)} checks if a value is {code null}
  *   <li>{@link #setNull(long)} stores {code null}
  * </ul>
+ *
+ * Example
+ * <pre>
+ *   var dataPath = dir.resolve("data");
+ *   var validityPath = dir.resolve("validity");
+ *
+ *   U16Vec vec;
+ *   try (var validityBuilder = U1Vec.builder(null, validityPath);
+ *        var builder = U16Vec.builder(validityBuilder, dataPath)) {
+ *     LongStream.range(0, 100_000).forEach(i -> builder.appendShort((short) i));
+ *     vec = builder.toVec();
+ *   }
+ *   try (vec) {
+ *     assertEquals(100_000, vec.length());
+ *     assertEquals((short) 6, vec.getShort(6));
+ *     assertEquals((short) 13_658, vec.getShort(13_658));
+ *     vec.setNull(13);
+ *     assertTrue(vec.isNull(13));
+ *   }
+ * </pre>
  *
  * To track null values, this Vec must have a {code validity} {@link U1Vec bit set}
  * either taken at construction or provided using {@link #withValidity(U1Vec)}.

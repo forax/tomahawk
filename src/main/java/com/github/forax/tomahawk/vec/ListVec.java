@@ -72,21 +72,37 @@ public interface ListVec<V extends Vec> extends Vec {
    * This builder relies on 3 sub-builder, one for the validity bit set, one for the offset and
    * one for the data itself.
    *
-   * Example of usage
+   * Example
    * <pre>
-   *   var dataPath = Path.of("data_file");
-   *   var offsetPath = Path.of("offset_file");
-   *   ListVec vec;
-   *   try(var offsetBuilder = U32Vec.builder(null, offsetPath);
-   *       var dataBuilder = U32Vec.builder(null, dataPath);
-   *       var listBuilder = ListVec.builder(null, offsetBuilder, dataBuilder)) {
-   *     listBuilder.appendValues(b -> {
-   *        b.appendInt(364)
-   *          .appendFloat(2.0f);   // a list of two values
+   *   var dataPath = dir.resolve("data");
+   *   var offsetPath = dir.resolve("offset");
+   *   var validityPath = dir.resolve("validity");
+   *
+   *   ListVec<U8Vec> vec;   // each value is a list of U8
+   *   try(var validityBuilder = U1Vec.builder(null, validityPath);
+   *       var offsetBuilder = U32Vec.builder(null, offsetPath);
+   *       var dataBuilder = U8Vec.builder(null, dataPath);
+   *       var builder = ListVec.builder(validityBuilder, offsetBuilder, dataBuilder)) {
+   *     LongStream.range(0, 100_000).forEach(i -> {
+   *       builder.appendValues(b -> {   // append the list of values
+   *         b.appendByte((byte) (i % 10))
+   *          .appendByte((byte) -5);
+   *       });
    *     });
-   *     vec = listBuilder.toVec();
+   *     vec = builder.toVec();
    *   }
-   *   // vec is available here
+   *   try (vec) {
+   *     assertEquals(100_000, vec.length());
+   *
+   *     var data = vec.data();
+   *     var box = new ValuesBox();
+   *     vec.getValues(6, box);   // extract the validity, startOffset and endOffset
+   *     assertEquals(6, data.getByte(box.startOffset));        // first item
+   *     assertEquals(-5, data.getByte(box.startOffset + 1));   // second item
+   *
+   *     vec.setNull(13);
+   *     assertTrue(vec.isNull(13));
+   *   }
    * </pre>
    *
    * To track null values, this Vec must have a {code validity} {@link U1Vec bit set}

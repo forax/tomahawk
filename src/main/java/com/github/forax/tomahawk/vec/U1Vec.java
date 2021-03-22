@@ -19,7 +19,7 @@ import static java.util.Objects.requireNonNull;
  * In term of implementation, the bits are packed into 64 bits, so {@link #length()} will always
  * return a multiple of 64.
  *
- * It can be created from several ways
+ * It can be created
  * <ul>
  *   <li>By mapping into memory an existing file {@link #map(U1Vec, Path)}
  *   <li>By mapping into memory a new empty file {@link #mapNew(U1Vec, Path, long)}
@@ -35,6 +35,26 @@ import static java.util.Objects.requireNonNull;
  *   <li>{@link #isNull(long)} checks if a value is {code null}
  *   <li>{@link #setNull(long)} stores {code null}
  * </ul>
+ *
+ * Example
+ * <pre>
+ *   var dataPath = dir.resolve("data");
+ *   var validityPath = dir.resolve("validity");
+ *
+ *   U1Vec vec;
+ *   try (var validityBuilder = U1Vec.builder(null, validityPath);
+ *        var builder = U1Vec.builder(validityBuilder, dataPath)) {
+ *     LongStream.range(0, 100_000).forEach(i -> builder.appendBoolean(i % 2 == 0));
+ *     vec = builder.toVec();
+ *   }
+ *   try (vec) {
+ *     assertEquals(100_032, vec.length());   // values are aligned to 64 bits
+ *     assertTrue(vec.getBoolean(6));
+ *     assertFalse(vec.getBoolean(777));
+ *     vec.setNull(13);
+ *     assertTrue(vec.isNull(13));
+ *   }
+ * </pre>
  *
  * To track null values, this Vec must have a {code validity} {@link U1Vec bit set}
  * either taken at construction or provided using {@link #withValidity(U1Vec)}.
