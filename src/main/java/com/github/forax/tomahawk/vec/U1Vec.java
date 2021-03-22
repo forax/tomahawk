@@ -36,8 +36,8 @@ import static java.util.Objects.requireNonNull;
  *   <li>{@link #setNull(long)} stores {code null}
  * </ul>
  *
- * To store nulls, this Vec must be constructed with a {code validity} {@link U1Vec bit set} either at construction
- * or using {@link #withValidity(U1Vec)}.
+ * To track null values, this Vec must have a {code validity} {@link U1Vec bit set}
+ * either taken at construction or provided using {@link #withValidity(U1Vec)}.
  */
 public interface U1Vec extends Vec {
   /**

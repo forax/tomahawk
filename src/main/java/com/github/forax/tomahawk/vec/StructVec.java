@@ -16,8 +16,8 @@ import static com.github.forax.tomahawk.vec.VecImpl.implDataOrNull;
  *   <li>From an array of Vecs {@link #from(U1Vec, Vec...)}
  * </ul>
  *
- * To store nulls, this Vec must be constructed with a {code validity} {@link U1Vec bit set} either at construction
- * or using {@link #withValidity(U1Vec)}.
+ * To track null values, this Vec must have a {code validity} {@link U1Vec bit set}
+ * either taken at construction or provided using {@link #withValidity(U1Vec)}.
  */
 public interface StructVec extends Vec {
   /**

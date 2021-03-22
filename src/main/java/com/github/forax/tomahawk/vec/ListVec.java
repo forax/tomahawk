@@ -89,6 +89,9 @@ public interface ListVec<V extends Vec> extends Vec {
    *   // vec is available here
    * </pre>
    *
+   * To track null values, this Vec must have a {code validity} {@link U1Vec bit set}
+   * either taken at construction or provided using {@link #withValidity(U1Vec)}.
+   *
    * @see #builder(U1Vec.Builder, U32Vec.Builder, BaseBuilder)
    */
   interface Builder<D extends Vec, B extends BaseBuilder<D>> extends BaseBuilder<ListVec<D>> {
