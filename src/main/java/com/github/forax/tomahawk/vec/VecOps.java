@@ -18,6 +18,9 @@ import java.nio.ByteBuffer;
 import static java.lang.invoke.MethodType.methodType;
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
 
+/**
+ * Implementation of VecOp
+ */
 interface VecOps {
   record VecOpImpl(MethodHandle applyInt, MethodHandle applyFloat, MethodHandle applyLong, MethodHandle applyDouble) implements VecOp {
     @Override

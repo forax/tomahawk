@@ -17,6 +17,9 @@ import static java.nio.ByteOrder.LITTLE_ENDIAN;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
 
+/**
+ * Vec Builder implementations.
+ */
 interface VecBuilderImpl {
   private static IllegalStateException doNotSupportNull() {
     throw new IllegalStateException("this builder does not support null");

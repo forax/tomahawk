@@ -13,6 +13,31 @@ import static com.github.forax.tomahawk.vec.VecImpl.implDataOrNull;
 import static java.nio.channels.FileChannel.MapMode.READ_WRITE;
 import static java.util.Objects.requireNonNull;
 
+/**
+ * A fixed size, mutable column of 64 bits values.
+ *
+ * It can be created from several ways
+ * <ul>
+ *   <li>By wrapping an array of Java floats {@link #wrap(long[])}, or an array of Java doubles {@link #wrap(double[])}
+ *   <li>By mapping into memory an existing file {@link #map(U1Vec, Path)}
+ *   <li>By mapping into memory a new empty file {@link #mapNew(U1Vec, Path, long)}
+ *   <li>Using a builder {@link #builder(U1Vec.Builder, Path, OpenOption...)} to append values to a new mapped file
+ *   <li>From an existing MemorySegment {@link #from(U1Vec, MemorySegment)}
+ * </ul>
+ *
+ * It can load and store nulls, longs and doubles
+ * <ul>
+ *   <li>{@link #getLong(long)} and {@link #getDouble(long)} loads a non null long / double
+ *   <li>{@link #getLong(long, LongExtractor)} and {@link #getDouble(long, DoubleExtractor)}
+ *       loads a nullable long / double
+ *   <li>{@link #setLong(long, long)} and {@link #setDouble(long, double)} stores a long / double
+ *   <li>{@link #isNull(long)} checks if a value is {code null}
+ *   <li>{@link #setNull(long)} stores {code null}
+ * </ul>
+ *
+ * To store nulls, this Vec must be constructed with a {code validity} {@link U1Vec bit set} either at construction
+ * or using {@link #withValidity(U1Vec)}.
+ */
 public interface U64Vec extends Vec {
   long getLong(long index);
   void setLong(long index, long value);

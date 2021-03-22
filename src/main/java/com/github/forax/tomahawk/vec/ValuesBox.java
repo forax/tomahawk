@@ -4,9 +4,29 @@ import static java.util.Objects.requireNonNull;
 
 import jdk.incubator.foreign.MemorySegment;
 
+/**
+ * A mutable class that represents a nullable list of values.
+ *
+ * If {@link #validity} is true, the values of the box is stored in between
+ * [#startOffset, #endOffset[,
+ * otherwise if {@link #validity} is false, the value of the box is {@code null}.
+ *
+ * @see ListVec#getValues(long, ValuesExtractor)
+ */
 public class ValuesBox implements ValuesExtractor {
+  /**
+   * The validity of the value, false means that the value doesn't exist (is null)
+   */
   public boolean validity;
+
+  /**
+   * The offset of the first value
+   */
   public long startOffset;
+
+  /**
+   * The offset of the last value + 1
+   */
   public long endOffset;
 
   @Override
@@ -16,31 +36,24 @@ public class ValuesBox implements ValuesExtractor {
     this.endOffset = endOffset;
   }
 
-  public String getString(U16Vec dataset) {
-    requireNonNull(dataset);
+  /**
+   * Extract the values from {@link #startOffset} to {@link #endOffset} into a String.
+   * @param vec the Vec containing the characters of the String.
+   * @return a String using the characters from {@link #startOffset} to {@link #endOffset}
+   * 
+   * @see ListVec#getString(long)
+   */
+  public String getString(U16Vec vec) {
+    requireNonNull(vec);
     if (!validity) {
       return null;
     }
-    var dataSegment = VecImpl.impl(dataset).dataSegment();
+    var dataSegment = VecImpl.impl(vec).dataSegment();
     var start = startOffset;
     var end = endOffset;
     var length = end - start;
     var charArray = new char[(int)length];
     MemorySegment.ofArray(charArray).copyFrom(dataSegment.asSlice(start << 1L, length << 1L));
     return new String(charArray);
-  }
-
-  public int[] getIntArray(U32Vec dataset) {
-    requireNonNull(dataset);
-    if (!validity) {
-      return null;
-    }
-    var dataSegment = VecImpl.impl(dataset).dataSegment();
-    var start = startOffset;
-    var end = endOffset;
-    var length = end - start;
-    var intArray = new int[(int)length];
-    MemorySegment.ofArray(intArray).copyFrom(dataSegment.asSlice(start << 2L, length << 2L));
-    return intArray;
   }
 }

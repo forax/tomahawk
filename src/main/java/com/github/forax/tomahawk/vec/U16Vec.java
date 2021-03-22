@@ -13,6 +13,31 @@ import static com.github.forax.tomahawk.vec.VecImpl.implDataOrNull;
 import static java.nio.channels.FileChannel.MapMode.READ_WRITE;
 import static java.util.Objects.requireNonNull;
 
+/**
+ * A fixed size, mutable column of 16 bits values.
+ *
+ * It can be created from several ways
+ * <ul>
+ *   <li>By wrapping an array of Java shorts {@link #wrap(short[])}, or an array of Java chars {@link #wrap(char[])}
+ *   <li>By mapping into memory an existing file {@link #map(U1Vec, Path)}
+ *   <li>By mapping into memory a new empty file {@link #mapNew(U1Vec, Path, long)}
+ *   <li>Using a builder {@link #builder(U1Vec.Builder, Path, OpenOption...)} to append values to a new mapped file
+ *   <li>From an existing MemorySegment {@link #from(U1Vec, MemorySegment)}
+ * </ul>
+ *
+ * It can load and store nulls, shorts and chars
+ * <ul>
+ *   <li>{@link #getShort(long)} and {@link #getChar(long)} loads a non null short / char
+ *   <li>{@link #getShort(long, ShortExtractor)} and {@link #getChar(long, CharExtractor)}
+ *   loads a nullable short / char
+ *   <li>{@link #setShort(long, short)} and {@link #setChar(long, char)} stores an short / char
+ *   <li>{@link #isNull(long)} checks if a value is {code null}
+ *   <li>{@link #setNull(long)} stores {code null}
+ * </ul>
+ *
+ * To store nulls, this Vec must be constructed with a {code validity} {@link U1Vec bit set} either at construction
+ * or using {@link #withValidity(U1Vec)}.
+ */
 public interface U16Vec extends Vec {
   short getShort(long index);
   void setShort(long index, short value);

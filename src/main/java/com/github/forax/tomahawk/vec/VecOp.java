@@ -2,6 +2,9 @@ package com.github.forax.tomahawk.vec;
 
 import java.lang.invoke.MethodHandles.Lookup;
 
+/**
+ * TODO
+ */
 public interface VecOp {
   interface IntBinOp {
     int apply(int v1, int v2);

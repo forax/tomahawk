@@ -1,19 +1,42 @@
 package com.github.forax.tomahawk.vec;
 
+import java.io.UncheckedIOException;
+import java.util.function.Consumer;
+
 import static com.github.forax.tomahawk.vec.VecBuilderImpl.builderImpl;
 import static com.github.forax.tomahawk.vec.VecImpl.impl;
 import static com.github.forax.tomahawk.vec.VecImpl.implDataOrNull;
 import static java.util.Objects.requireNonNull;
 
-import java.io.UncheckedIOException;
-import java.util.function.Consumer;
-
-public interface ListVec<D extends Vec> extends Vec {
-  D data();
+/**
+ * A fixed size list of Vec (a list of list of values)
+ *
+ * It can be created from several ways
+ * <ul>
+ *   <li>Using a builder {@link #builder(U1Vec.Builder, U32Vec.Builder, BaseBuilder)}
+ *       to append values to a new mapped file
+ *   <li>From a validity Vec, an offset Vec and a data Vec {@link #from(U1Vec, U32Vec, Vec)}
+ * </ul>
+ *
+ * It can load and store nulls and list of values
+ * <ul>
+ *   <li>{@link #getValues(long, ValuesExtractor)} loads a nullable list of values
+ *   <li>{@link #getString(long)} which is a convenient method in case the values are {@link U32Vec} of char.
+ *   <li>{@link #isNull(long)} checks if a value is {code null}
+ *   <li>{@link #setNull(long)} stores {code null}
+ * </ul>
+ *
+ * To store nulls, this Vec must be constructed with a {code validity} {@link U1Vec bit set} either at construction
+ * or using {@link #withValidity(U1Vec)}.
+ *
+ * @param <V> type of the values
+ */
+public interface ListVec<V extends Vec> extends Vec {
+  V data();
   String getString(long index);
   void getValues(long index, ValuesExtractor extractor);
   @Override
-  ListVec<D> withValidity(U1Vec validity);
+  ListVec<V> withValidity(U1Vec validity);
 
   interface Builder<D extends Vec, B extends BaseBuilder<D>> extends BaseBuilder<ListVec<D>> {
     B dataBuilder();

@@ -17,6 +17,9 @@ import static jdk.incubator.foreign.MemoryLayout.PathElement.sequenceElement;
 import static jdk.incubator.foreign.MemoryLayout.ofSequence;
 import static jdk.incubator.foreign.MemoryLayout.ofValueBits;
 
+/**
+ * Vec implementation.
+ */
 interface VecImpl {
   private static IllegalStateException doNotSupportNull() {
     throw new IllegalStateException("this dataset do not support null");

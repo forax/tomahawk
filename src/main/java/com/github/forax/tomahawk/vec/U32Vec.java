@@ -13,6 +13,30 @@ import static com.github.forax.tomahawk.vec.VecImpl.implDataOrNull;
 import static java.nio.channels.FileChannel.MapMode.READ_WRITE;
 import static java.util.Objects.requireNonNull;
 
+/**
+ * A fixed size, mutable column of 32 bits values.
+ *
+ * It can be created from several ways
+ * <ul>
+ *   <li>By wrapping an array of Java ints {@link #wrap(int[])}, or an array of Java floats {@link #wrap(float[])}
+ *   <li>By mapping into memory an existing file {@link #map(U1Vec, Path)}
+ *   <li>By mapping into memory a new empty file {@link #mapNew(U1Vec, Path, long)}
+ *   <li>Using a builder {@link #builder(U1Vec.Builder, Path, OpenOption...)} to append values to a new mapped file
+ *   <li>From an existing MemorySegment {@link #from(U1Vec, MemorySegment)}
+ * </ul>
+ *
+ * It can load and store nulls, ints and floats
+ * <ul>
+ *   <li>{@link #getInt(long)} and {@link #getFloat(long)} loads a non null int / float
+ *   <li>{@link #getInt(long, IntExtractor)} and {@link #getFloat(long, FloatExtractor)} loads a nullable int / float
+ *   <li>{@link #setInt(long, int)} and {@link #setFloat(long, float)} stores an int / float
+ *   <li>{@link #isNull(long)} checks if a value is {code null}
+ *   <li>{@link #setNull(long)} stores {code null}
+ * </ul>
+ *
+ * To store nulls, this Vec must be constructed with a {code validity} {@link U1Vec bit set} either at construction
+ * or using {@link #withValidity(U1Vec)}.
+ */
 public interface U32Vec extends Vec {
   int getInt(long index);
   void setInt(long index, int value);

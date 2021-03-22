@@ -1,13 +1,24 @@
 package com.github.forax.tomahawk.vec;
 
-import static com.github.forax.tomahawk.vec.VecBuilderImpl.builderImpl;
-import static com.github.forax.tomahawk.vec.VecImpl.implDataOrNull;
-
 import java.io.UncheckedIOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static com.github.forax.tomahawk.vec.VecBuilderImpl.builderImpl;
+import static com.github.forax.tomahawk.vec.VecImpl.implDataOrNull;
+
+/**
+ * A fixed size, mutable column of 32 bits values.
+ *
+ * It can be created from several ways
+ * <ul>
+ *   <li>Using a builder creates from an array of builders {@link #builder(U1Vec.Builder, BaseBuilder[])}
+ *   <li>From an array of Vecs {@link #from(U1Vec, Vec...)}
+ * </ul>
+ *
+ * To store nulls, this Vec must be constructed with a {code validity} {@link U1Vec bit set} either at construction
+ * or using {@link #withValidity(U1Vec)}.
+ */
 public interface StructVec extends Vec {
   List<Vec> fields();
 

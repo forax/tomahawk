@@ -12,6 +12,32 @@ import static com.github.forax.tomahawk.vec.VecImpl.implDataOrNull;
 import static java.nio.channels.FileChannel.MapMode.READ_WRITE;
 import static java.util.Objects.requireNonNull;
 
+/**
+ * A fixed size, mutable column of 1 bit values (aka a bit set).
+ *
+ * In term of implementation, the bits are packed into 64 bits, so {@link #length()} will always
+ * return a multiple of 64.
+ *
+ * It can be created from several ways
+ * <ul>
+ *   <li>By mapping into memory an existing file {@link #map(U1Vec, Path)}
+ *   <li>By mapping into memory a new empty file {@link #mapNew(U1Vec, Path, long)}
+ *   <li>Using a builder {@link #builder(U1Vec.Builder, Path, OpenOption...)} to append values to a new mapped file
+ *   <li>From an existing MemorySegment {@link #from(U1Vec, MemorySegment)}
+ * </ul>
+ *
+ * It can load and store nulls and booleans
+ * <ul>
+ *   <li>{@link #getBoolean(long)} loads a non null boolean
+ *   <li>{@link #getBoolean(long, BooleanExtractor)}  loads a nullable boolean
+ *   <li>{@link #setBoolean(long, boolean)} stores a boolean
+ *   <li>{@link #isNull(long)} checks if a value is {code null}
+ *   <li>{@link #setNull(long)} stores {code null}
+ * </ul>
+ *
+ * To store nulls, this Vec must be constructed with a {code validity} {@link U1Vec bit set} either at construction
+ * or using {@link #withValidity(U1Vec)}.
+ */
 public interface U1Vec extends Vec {
   boolean getBoolean(long index);
   void setBoolean(long index, boolean value);
