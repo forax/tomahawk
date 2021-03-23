@@ -1,17 +1,13 @@
 package com.github.forax.tomahawk.schema;
 
 import com.github.forax.tomahawk.schema.Layout.StructLayout;
-import com.github.forax.tomahawk.vec.ListVec;
-import com.github.forax.tomahawk.vec.StructVec;
 import com.github.forax.tomahawk.vec.U16Vec;
 import org.junit.jupiter.api.Test;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
 import static com.github.forax.tomahawk.schema.Layout.double64;
@@ -21,7 +17,6 @@ import static com.github.forax.tomahawk.schema.Layout.string;
 import static com.github.forax.tomahawk.schema.Layout.struct;
 import static java.nio.file.Files.createTempDirectory;
 import static java.nio.file.Files.delete;
-import static java.nio.file.Files.getLastModifiedTime;
 import static java.nio.file.Files.list;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -80,9 +75,9 @@ public class CSVTest {
     };
     try(andClean) {
       CSV.fetch(csv, (StructLayout) layout, directory, "jobs");
-      var vec = (StructVec) Table.map(directory, "jobs");
-      var name = (ListVec<?>) vec.fields().get(0);
-      var state = (ListVec<?>) vec.fields().get(3);
+      var vec = Table.map(directory, "jobs").asStructVec();
+      var name = vec.fields().get(0).asListVec(U16Vec.class);
+      var state = vec.fields().get(3).asListVec(U16Vec.class);
 
       var names = LongStream.range(0, name.length()).mapToObj(name::getString).toList();
       assertEquals(List.of("Doe, John", "Green, Edward"), names);

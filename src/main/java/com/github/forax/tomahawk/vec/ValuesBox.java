@@ -4,6 +4,8 @@ import static java.util.Objects.requireNonNull;
 
 import jdk.incubator.foreign.MemorySegment;
 
+import java.util.stream.LongStream;
+
 /**
  * A mutable class that represents a nullable list of values.
  *
@@ -34,6 +36,14 @@ public class ValuesBox implements ValuesExtractor {
     this.validity = validity;
     this.startOffset = startOffset;
     this.endOffset = endOffset;
+  }
+
+  /**
+   * Returns a stream of all the offsets between [{@code startOffset}, {@code endOffset}[
+   * @return a stream of all the offsets between [{@code startOffset}, {@code endOffset}[
+   */
+  public LongStream offsets() {
+    return LongStream.range(startOffset, endOffset);
   }
 
   /**

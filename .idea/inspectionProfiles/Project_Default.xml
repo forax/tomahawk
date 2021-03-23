@@ -70,7 +70,6 @@
       <option name="m_requireAnnotationsFirst" value="true" />
     </inspection_tool>
     <inspection_tool class="MisspelledMethodName" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="NestedSwitchStatement" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="NewClassNamingConvention" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="NewMethodNamingConvention" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="NonExceptionNameEndsWithException" enabled="true" level="WARNING" enabled_by_default="true" />

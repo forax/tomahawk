@@ -74,9 +74,7 @@ interface Layout /*permits Layout.PrimitiveLayout, Layout.ListLayout, Layout.Str
   }
 
   static void save(Path path, Layout layout) throws IOException {
-    try(var writer = Files.newBufferedWriter(path)) {
-      writer.write(layout.toString());
-    }
+    Files.writeString(path, layout.toString());
   }
 
   static Layout load(Path path) throws IOException {

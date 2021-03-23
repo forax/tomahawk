@@ -38,8 +38,8 @@ public class CSV {
     fetch(new StringReader(text), layout, directory, name);
   }
 
-  public static void fetch(Path csv, StructLayout layout, Path directory, String name) throws IOException {
-    try (var reader = Files.newBufferedReader(csv)) {
+  public static void fetch(Path path, StructLayout layout, Path directory, String name) throws IOException {
+    try (var reader = Files.newBufferedReader(path)) {
       fetch(reader, layout, directory, name);
     }
   }

@@ -1,5 +1,7 @@
 package com.github.forax.tomahawk.vec;
 
+import jdk.incubator.foreign.MemorySegment;
+
 import java.io.UncheckedIOException;
 
 /**
@@ -47,6 +49,45 @@ public interface Vec extends UncheckedCloseable {
    * @return a new Vec on the same memory zone with a new validity bit set
    */
   Vec withValidity(U1Vec validity);
+
+  /**
+   * Cast the current Vec as a {@link ListVec} of a given {@code elementType}.
+   * @param elementType the element Vec of the {@code ListVec}
+   * @param <V> the type of the element Vec
+   * @return the current Vec typed as a {@code ListVec}
+   * @throws ClassCastException if either the current Vec is not a ListVec or the ListVec
+   *                            does not have the right element type
+   */
+  @SuppressWarnings("unchecked")
+  default <V extends Vec> ListVec<V> asListVec(Class<? extends V> elementType) {
+    @SuppressWarnings("RedundantCast")  // the error message should not mention the implementation
+    var listVec = (VecImpl.ListImpl<?>) (ListVec<?>) this;
+    var data = listVec.data();
+    if (!elementType.isInstance(data)) {
+      throw new ClassCastException("element vec is not a " + elementType.getName() + " but a " + data.getClass().getName());
+    }
+    return (ListVec<V>) listVec;
+  }
+
+  /**
+   * Cast the current Vec as a {@link StructVec}
+   * @return the current Vec typed as a {@link StructVec}
+   * @throws ClassCastException if the current Vec is not a StructVec
+   */
+  default StructVec asStructVec() {
+    return (StructVec) this;
+  }
+
+  /**
+   * Cast the current Vec as a specific Vec
+   * @param vecType the type of Vec to be cast to
+   * @param <V> type of the specific Vec
+   * @return the current Vec typed as a specific Vec
+   * @throws ClassCastException if the current Vec is not a specific Vec
+   */
+  default <V extends Vec> V asVec(Class<? extends V> vecType) {
+    return vecType.cast(this);
+  }
 
   /**
    * Base interface for all builders of Vecs
