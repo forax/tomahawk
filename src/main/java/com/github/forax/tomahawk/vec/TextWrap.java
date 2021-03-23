@@ -10,16 +10,16 @@ import static com.github.forax.tomahawk.vec.VecImpl.U16Impl.CHAR_HANDLE;
  * Lightweight version of a String that only keep a pointer to the memory storage
  * instead of duplicating all characters like a String does.
  *
- * Example, instead of allocating a String to look for a special value
+ * Example, instead of allocating all the Strings to look for a special value
  * <pre>
  *   ListVec&lt;U16Vec&gt; list = ...
- *   list.textWraps().map(TextWrap::toString).hasAny("Hello"::equals)
+ *   list.textWraps().map(TextWrap::toString).anyMatch("Hello"::equals)
  * </pre>
  *
- * It's better to use TextWrap
+ * It's better to allocate only one TextWrap that contains that special value
  * <pre>
  *   ListVec&lt;U16Vec&gt; list = ...
- *   list.textWraps().hasAny(TextWrap.from("Hello")::equals)
+ *   list.textWraps().anyMatch(TextWrap.from("Hello")::equals)
  * </pre>
  */
 public final class TextWrap implements CharSequence {
