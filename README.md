@@ -70,6 +70,6 @@ This API is composed of two packages
   rearrange columns without changing the data, or better (or worst) share columns between
   different tables.
   
-  For now, a table can only be created either by hand or from a CSV file, with `CSV.fetch()`,
-  at some point, i will add at least the JSON support.
+  For now, a table can only be created either by hand, from a CSV file or a JSON file,
+  with `CSV.fetch()` and `JSON.fetch()` respectively.
   
