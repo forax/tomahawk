@@ -7,6 +7,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
+import java.util.stream.IntStream;
 
 import static com.github.forax.tomahawk.vec.VecBuilderImpl.builderImpl;
 import static com.github.forax.tomahawk.vec.VecImpl.implDataOrNull;
@@ -107,6 +108,24 @@ public interface U16Vec extends Vec {
   U16Vec withValidity(U1Vec validity);
 
   /**
+   * Returns a Stream of all the shorts
+   * @return a Stream of all the shorts
+   * @throws NullPointerException if one of the value is null
+   *
+   * @see #getShort(long)
+   */
+  IntStream shorts();
+
+  /**
+   * Returns a Stream of all the chars
+   * @return a Stream of all the chars
+   * @throws NullPointerException if one of the value is null
+   *
+   * @see #getShort(long)
+   */
+  IntStream chars();
+
+  /**
    * A builder of {@link U16Vec}
    *
    * Example of usage
@@ -143,8 +162,7 @@ public interface U16Vec extends Vec {
     @Override
     U16Vec.Builder appendNull() throws UncheckedIOException;
 
-    U16Vec.Builder appendShortArray(short... array) throws UncheckedIOException;
-    U16Vec.Builder appendCharArray(char... array) throws UncheckedIOException;
+    U16Vec.Builder appendTextWrap(TextWrap textWrap) throws UncheckedIOException;
     U16Vec.Builder appendString(String s) throws UncheckedIOException;
 
     @Override

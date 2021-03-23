@@ -10,6 +10,10 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
 import static java.util.Objects.requireNonNull;
@@ -239,6 +243,11 @@ interface VecImpl {
       }
       return new U8Impl(dataSegment, impl(validity).dataSegment);
     }
+
+    @Override
+    public IntStream bytes() {
+      return LongStream.range(0, length()).mapToInt(this::getByte);
+    }
   }
 
   record U16Impl(MemorySegment dataSegment, MemorySegment validitySegment) implements VecImpl, U16Vec {
@@ -351,6 +360,16 @@ interface VecImpl {
         throw invalidLength(this, validity);
       }
       return new U16Impl(dataSegment, impl(validity).dataSegment);
+    }
+
+    @Override
+    public IntStream shorts() {
+      return LongStream.range(0, length()).mapToInt(this::getShort);
+    }
+
+    @Override
+    public IntStream chars() {
+      return LongStream.range(0, length()).mapToInt(this::getChar);
     }
   }
 
@@ -469,6 +488,16 @@ interface VecImpl {
       }
       return new U32Impl(dataSegment, impl(validity).dataSegment);
     }
+
+    @Override
+    public IntStream ints() {
+      return LongStream.range(0, length()).mapToInt(this::getInt);
+    }
+
+    @Override
+    public DoubleStream floats() {
+      return LongStream.range(0, length()).mapToDouble(this::getFloat);
+    }
   }
 
   record U64Impl(MemorySegment dataSegment, MemorySegment validitySegment) implements VecImpl, U64Vec {
@@ -582,6 +611,16 @@ interface VecImpl {
       }
       return new U64Impl(dataSegment, impl(validity).dataSegment);
     }
+
+    @Override
+    public LongStream longs() {
+      return LongStream.range(0, length()).map(this::getLong);
+    }
+
+    @Override
+    public DoubleStream doubles() {
+      return LongStream.range(0, length()).mapToDouble(this::getDouble);
+    }
   }
 
   record ListImpl<D extends Vec>(D data, MemorySegment dataSegment, MemorySegment offsetSegment, MemorySegment validitySegment) implements VecImpl, ListVec<D> {
@@ -658,12 +697,33 @@ interface VecImpl {
     }
 
     @Override
+    public TextWrap getTextWrap(long index) {
+      if (data.getClass() != U16Impl.class) {
+        throw new IllegalStateException("getTextWrap is only supported on U16Dataset");
+      }
+      if (validitySegment != null) {
+        if (!U1Impl.getRawBoolean(validitySegment, index)) {
+          return null;
+        }
+      }
+      var start = U32Impl.getRawInt(offsetSegment, index);
+      var end = U32Impl.getRawInt(offsetSegment, index + 1);
+      var length = end - start;
+      return new TextWrap(dataSegment, start, length);
+    }
+
+    @Override
     public ListVec<D> withValidity(U1Vec validity) {
       requireNonNull(validity);
       if (length() > validity.length()) {
         throw invalidLength(this, validity);
       }
       return new ListImpl<>(data, dataSegment, offsetSegment, impl(validity).dataSegment);
+    }
+
+    @Override
+    public Stream<TextWrap> textWraps() {
+      return LongStream.range(0, length()).mapToObj(index -> getTextWrap(index));
     }
   }
 

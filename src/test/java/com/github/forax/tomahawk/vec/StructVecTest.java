@@ -6,7 +6,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.stream.IntStream;
-import java.util.stream.LongStream;
 
 import static java.nio.file.Files.list;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -52,6 +51,8 @@ public class StructVecTest {
         var salary = (U32Vec) vec.fields().get(1);
 
         assertEquals("person757", name.getString(757));
+        assertEquals(TextWrap.from("person757"), name.getTextWrap(757));
+        assertEquals("person757", name.getTextWrap(757).toString());
         assertEquals(1_057, salary.getInt(757));
 
         vec.setNull(13);

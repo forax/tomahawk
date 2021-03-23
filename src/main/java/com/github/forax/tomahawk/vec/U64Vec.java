@@ -7,6 +7,9 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 
 import static com.github.forax.tomahawk.vec.VecBuilderImpl.builderImpl;
 import static com.github.forax.tomahawk.vec.VecImpl.implDataOrNull;
@@ -105,6 +108,24 @@ public interface U64Vec extends Vec {
 
   @Override
   U64Vec withValidity(U1Vec validity);
+
+  /**
+   * Returns a Stream of all the longs
+   * @return a Stream of all the longs
+   * @throws NullPointerException if one of the value is null
+   *
+   * @see #getLong(long)
+   */
+  LongStream longs();
+
+  /**
+   * Returns a Stream of all the doubles
+   * @return a Stream of all the doubles
+   * @throws NullPointerException if one of the value is null
+   *
+   * @see #getDouble(long)
+   */
+  DoubleStream doubles();
 
   /**
    * A builder of {@link U64Vec}

@@ -1,18 +1,24 @@
 package com.github.forax.tomahawk.schema;
 
 import com.github.forax.tomahawk.vec.ListVec;
+import com.github.forax.tomahawk.vec.TextWrap;
 import com.github.forax.tomahawk.vec.U16Vec;
+import com.github.forax.tomahawk.vec.U1Vec;
 import com.github.forax.tomahawk.vec.U8Vec;
 import com.github.forax.tomahawk.vec.ValuesBox;
 import org.junit.jupiter.api.Test;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.LongStream;
 
 import static com.github.forax.tomahawk.schema.Layout.byte8;
 import static com.github.forax.tomahawk.schema.Layout.field;
+import static com.github.forax.tomahawk.schema.Layout.int32;
 import static com.github.forax.tomahawk.schema.Layout.list;
 import static com.github.forax.tomahawk.schema.Layout.string;
 import static com.github.forax.tomahawk.schema.Layout.struct;
@@ -20,6 +26,7 @@ import static com.github.forax.tomahawk.schema.Layout.u1;
 import static java.nio.file.Files.createTempDirectory;
 import static java.nio.file.Files.delete;
 import static java.nio.file.Files.list;
+import static java.util.Objects.requireNonNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JSONTest {
@@ -100,6 +107,51 @@ public class JSONTest {
       var jackPhones = valuesBox.offsets().mapToObj(phones.data()::getString).toList();
       assertEquals(List.of("555-111-1111", "555-222-2222"), joePhones);
       assertEquals(List.of("555-333-3333"), jackPhones);
+    }
+  }
+
+  @Test
+  public void fetchAndLoadScottishParliamentMembers() throws IOException {
+    // from https://data.parliament.scot/api/members
+    var layout =
+        struct(false,
+            field("PersonID",  int32(false)),
+            field("PhotoURL",  string(false)),
+            field("Notes",     string(false)),
+            field("BirthDate", string(false)),
+            field("BirthDateIsProtected", u1(false)),
+            field("ParliamentaryName",  string(false)),
+            field("PreferredName",  string(false)),
+            field("GenderTypeID",  byte8(false)),
+            field("IsCurrent", u1(false))
+        );
+    var directory = createTempDirectory("scottish-parliament-members");
+    Closeable andClean = () -> {
+      for (var temp : list(directory).toList()) {
+        delete(temp);
+      }
+      delete(directory);
+    };
+    try(var input = JSONTest.class.getResourceAsStream("/scottish-parliament-members.json");
+        var reader = new InputStreamReader(requireNonNull(input), StandardCharsets.UTF_8);
+        andClean) {
+      JSON.fetch(reader, layout, directory, "scottish-parliament-members");
+      var memberVec = Table.map(directory, "scottish-parliament-members", layout).asStructVec();
+
+      // mask past member names
+      var isCurrent = memberVec.fields().get(8).asVec(U1Vec.class);
+      var preferredName = memberVec.fields().get(5).asListVec(U16Vec.class);
+      preferredName = preferredName.withValidity(isCurrent);
+
+      var names =
+          preferredName.textWraps()
+              .filter(Objects::nonNull)
+              .limit(5)
+              .map(TextWrap::toString)
+              .toList();
+      assertEquals(
+          List.of("Constance, Angela", "Ewing, Annabelle", "Grahame, Christine", "Beamish, Claudia", "Smith, Elaine"),
+          names);
     }
   }
 }

@@ -2,6 +2,7 @@ package com.github.forax.tomahawk.vec;
 
 import java.io.UncheckedIOException;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import static com.github.forax.tomahawk.vec.VecBuilderImpl.builderImpl;
 import static com.github.forax.tomahawk.vec.VecImpl.impl;
@@ -39,7 +40,7 @@ public interface ListVec<V extends Vec> extends Vec {
   V data();
 
   /**
-   * Returns the String decoded from a list of U16 values,
+   * Returns a {@link TextWrap} representing a list of U16 values,
    * if the list is not valid, {@code null} is returned.
    *
    * Convenient method equivalent to
@@ -47,12 +48,33 @@ public interface ListVec<V extends Vec> extends Vec {
    *   var data = (U16Vec) data();
    *   var valuesBox = new ValuesBox();
    *   getValues(index, valuesBox);
-   *   return valuesBox.getString(data);
+   *   return valuesBox.getTextWrap(data);
    * </pre>
    *
    * @param index the index of the String value
-   * @return the String decoded from a list of U16 values
+   * @return a TextWrap representing the list of U16 values or {@code null}
    * @throws IllegalStateException if the data is not a {@link U16Vec}
+   *
+   * @see TextWrap
+   * @see #getString(long)
+   */
+  TextWrap getTextWrap(long index);
+
+  /**
+   * Returns the String decoded from a list of U16 values,
+   * if the list is not valid, {@code null} is returned.
+   *
+   * Convenient method equivalent to
+   * <pre>
+   *   var textWrap = getTextWrap();
+   *   return textWrap == null? null: textWrap.toString();
+   * </pre>
+   *
+   * @param index the index of the String value
+   * @return the String decoded from a list of U16 values or {@code null}
+   * @throws IllegalStateException if the data is not a {@link U16Vec}
+   * 
+   * @see #getTextWrap(long)
    */
   String getString(long index);
 
@@ -65,6 +87,15 @@ public interface ListVec<V extends Vec> extends Vec {
 
   @Override
   ListVec<V> withValidity(U1Vec validity);
+
+  /**
+   * Returns a Stream of all the strings using a lightweight String implementation named {@link TextWrap}
+   * @return a Stream of all the strings as {@link TextWrap}
+   * @throws NullPointerException if one of the value is null
+   *
+   * @see #getTextWrap(long)
+   */
+  Stream<TextWrap> textWraps();
 
   /**
    * A builder of {@link ListVec}
@@ -123,6 +154,8 @@ public interface ListVec<V extends Vec> extends Vec {
 
     @Override
     ListVec.Builder<D, B> appendNull() throws UncheckedIOException;
+
+    ListVec.Builder<D, B> appendTextWrap(TextWrap textWrap) throws UncheckedIOException;
 
     ListVec.Builder<D, B> appendString(String s) throws UncheckedIOException;
 

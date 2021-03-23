@@ -7,6 +7,8 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 
 import static com.github.forax.tomahawk.vec.VecBuilderImpl.builderImpl;
 import static com.github.forax.tomahawk.vec.VecImpl.implDataOrNull;
@@ -82,6 +84,15 @@ public interface U8Vec extends Vec {
 
   @Override
   U8Vec withValidity(U1Vec validity);
+
+  /**
+   * Returns a Stream of all the bytes
+   * @return a Stream of all the bytes
+   * @throws NullPointerException if one of the value is null
+   *
+   * @see #getByte(long)
+   */
+  IntStream bytes();
 
   /**
    * A builder of {@link U8Vec}

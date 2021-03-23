@@ -333,25 +333,17 @@ interface VecBuilderImpl {
     }
 
     @Override
+    public U16Vec.Builder appendTextWrap(TextWrap textWrap) throws UncheckedIOException {
+      for(var i = 0; i < textWrap.length(); i++) {
+        appendChar(textWrap.charAt(i));
+      }
+      return this;
+    }
+
+    @Override
     public U16Vec.Builder appendString(String s) throws UncheckedIOException {
       for(var i = 0; i < s.length(); i++) {
         appendChar(s.charAt(i));
-      }
-      return this;
-    }
-
-    @Override
-    public U16Vec.Builder appendCharArray(char... array) throws UncheckedIOException {
-      for (char value : array) {
-        appendChar(value);
-      }
-      return this;
-    }
-
-    @Override
-    public U16Vec.Builder appendShortArray(short... array) throws UncheckedIOException {
-      for (short value : array) {
-        appendShort(value);
       }
       return this;
     }
@@ -623,13 +615,27 @@ interface VecBuilderImpl {
     }
 
     @Override
+    public ListVec.Builder<D, B> appendTextWrap(TextWrap textWrap) throws UncheckedIOException {
+      if (textWrap == null) {
+        return appendNull();
+      }
+      appendValues(b -> {
+        if (!(b instanceof U16Builder stringBuilder)) {
+          throw new IllegalStateException("appendTextWrap is only supported on U16Dataset");
+        }
+        stringBuilder.appendTextWrap(textWrap);
+      });
+      return this;
+    }
+
+    @Override
     public ListVec.Builder<D, B> appendString(String s) {
       if (s == null) {
         return appendNull();
       }
       appendValues(b -> {
         if (!(b instanceof U16Builder stringBuilder)) {
-          throw new IllegalStateException("getString is only supported on U16Dataset");
+          throw new IllegalStateException("appendString is only supported on U16Dataset");
         }
         stringBuilder.appendString(s);
       });

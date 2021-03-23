@@ -7,6 +7,8 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
 
 import static com.github.forax.tomahawk.vec.VecBuilderImpl.builderImpl;
 import static com.github.forax.tomahawk.vec.VecImpl.implDataOrNull;
@@ -104,6 +106,24 @@ public interface U32Vec extends Vec {
 
   @Override
   U32Vec withValidity(U1Vec validity);
+
+  /**
+   * Returns a Stream of all the ints
+   * @return a Stream of all the ints
+   * @throws NullPointerException if one of the value is null
+   *
+   * @see #getInt(long)
+   */
+  IntStream ints();
+
+  /**
+   * Returns a Stream of all the floats
+   * @return a Stream of all the floats
+   * @throws NullPointerException if one of the value is null
+   *
+   * @see #getFloat(long)
+   */
+  DoubleStream floats();
 
   /**
    * A builder of {@link U32Vec}
