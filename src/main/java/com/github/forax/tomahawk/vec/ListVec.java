@@ -89,9 +89,10 @@ public interface ListVec<V extends Vec> extends Vec {
   ListVec<V> withValidity(U1Vec validity);
 
   /**
-   * Returns a Stream of all the strings using a lightweight String implementation named {@link TextWrap}
+   * Returns a Stream of all the list of U16 values as {@link TextWrap}s.
+   * All the invalid values (the one with a {@code validity} equals to false) are encoded as {@code null}.
+   *
    * @return a Stream of all the strings as {@link TextWrap}
-   * @throws NullPointerException if one of the value is null
    *
    * @see #getTextWrap(long)
    */

@@ -1,6 +1,7 @@
 package com.github.forax.tomahawk.schema;
 
 import com.github.forax.tomahawk.schema.Layout.StructLayout;
+import com.github.forax.tomahawk.vec.TextWrap;
 import com.github.forax.tomahawk.vec.U16Vec;
 import org.junit.jupiter.api.Test;
 
@@ -80,10 +81,10 @@ public class CSVTest {
       var name = vec.fields().get(layout.fieldIndex("Name")).asListOf(U16Vec.class);
       var state = vec.fields().get(layout.fieldIndex("State")).asListOf(U16Vec.class);
 
-      var names = LongStream.range(0, name.length()).mapToObj(name::getString).toList();
+      var names = name.allTextWraps().map(TextWrap::asString).toList();
       assertEquals(List.of("Doe, John", "Green, Edward"), names);
 
-      var states = LongStream.range(0, name.length()).mapToObj(state::getString).toList();
+      var states = state.allTextWraps().map(TextWrap::asString).toList();
       assertEquals(Arrays.asList(null, "WA"), states);
     }
   }

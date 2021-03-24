@@ -89,7 +89,7 @@ public class ListVecTest {
         assertTrue(vec.allTextWraps().anyMatch(TextWrap.from("99999")::equals));
 
         // less efficient
-        assertTrue(vec.allTextWraps().map(TextWrap::toString).anyMatch("99999"::equals));
+        assertTrue(vec.allTextWraps().map(TextWrap::asString).anyMatch("99999"::equals));
       }
     }
   }

@@ -13,7 +13,7 @@ import static com.github.forax.tomahawk.vec.VecImpl.U16Impl.CHAR_HANDLE;
  * Example, instead of allocating all the Strings to look for a special value
  * <pre>
  *   ListVec&lt;U16Vec&gt; list = ...
- *   list.textWraps().map(TextWrap::toString).anyMatch("Hello"::equals)
+ *   list.textWraps().map(TextWrap::asString).anyMatch("Hello"::equals)
  * </pre>
  *
  * It's better to allocate only one TextWrap that contains that special value
@@ -77,11 +77,27 @@ public final class TextWrap implements CharSequence {
     return toString().subSequence(start, end);
   }
 
+  /**
+   * Returns a String for this TextWrap.
+   * You may use {@link #asString(TextWrap)} instead to avoid a {@link NullPointerException}
+   * if the text wrap is {code null}.
+   *
+   * @return a String with the same content as the current text wrap.
+   */
   @Override
   public String toString() {
     var charArray = new char[length];
     MemorySegment.ofArray(charArray).copyFrom(segment.asSlice(offset << 1L, (long) length << 1L));
     return new String(charArray);
+  }
+
+  /**
+   * Returns a String from a TextWrap, or returns null if the TextWrap is null
+   * @param textWrap a text wrap of {@code null}
+   * @return a String from a TextWrap, or returns null if the TextWrap is null
+   */
+  public static String asString(TextWrap textWrap) {
+    return textWrap == null? null: textWrap.toString();
   }
 
   /**
