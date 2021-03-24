@@ -33,7 +33,11 @@ import static com.fasterxml.jackson.core.JsonToken.END_ARRAY;
 import static com.fasterxml.jackson.core.JsonToken.START_ARRAY;
 import static com.fasterxml.jackson.core.JsonToken.VALUE_STRING;
 
-public class CSV {
+public final class CSV {
+  private CSV() {
+    throw new AssertionError();
+  }
+
   public static void fetch(String text, StructLayout layout, Path directory, String name) throws IOException {
     fetch(new StringReader(text), layout, directory, name);
   }
@@ -51,9 +55,9 @@ public class CSV {
       var fieldBuilders = structBuilder.fieldBuilders();
       var columnMap = new HashMap<String, Column>();
       var index = 0;
-      for (var entry : layout.fields().entrySet()) {
-        var fieldName = entry.getKey();
-        var fieldLayout = entry.getValue();
+      for (var field : layout.fields()) {
+        var fieldName = field.name();
+        var fieldLayout = field.layout();
         columnMap.put(fieldName, new Column(fieldBuilders.get(index++), fieldLayout));
       }
 
@@ -66,7 +70,7 @@ public class CSV {
         for (var header : headers) {
           var column = columnMap.get(header);
           if (column == null) {
-            throw new JsonParseException(parser, "header " + header + " has no layout among " + layout.fields().keySet());
+            throw new JsonParseException(parser, "header " + header + " has no layout among " + layout.fields());
           }
           columns.add(column);
         }

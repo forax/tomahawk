@@ -17,6 +17,10 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 
 public class Table {
+  private Table() {
+    throw new AssertionError();
+  }
+
   public static Vec map(Path directory, String name) throws IOException {
     var layout = Layout.load(directory.resolve(name + "_metadata.txt"));
     return map(directory, name, layout);
@@ -52,9 +56,9 @@ public class Table {
     var structName = name + "_struct";
     var validity = structLayout.nullable()? mapValidityVec(directory, structName): null;
     var fieldVecs = new ArrayList<Vec>();
-    for (var entry : structLayout.fields().entrySet()) {
-      var fieldName = entry.getKey();
-      var fieldLayout = entry.getValue();
+    for (var field : structLayout.fields()) {
+      var fieldName = field.name();
+      var fieldLayout = field.layout();
       fieldVecs.add(map(directory, structName + "-" + fieldName, fieldLayout));
     }
     return StructVec.from(validity, fieldVecs);
@@ -114,9 +118,9 @@ public class Table {
     var structName = name + "_struct";
     var validity = structLayout.nullable()? createValidityBuilder(directory, structName): null;
     var fieldBuilders = new ArrayList<Vec.BaseBuilder<?>>();
-    for (var entry : structLayout.fields().entrySet()) {
-      var fieldName = entry.getKey();
-      var fieldLayout = entry.getValue();
+    for (var field: structLayout.fields()) {
+      var fieldName = field.name();
+      var fieldLayout = field.layout();
       fieldBuilders.add(builder(directory, structName + "-" + fieldName, fieldLayout));
     }
     return StructVec.builder(validity, fieldBuilders);

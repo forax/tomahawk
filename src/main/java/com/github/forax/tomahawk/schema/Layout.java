@@ -3,15 +3,19 @@ package com.github.forax.tomahawk.schema;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
 
-import static com.github.forax.tomahawk.schema.Layout.PrimitiveLayout.Kind.*;
-import static java.util.Collections.unmodifiableMap;
+import static com.github.forax.tomahawk.schema.Layout.PrimitiveLayout.Kind.byte8;
+import static com.github.forax.tomahawk.schema.Layout.PrimitiveLayout.Kind.char16;
+import static com.github.forax.tomahawk.schema.Layout.PrimitiveLayout.Kind.double64;
+import static com.github.forax.tomahawk.schema.Layout.PrimitiveLayout.Kind.float32;
+import static com.github.forax.tomahawk.schema.Layout.PrimitiveLayout.Kind.int32;
+import static com.github.forax.tomahawk.schema.Layout.PrimitiveLayout.Kind.long64;
+import static com.github.forax.tomahawk.schema.Layout.PrimitiveLayout.Kind.short16;
+import static com.github.forax.tomahawk.schema.Layout.PrimitiveLayout.Kind.u1;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toMap;
 
 interface Layout /*permits Layout.PrimitiveLayout, Layout.ListLayout, Layout.StructLayout*/ {
   default boolean isPrimitive() {
@@ -24,14 +28,17 @@ interface Layout /*permits Layout.PrimitiveLayout, Layout.ListLayout, Layout.Str
     return this instanceof StructLayout;
   }
   boolean nullable();
-  default Map<String, Layout> fields() {
-    return Map.of();
+  default List<Field> fields() {
+    return List.of();
   }
-  default Layout field(String name) {
-    throw new IllegalArgumentException("unknown field " + name);
+  default Field field(String name) {
+    throw new IllegalStateException("no field " + name);
+  }
+  default int fieldIndex(String name) {
+    return -1;
   }
   default Layout element() {
-    throw new IllegalArgumentException("no element");
+    throw new IllegalStateException("no element");
   }
 
   static PrimitiveLayout u1(boolean nullable) {
@@ -70,7 +77,7 @@ interface Layout /*permits Layout.PrimitiveLayout, Layout.ListLayout, Layout.Str
     return new Field(name, layout);
   }
   static StructLayout struct(boolean nullable, Field... fields) {
-    return new StructLayout(nullable, Arrays.stream(fields).collect(toMap(Field::name, Field::layout, (_1, _2) -> null, LinkedHashMap::new)));
+    return new StructLayout(nullable, fields);
   }
 
   static void save(Path path, Layout layout) throws IOException {
@@ -97,12 +104,12 @@ interface Layout /*permits Layout.PrimitiveLayout, Layout.ListLayout, Layout.Str
       return "list(" + listLayout.nullable + ", " + toString(space, listLayout.element);
     }
     if (layout instanceof StructLayout structLayout) {
-      if (structLayout.fields.isEmpty()) {
+      if (structLayout.fieldMap.fields.isEmpty()) {
         return "struct(" + structLayout.nullable + ")";
       }
       var newSpace = space + "   ";
-      return structLayout.fields.entrySet().stream()
-          .map(e -> newSpace + "field(\"" + e.getKey() + "\", " + toString(newSpace, e.getValue()) + ")")
+      return structLayout.fieldMap.fields.stream()
+          .map(field -> newSpace + "field(\"" + field.name + "\", " + toString(newSpace, field.layout) + ")")
           .collect(joining(",\n", "struct(" + structLayout.nullable + ",\n", "\n" + space + ")"));
     }
     throw new AssertionError();
@@ -137,28 +144,85 @@ interface Layout /*permits Layout.PrimitiveLayout, Layout.ListLayout, Layout.Str
     }
   }
 
-  record StructLayout(boolean nullable, Map<String, Layout> fields) implements Layout {
-    public StructLayout {
-      fields = new LinkedHashMap<>(fields);
+  record StructLayout(boolean nullable, FieldMap fieldMap) implements Layout {
+    public StructLayout(boolean nullable, Field... fields) {
+      this(nullable, new FieldMap(fields));
     }
 
     @Override
-    public Layout field(String name) {
-      var layout = fields.get(name);
-      if (layout == null) {
-        throw new IllegalArgumentException("unknown field " + name);
-      }
-      return layout;
+    public List<Field> fields() {
+      //noinspection AssignmentOrReturnOfFieldWithMutableType
+      return fieldMap.fields;
     }
 
     @Override
-    public Map<String, Layout> fields() {
-      return unmodifiableMap(fields);
+    public Field field(String name) {
+      return fieldMap.field(name);
+    }
+
+    @Override
+    public int fieldIndex(String name) {
+      return fieldMap.fieldIndex(name);
     }
 
     @Override
     public String toString() {
       return Layout.toString("", this);
+    }
+  }
+
+  final class FieldMap {
+    private record FieldIndex(Field field, int index) {}
+
+    private final List<Field> fields;
+    private final HashMap<String, FieldIndex> fieldMap;
+
+    public FieldMap(Field... fields) {
+      var fieldList = List.of(fields);
+      var fieldMap = new HashMap<String, FieldIndex>();
+      for (var i = 0; i < fields.length; i++) {
+        Field field = fields[i];
+        var result = fieldMap.put(field.name, new FieldIndex(field, i));
+        if (result != null) {
+          throw new IllegalArgumentException("multiple fields with the same name " + field.name);
+        }
+      }
+      this.fields = fieldList;
+      this.fieldMap = fieldMap;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      return o instanceof FieldMap fieldMap &&
+          fields.equals(fieldMap.fields);
+    }
+
+    @Override
+    public int hashCode() {
+      return fields.hashCode();
+    }
+
+    public List<Field> fields() {
+      //noinspection AssignmentOrReturnOfFieldWithMutableType
+      return fields;
+    }
+
+    public Field field(String name) {
+      requireNonNull(name);
+      var fieldIndex = fieldMap.get(name);
+      if (fieldIndex == null) {
+        throw new IllegalStateException("unknown field " + name);
+      }
+      return fieldIndex.field;
+    }
+
+    public int fieldIndex(String name) {
+      requireNonNull(name);
+      var fieldIndex = fieldMap.get(name);
+      if (fieldIndex == null) {
+        return -1;
+      }
+      return fieldIndex.index;
     }
   }
 

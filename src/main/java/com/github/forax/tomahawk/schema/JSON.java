@@ -28,6 +28,10 @@ import static com.github.forax.tomahawk.schema.Layout.PrimitiveLayout.Kind.char1
 import static com.github.forax.tomahawk.schema.Layout.PrimitiveLayout.Kind.u1;
 
 public class JSON {
+  private JSON() {
+    throw new AssertionError();
+  }
+
   public static void fetch(String text, Layout layout, Path directory, String name) throws IOException {
     fetch(new StringReader(text), layout, directory, name);
   }
@@ -145,30 +149,18 @@ public class JSON {
     }
   }
 
-  private static int findFieldLayoutIndex(StructLayout structLayout, Layout layout) {
-    var fieldLayouts = structLayout.fields().values();
-    var i = 0;
-    for(var fieldLayout: fieldLayouts) {
-      if (fieldLayout == layout) {
-        return i;
-      }
-      i++;
-    }
-    throw new AssertionError("can not find the field layout");
-  }
-
   private static void parseObject(JsonParser parser, Vec.BaseBuilder<?> builder, StructLayout structLayout) throws IOException {
     for(;;) {
       var token = parser.nextToken();
       switch(token) {
         case FIELD_NAME -> {
           var fieldName = parser.getCurrentName();
-          var fieldLayout = structLayout.fields().get(fieldName);
-          if (fieldLayout == null) {
+          var fieldIndex = structLayout.fieldIndex(fieldName);
+          if (fieldIndex == -1) {
             throw new JsonParseException(parser, "found field " + fieldName + " but struct layout has no field with that name");
           }
-          var fieldLayoutIndex = findFieldLayoutIndex(structLayout, fieldLayout);
-          var fieldBuilder = ((StructVec.Builder) builder).fieldBuilders().get(fieldLayoutIndex);
+          var fieldLayout = structLayout.fields().get(fieldIndex).layout();
+          var fieldBuilder = ((StructVec.Builder) builder).fieldBuilders().get(fieldIndex);
           var valueToken = parser.nextToken();
           parseValue(parser, fieldBuilder, fieldLayout, valueToken);
         }

@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Map;
+import java.util.List;
 
 import static com.github.forax.tomahawk.schema.Layout.field;
 import static com.github.forax.tomahawk.schema.Layout.list;
@@ -29,16 +29,18 @@ public class LayoutTest {
             field("addresses", list(true, string(false)))
         );
 
-    assertEquals(string(false), layout.field("name"));
-    assertEquals(byte8(true), layout.field("age"));
+    assertEquals(string(false), layout.field("name").layout());
+    assertEquals(byte8(true), layout.field("age").layout());
     assertEquals(struct(false,
         field("id", int32(false)),
         field("admin", u1(false))
-      ), layout.field("user"));
-    assertEquals(int32(false), layout.field("user").field("id"));
-    assertEquals(u1(false), layout.field("user").field("admin"));
-    assertEquals(Map.of("id", int32(false), "admin", u1(false)), layout.field("user").fields());
-    assertEquals(layout.field("addresses"), list(true, string(false)));
+      ), layout.field("user").layout());
+    assertEquals(int32(false), layout.field("user").layout().field("id").layout());
+    assertEquals(u1(false), layout.field("user").layout().field("admin").layout());
+    assertEquals(
+        List.of(field("id", int32(false)), field("admin", u1(false))),
+        layout.field("user").layout().fields());
+    assertEquals(list(true, string(false)), layout.field("addresses").layout());
   }
 
   @Test
@@ -66,15 +68,17 @@ public class LayoutTest {
         field("addresses", list(true, string(false)))
     ), layout);
 
-    assertEquals(string(false), layout.field("name"));
-    assertEquals(byte8(true), layout.field("age"));
+    assertEquals(string(false), layout.field("name").layout());
+    assertEquals(byte8(true), layout.field("age").layout());
     assertEquals(struct(false,
         field("id", int32(false)),
         field("admin", u1(false))
-    ), layout.field("user"));
-    assertEquals(int32(false), layout.field("user").field("id"));
-    assertEquals(u1(false), layout.field("user").field("admin"));
-    assertEquals(Map.of("id", int32(false), "admin", u1(false)), layout.field("user").fields());
-    assertEquals(layout.field("addresses"), list(true, string(false)));
+    ), layout.field("user").layout());
+    assertEquals(int32(false), layout.field("user").layout().field("id").layout());
+    assertEquals(u1(false), layout.field("user").layout().field("admin").layout());
+    assertEquals(
+        List.of(field("id", int32(false)), field("admin", u1(false))),
+        layout.field("user").layout().fields());
+    assertEquals(list(true, string(false)), layout.field("addresses").layout());
   }
 }

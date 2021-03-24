@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 import static java.util.regex.Pattern.compile;
 import static java.util.stream.Collectors.joining;
 
-class LayoutParser {
+final class LayoutParser {
   @SuppressWarnings("HardcodedFileSeparator")
   enum Token {
     COMMA("(\\,)"),
@@ -30,7 +30,7 @@ class LayoutParser {
     private static final Pattern PATTERN = compile(TOKENS.stream().map(t -> t.pattern).collect(joining("|")));
   }
 
-  static class Lexer {
+  static final class Lexer {
     private final Matcher matcher;
     private int line = 1;
     private String identifier;
