@@ -76,7 +76,7 @@ public class CSVTest {
     };
     try(andClean) {
       CSV.fetch(csv, (StructLayout) layout, directory, "jobs");
-      var vec = Table.map(directory, "jobs").asStructVec();
+      var vec = Layout.map(directory, "jobs").asStructVec();
       var name = vec.fields().get(0).asListVec(U16Vec.class);
       var state = vec.fields().get(3).asListVec(U16Vec.class);
 

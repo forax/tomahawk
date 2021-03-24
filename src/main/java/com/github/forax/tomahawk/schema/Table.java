@@ -16,14 +16,9 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 
-public class Table {
+final class Table {
   private Table() {
     throw new AssertionError();
-  }
-
-  public static Vec map(Path directory, String name) throws IOException {
-    var layout = Layout.load(directory.resolve(name + "_metadata.txt"));
-    return map(directory, name, layout);
   }
 
   public static Vec map(Path directory, String name, Layout layout) throws IOException {

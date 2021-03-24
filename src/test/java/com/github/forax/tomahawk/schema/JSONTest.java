@@ -90,7 +90,7 @@ public class JSONTest {
     };
     try(andClean) {
       JSON.fetch(json, layout, directory, "persons");
-      var person = Table.map(directory, "persons", layout).asStructVec();
+      var person = Layout.map(directory, "persons", layout).asStructVec();
       var name = person.fields().get(0).asListVec(U16Vec.class);
       var age = person.fields().get(1).asVec(U8Vec.class);
       var phones = person.fields().get(2).asListVec(ListVec.class);
@@ -103,9 +103,9 @@ public class JSONTest {
 
       var valuesBox = new ValuesBox();
       phones.getValues(0, valuesBox);
-      var joePhones = valuesBox.offsets().mapToObj(phones.data()::getString).toList();
+      var joePhones = valuesBox.textWraps(phones.data()).map(TextWrap::toString).toList();
       phones.getValues(1, valuesBox);
-      var jackPhones = valuesBox.offsets().mapToObj(phones.data()::getString).toList();
+      var jackPhones = valuesBox.textWraps(phones.data()).map(TextWrap::toString).toList();
       assertEquals(List.of("555-111-1111", "555-222-2222"), joePhones);
       assertEquals(List.of("555-333-3333"), jackPhones);
     }

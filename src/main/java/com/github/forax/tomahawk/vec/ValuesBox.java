@@ -72,6 +72,12 @@ public class ValuesBox implements ValuesExtractor {
    * In term of performance, it's often better to use a {@link TextWrap} than a String
    * because unlike a String, a TextWrap do not copy the characters
    *
+   * This is semantically equivalent to
+   * <pre>
+   *   U16Vec data = ...
+   *   return getTextWrap(data).toString()
+   * </pre>
+   *
    * @param data the Vec containing the characters as U16 values of the String.
    * @return a String using the characters from {@link #startOffset} to {@link #endOffset}
    *
@@ -184,13 +190,14 @@ public class ValuesBox implements ValuesExtractor {
 
   /**
    * Returns a stream of {@link TextWrap}s between [{@code startOffset}, {@code endOffset}[
-   * @param data the Vec containing the data of the ListVec
+   * @param list the Vec containing list of strings
    * @return a stream of {@link TextWrap}s between [{@code startOffset}, {@code endOffset}[
+   * @throws IllegalStateException if the data is not a {@link U16Vec}
    *
    * @see ListVec#data()
    * @see ListVec#getString(long)
    */
-  public Stream<TextWrap> textWraps(ListVec<U16Vec> data) {
-    return offsets().mapToObj(index -> data.getTextWrap(index));
+  public Stream<TextWrap> textWraps(ListVec<?> list) {
+    return offsets().mapToObj(list::getTextWrap);
   }
 }

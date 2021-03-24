@@ -1,5 +1,7 @@
 package com.github.forax.tomahawk.schema;
 
+import com.github.forax.tomahawk.vec.Vec;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -113,6 +115,24 @@ interface Layout /*permits Layout.PrimitiveLayout, Layout.ListLayout, Layout.Str
           .collect(joining(",\n", "struct(" + structLayout.nullable + ",\n", "\n" + space + ")"));
     }
     throw new AssertionError();
+  }
+
+  static Vec map(Path directory, String name, Layout layout) throws IOException {
+    return Table.map(directory, name, layout);
+  }
+
+  static Vec map(Path directory, String name) throws IOException {
+    var layout = load(directory.resolve(name + "_metadata.txt"));
+    return Table.map(directory, name, layout);
+  }
+
+  static Vec.BaseBuilder<?> builder(Path directory, String name, Layout layout) throws IOException {
+    return Table.builder(directory, name, layout);
+  }
+
+  static Vec.BaseBuilder<?> builder(Path directory, String name) throws IOException {
+    var layout = load(directory.resolve(name + "_metadata.txt"));
+    return Table.builder(directory, name, layout);
   }
 
   record PrimitiveLayout(boolean nullable, Kind kind) implements Layout {
