@@ -55,7 +55,7 @@ public class ValuesBox implements ValuesExtractor {
    * @param data the Vec containing the characters as U16 values of the String.
    * @return a TextWrap wrapping the characters from {@link #startOffset} to {@link #endOffset}
    */
-  public TextWrap getTextWrap(U16Vec data) {
+  public TextWrap asTextWrap(U16Vec data) {
     requireNonNull(data);
     if (!validity) {
       return null;
@@ -75,15 +75,15 @@ public class ValuesBox implements ValuesExtractor {
    * This is semantically equivalent to
    * <pre>
    *   U16Vec data = ...
-   *   return getTextWrap(data).toString()
+   *   return asTextWrap(data).toString()
    * </pre>
    *
    * @param data the Vec containing the characters as U16 values of the String.
    * @return a String using the characters from {@link #startOffset} to {@link #endOffset}
    *
-   * @see #getTextWrap(U16Vec)
+   * @see #asTextWrap(U16Vec)
    */
-  public String getString(U16Vec data) {
+  public String asString(U16Vec data) {
     requireNonNull(data);
     if (!validity) {
       return null;

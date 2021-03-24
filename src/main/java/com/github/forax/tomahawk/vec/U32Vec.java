@@ -114,7 +114,7 @@ public interface U32Vec extends Vec {
    *
    * @see #getInt(long)
    */
-  IntStream ints();
+  IntStream allInts();
 
   /**
    * Returns a Stream of all the floats
@@ -123,7 +123,7 @@ public interface U32Vec extends Vec {
    *
    * @see #getFloat(long)
    */
-  DoubleStream floats();
+  DoubleStream allFloats();
 
   /**
    * A builder of {@link U32Vec}

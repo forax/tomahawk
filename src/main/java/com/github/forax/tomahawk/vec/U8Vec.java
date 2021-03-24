@@ -91,7 +91,7 @@ public interface U8Vec extends Vec {
    *
    * @see #getByte(long)
    */
-  IntStream bytes();
+  IntStream allBytes();
 
   /**
    * A builder of {@link U8Vec}

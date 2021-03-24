@@ -163,6 +163,11 @@ interface VecImpl {
       }
       return new U1Impl(dataSegment, impl(validity).dataSegment);
     }
+
+    @Override
+    public Stream<Boolean> allBooleans() {
+      return LongStream.range(0, length()).mapToObj(this::getBoolean);
+    }
   }
 
   record U8Impl(MemorySegment dataSegment, MemorySegment validitySegment) implements VecImpl, U8Vec {
@@ -245,7 +250,7 @@ interface VecImpl {
     }
 
     @Override
-    public IntStream bytes() {
+    public IntStream allBytes() {
       return LongStream.range(0, length()).mapToInt(this::getByte);
     }
   }
@@ -363,12 +368,12 @@ interface VecImpl {
     }
 
     @Override
-    public IntStream shorts() {
+    public IntStream allShorts() {
       return LongStream.range(0, length()).mapToInt(this::getShort);
     }
 
     @Override
-    public IntStream chars() {
+    public IntStream allChars() {
       return LongStream.range(0, length()).mapToInt(this::getChar);
     }
   }
@@ -490,12 +495,12 @@ interface VecImpl {
     }
 
     @Override
-    public IntStream ints() {
+    public IntStream allInts() {
       return LongStream.range(0, length()).mapToInt(this::getInt);
     }
 
     @Override
-    public DoubleStream floats() {
+    public DoubleStream allFloats() {
       return LongStream.range(0, length()).mapToDouble(this::getFloat);
     }
   }
@@ -613,12 +618,12 @@ interface VecImpl {
     }
 
     @Override
-    public LongStream longs() {
+    public LongStream allLongs() {
       return LongStream.range(0, length()).map(this::getLong);
     }
 
     @Override
-    public DoubleStream doubles() {
+    public DoubleStream allDoubles() {
       return LongStream.range(0, length()).mapToDouble(this::getDouble);
     }
   }
@@ -722,7 +727,7 @@ interface VecImpl {
     }
 
     @Override
-    public Stream<TextWrap> textWraps() {
+    public Stream<TextWrap> allTextWraps() {
       return LongStream.range(0, length()).mapToObj(index -> getTextWrap(index));
     }
   }

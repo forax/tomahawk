@@ -86,10 +86,10 @@ public class ListVecTest {
         assertEquals(100_000, vec.length());
 
         // more efficient
-        assertTrue(vec.textWraps().anyMatch(TextWrap.from("42")::equals));
+        assertTrue(vec.allTextWraps().anyMatch(TextWrap.from("99999")::equals));
 
         // less efficient
-        assertTrue(vec.textWraps().map(TextWrap::toString).anyMatch("42"::equals));
+        assertTrue(vec.allTextWraps().map(TextWrap::toString).anyMatch("99999"::equals));
       }
     }
   }

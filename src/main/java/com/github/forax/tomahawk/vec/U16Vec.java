@@ -114,7 +114,7 @@ public interface U16Vec extends Vec {
    *
    * @see #getShort(long)
    */
-  IntStream shorts();
+  IntStream allShorts();
 
   /**
    * Returns a Stream of all the chars
@@ -123,7 +123,7 @@ public interface U16Vec extends Vec {
    *
    * @see #getShort(long)
    */
-  IntStream chars();
+  IntStream allChars();
 
   /**
    * A builder of {@link U16Vec}

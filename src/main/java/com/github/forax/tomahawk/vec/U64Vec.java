@@ -115,7 +115,7 @@ public interface U64Vec extends Vec {
    *
    * @see #getLong(long)
    */
-  LongStream longs();
+  LongStream allLongs();
 
   /**
    * Returns a Stream of all the doubles
@@ -124,7 +124,7 @@ public interface U64Vec extends Vec {
    *
    * @see #getDouble(long)
    */
-  DoubleStream doubles();
+  DoubleStream allDoubles();
 
   /**
    * A builder of {@link U64Vec}

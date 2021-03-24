@@ -7,6 +7,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
+import java.util.stream.Stream;
 
 import static com.github.forax.tomahawk.vec.VecBuilderImpl.builderImpl;
 import static com.github.forax.tomahawk.vec.VecImpl.implDataOrNull;
@@ -84,6 +85,15 @@ public interface U1Vec extends Vec {
 
   @Override
   U1Vec withValidity(U1Vec validity);
+
+  /**
+   * Returns a Stream of all the booleans
+   * @return a Stream of all the booleans
+   * @throws NullPointerException if one of the value is null
+   *
+   * @see #getBoolean(long)
+   */
+  Stream<Boolean> allBooleans();
 
   /**
    * A builder of {@link U1Vec}

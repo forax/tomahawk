@@ -95,7 +95,7 @@ public interface ListVec<V extends Vec> extends Vec {
    *
    * @see #getTextWrap(long)
    */
-  Stream<TextWrap> textWraps();
+  Stream<TextWrap> allTextWraps();
 
   /**
    * A builder of {@link ListVec}

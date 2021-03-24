@@ -145,7 +145,7 @@ public class JSONTest {
       preferredName = preferredName.withValidity(isCurrent);
 
       var names =
-          preferredName.textWraps()
+          preferredName.allTextWraps()
               .filter(Objects::nonNull)
               .limit(5)
               .map(TextWrap::toString)
