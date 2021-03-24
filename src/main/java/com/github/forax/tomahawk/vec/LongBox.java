@@ -20,7 +20,7 @@ public class LongBox {
    */
   public long value;
 
-  void consume(boolean validity, long value) {
+  void fill(boolean validity, long value) {
     this.validity = validity;
     this.value = value;
   }

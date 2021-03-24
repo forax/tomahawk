@@ -6,9 +6,9 @@ package com.github.forax.tomahawk.vec;
  * If {@link #validity} is true, the value of the box is stored into {@link #value},
  * otherwise if {@link #validity} is false, the value of the box is {@code null}.
  *
- * @see U32Vec#getInt(long, IntExtractor)
+ * @see U32Vec#getInt(long, IntBox)
  */
-public class IntBox implements IntExtractor {
+public class IntBox {
   /**
    * The validity of the value, false means that the value doesn't exist (is null)
    */
@@ -20,8 +20,7 @@ public class IntBox implements IntExtractor {
    */
   public int value;
 
-  @Override
-  public void consume(boolean validity, int value) {
+  void fill(boolean validity, int value) {
     this.validity = validity;
     this.value = value;
   }

@@ -20,7 +20,7 @@ public class ShortBox {
    */
   public short value;
 
-  void consume(boolean validity, short value) {
+  void fill(boolean validity, short value) {
     this.validity = validity;
     this.value = value;
   }

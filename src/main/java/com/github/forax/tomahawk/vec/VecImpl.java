@@ -144,15 +144,16 @@ interface VecImpl {
     }
 
     @Override
-    public void getBoolean(long index, BooleanExtractor extractor) {
-      requireNonNull(extractor);
+    public BooleanBox getBoolean(long index, BooleanBox box) {
+      requireNonNull(box);
       if (validitySegment != null) {
         if (!U1Impl.getRawBoolean(validitySegment, index)) {
-          extractor.consume(false, false);
-          return;
+          box.fill(false, false);
+          return box;
         }
       }
-      extractor.consume(true, getRawBoolean(dataSegment, index));
+      box.fill(true, getRawBoolean(dataSegment, index));
+      return box;
     }
 
     @Override
@@ -228,16 +229,17 @@ interface VecImpl {
     }
 
     @Override
-    public void getByte(long index, ByteExtractor extractor) {
-      requireNonNull(extractor);
+    public ByteBox getByte(long index, ByteBox box) {
+      requireNonNull(box);
       if (validitySegment != null) {
         if (!U1Impl.getRawBoolean(validitySegment, index)) {
-          extractor.consume(false, (byte) 0);
-          return;
+          box.fill(false, (byte) 0);
+          return box;
         }
       }
       var value = (byte) BYTE_HANDLE.get(dataSegment, index);
-      extractor.consume(true, value);
+      box.fill(true, value);
+      return box;
     }
 
     @Override
@@ -333,29 +335,31 @@ interface VecImpl {
     }
 
     @Override
-    public void getShort(long index, ShortExtractor extractor) {
-      requireNonNull(extractor);
+    public ShortBox getShort(long index, ShortBox box) {
+      requireNonNull(box);
       if (validitySegment != null) {
         if (!U1Impl.getRawBoolean(validitySegment, index)) {
-          extractor.consume(false, (short) 0);
-          return;
+          box.fill(false, (short) 0);
+          return box;
         }
       }
       var value = (short) SHORT_HANDLE.get(dataSegment, index);
-      extractor.consume(true, value);
+      box.fill(true, value);
+      return box;
     }
 
     @Override
-    public void getChar(long index, CharExtractor extractor) {
-      requireNonNull(extractor);
+    public CharBox getChar(long index, CharBox box) {
+      requireNonNull(box);
       if (validitySegment != null) {
         if (!U1Impl.getRawBoolean(validitySegment, index)) {
-          extractor.consume(false, '\0');
-          return;
+          box.fill(false, '\0');
+          return box;
         }
       }
       var value = (char) CHAR_HANDLE.get(dataSegment, index);
-      extractor.consume(true, value);
+      box.fill(true, value);
+      return box;
     }
 
     @Override
@@ -460,29 +464,31 @@ interface VecImpl {
     }
 
     @Override
-    public void getInt(long index, IntExtractor extractor) {
-      requireNonNull(extractor);
+    public IntBox getInt(long index, IntBox box) {
+      requireNonNull(box);
       if (validitySegment != null) {
         if (!U1Impl.getRawBoolean(validitySegment, index)) {
-          extractor.consume(false, 0);
-          return;
+          box.fill(false, 0);
+          return box;
         }
       }
       var value = (int) INT_HANDLE.get(dataSegment, index);
-      extractor.consume(true, value);
+      box.fill(true, value);
+      return box;
     }
 
     @Override
-    public void getFloat(long index, FloatExtractor extractor) {
-      requireNonNull(extractor);
+    public FloatBox getFloat(long index, FloatBox box) {
+      requireNonNull(box);
       if (validitySegment != null) {
         if (!U1Impl.getRawBoolean(validitySegment, index)) {
-          extractor.consume(false, 0);
-          return;
+          box.fill(false, 0);
+          return box;
         }
       }
       var value = (float) FLOAT_HANDLE.get(dataSegment, index);
-      extractor.consume(true, value);
+      box.fill(true, value);
+      return box;
     }
 
     @Override
@@ -583,29 +589,31 @@ interface VecImpl {
     }
 
     @Override
-    public void getLong(long index, LongExtractor extractor) {
-      requireNonNull(extractor);
+    public LongBox getLong(long index, LongBox box) {
+      requireNonNull(box);
       if (validitySegment != null) {
         if (!U1Impl.getRawBoolean(validitySegment, index)) {
-          extractor.consume(false, 0);
-          return;
+          box.fill(false, 0);
+          return box;
         }
       }
       var value = (long) LONG_HANDLE.get(dataSegment, index);
-      extractor.consume(true, value);
+      box.fill(true, value);
+      return box;
     }
 
     @Override
-    public void getDouble(long index, DoubleExtractor extractor) {
-      requireNonNull(extractor);
+    public DoubleBox getDouble(long index, DoubleBox box) {
+      requireNonNull(box);
       if (validitySegment != null) {
         if (!U1Impl.getRawBoolean(validitySegment, index)) {
-          extractor.consume(false, 0);
-          return;
+          box.fill(false, 0);
+          return box;
         }
       }
       var value = (double) DOUBLE_HANDLE.get(dataSegment, index);
-      extractor.consume(true, value);
+      box.fill(true, value);
+      return box;
     }
 
     @Override
@@ -670,17 +678,18 @@ interface VecImpl {
     }
 
     @Override
-    public void getValues(long index, ValuesExtractor extractor) {
-      requireNonNull(extractor);
+    public ValuesBox getValues(long index, ValuesBox box) {
+      requireNonNull(box);
       if (validitySegment != null) {
         if (!U1Impl.getRawBoolean(validitySegment, index)) {
-          extractor.consume(false, -1, -1);
-          return;
+          box.fill(false, -1, -1);
+          return box;
         }
       }
       var start = U32Impl.getRawInt(offsetSegment, index);
       var end = U32Impl.getRawInt(offsetSegment, index + 1);
-      extractor.consume(true, start, end);
+      box.fill(true, start, end);
+      return box;
     }
 
     @Override

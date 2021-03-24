@@ -30,7 +30,7 @@ import jdk.incubator.foreign.MemorySegment;
  * It can load and store nulls, longs and doubles
  * <ul>
  *   <li>{@link #getLong(long)} and {@link #getDouble(long)} loads a non null long / double
- *   <li>{@link #getLong(long, LongExtractor)} and {@link #getDouble(long, DoubleExtractor)}
+ *   <li>{@link #getLong(long, LongBox)} and {@link #getDouble(long, DoubleBox)}
  *       loads a nullable long / double
  *   <li>{@link #setLong(long, long)} and {@link #setDouble(long, double)} stores a long / double
  *   <li>{@link #isNull(long)} checks if a value is {code null}
@@ -92,18 +92,20 @@ public interface U64Vec extends Vec {
   void setDouble(long index, double value);
 
   /**
-   * Send the {@code validity} and the {@code value} at index {@code index} to the {@code extractor}
+   * Fill the box with {@code validity} and the {@code value} at index {@code index}
    * @param index the index of the value
-   * @see LongBox
+   * @param box the box that will be filled
+   * @return the box taken as parameter filled with the {@code validity} and the {@code value}
    */
-  void getLong(long index, LongExtractor extractor);
+  LongBox getLong(long index, LongBox box);
 
   /**
-   * Send the {@code validity} and the {@code value} at index {@code index} to the {@code extractor}
+   * Fill the box with {@code validity} and the {@code value} at index {@code index}
    * @param index the index of the value
-   * @see DoubleBox
+   * @param box the box that will be filled
+   * @return the box taken as parameter filled with the {@code validity} and the {@code value}
    */
-  void getDouble(long index, DoubleExtractor extractor);
+  DoubleBox getDouble(long index, DoubleBox box);
 
   @Override
   U64Vec withValidity(U1Vec validity);

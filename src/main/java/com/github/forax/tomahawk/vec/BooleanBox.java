@@ -6,9 +6,9 @@ package com.github.forax.tomahawk.vec;
  * If {@link #validity} is true, the value of the box is stored into {@link #value},
  * otherwise if {@link #validity} is false, the value of the box is {@code null}.
  *
- * @see U1Vec#getBoolean(long, BooleanExtractor)
+ * @see U1Vec#getBoolean(long, BooleanBox)
  */
-public class BooleanBox implements BooleanExtractor {
+public class BooleanBox {
   /**
    * The validity of the value, false means that the value doesn't exist (is null)
    */
@@ -20,8 +20,7 @@ public class BooleanBox implements BooleanExtractor {
    */
   public boolean value;
 
-  @Override
-  public void consume(boolean validity, boolean value) {
+  void fill(boolean validity, boolean value) {
     this.validity = validity;
     this.value = value;
   }

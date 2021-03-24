@@ -30,7 +30,7 @@ import static java.util.Objects.requireNonNull;
  * It can load and store nulls, ints and floats
  * <ul>
  *   <li>{@link #getInt(long)} and {@link #getFloat(long)} loads a non null int / float
- *   <li>{@link #getInt(long, IntExtractor)} and {@link #getFloat(long, FloatExtractor)} loads a nullable int / float
+ *   <li>{@link #getInt(long, IntBox)} and {@link #getFloat(long, FloatBox)} loads a nullable int / float
  *   <li>{@link #setInt(long, int)} and {@link #setFloat(long, float)} stores an int / float
  *   <li>{@link #isNull(long)} checks if a value is {code null}
  *   <li>{@link #setNull(long)} stores {code null}
@@ -91,18 +91,20 @@ public interface U32Vec extends Vec {
   void setFloat(long index, float value);
 
   /**
-   * Send the {@code validity} and the {@code value} at index {@code index} to the {@code extractor}
+   * Fill the box with {@code validity} and the {@code value} at index {@code index}
    * @param index the index of the value
-   * @see IntBox
+   * @param box the box that will be filled
+   * @return the box taken as parameter filled with the {@code validity} and the {@code value}
    */
-  void getInt(long index, IntExtractor extractor);
+  IntBox getInt(long index, IntBox box);
 
   /**
-   * Send the {@code validity} and the {@code value} at index {@code index} to the {@code extractor}
+   * Fill the box with {@code validity} and the {@code value} at index {@code index}
    * @param index the index of the value
-   * @see FloatBox
+   * @param box the box that will be filled
+   * @return the box taken as parameter filled with the {@code validity} and the {@code value}
    */
-  void getFloat(long index, FloatExtractor extractor);
+  FloatBox getFloat(long index, FloatBox box);
 
   @Override
   U32Vec withValidity(U1Vec validity);

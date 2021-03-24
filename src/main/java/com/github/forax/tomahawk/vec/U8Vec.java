@@ -29,7 +29,7 @@ import jdk.incubator.foreign.MemorySegment;
  * It can load and store nulls and bytes
  * <ul>
  *   <li>{@link #getByte(long)} loads a non null byte
- *   <li>{@link #getByte(long, ByteExtractor)} loads a nullable byte
+ *   <li>{@link #getByte(long, ByteBox)} loads a nullable byte
  *   <li>{@link #setByte(long, byte)} stores a byte
  *   <li>{@link #isNull(long)} checks if a value is {code null}
  *   <li>{@link #setNull(long)} stores {code null}
@@ -75,11 +75,12 @@ public interface U8Vec extends Vec {
   void setByte(long index, byte value);
 
   /**
-   * Send the {@code validity} and the {@code value} at index {@code index} to the {@code extractor}
+   * Fill the box with {@code validity} and the {@code value} at index {@code index}
    * @param index the index of the value
-   * @see ByteBox
+   * @param box the box that will be filled
+   * @return the box taken as parameter filled with the {@code validity} and the {@code value}
    */
-  void getByte(long index, ByteExtractor extractor);
+  ByteBox getByte(long index, ByteBox box);
 
   @Override
   U8Vec withValidity(U1Vec validity);

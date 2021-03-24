@@ -6,9 +6,9 @@ package com.github.forax.tomahawk.vec;
  * If {@link #validity} is true, the value of the box is stored into {@link #value},
  * otherwise if {@link #validity} is false, the value of the box is {@code null}.
  *
- * @see U32Vec#getFloat(long, FloatExtractor)
+ * @see U32Vec#getFloat(long, FloatBox)
  */
-public class FloatBox implements FloatExtractor {
+public class FloatBox {
   /**
    * The validity of the value, false means that the value doesn't exist (is null)
    */
@@ -20,8 +20,7 @@ public class FloatBox implements FloatExtractor {
    */
   public float value;
 
-  @Override
-  public void consume(boolean validity, float value) {
+  void fill(boolean validity, float value) {
     this.validity = validity;
     this.value = value;
   }

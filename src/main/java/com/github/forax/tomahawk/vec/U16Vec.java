@@ -29,7 +29,7 @@ import static java.util.Objects.requireNonNull;
  * It can load and store nulls, shorts and chars
  * <ul>
  *   <li>{@link #getShort(long)} and {@link #getChar(long)} loads a non null short / char
- *   <li>{@link #getShort(long, ShortExtractor)} and {@link #getChar(long, CharExtractor)}
+ *   <li>{@link #getShort(long, ShortBox)} and {@link #getChar(long, CharBox)}
  *   loads a nullable short / char
  *   <li>{@link #setShort(long, short)} and {@link #setChar(long, char)} stores an short / char
  *   <li>{@link #isNull(long)} checks if a value is {code null}
@@ -91,18 +91,20 @@ public interface U16Vec extends Vec {
   void setChar(long index, char value);
 
   /**
-   * Send the {@code validity} and the {@code value} at index {@code index} to the {@code extractor}
+   * Fill the box with {@code validity} and the {@code value} at index {@code index}
    * @param index the index of the value
-   * @see ShortBox
+   * @param box the box that will be filled
+   * @return the box taken as parameter filled with the {@code validity} and the {@code value}
    */
-  void getShort(long index, ShortExtractor extractor);
+  ShortBox getShort(long index, ShortBox box);
 
   /**
-   * Send the {@code validity} and the {@code value} at index {@code index} to the {@code extractor}
+   * Fill the box with {@code validity} and the {@code value} at index {@code index}
    * @param index the index of the value
-   * @see CharBox
+   * @param box the box that will be filled
+   * @return the box taken as parameter filled with the {@code validity} and the {@code value}
    */
-  void getChar(long index, CharExtractor extractor);
+  CharBox getChar(long index, CharBox box);
 
   @Override
   U16Vec withValidity(U1Vec validity);

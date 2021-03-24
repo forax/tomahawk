@@ -31,7 +31,7 @@ import static java.util.Objects.requireNonNull;
  * It can load and store nulls and booleans
  * <ul>
  *   <li>{@link #getBoolean(long)} loads a non null boolean
- *   <li>{@link #getBoolean(long, BooleanExtractor)}  loads a nullable boolean
+ *   <li>{@link #getBoolean(long, BooleanBox)}  loads a nullable boolean
  *   <li>{@link #setBoolean(long, boolean)} stores a boolean
  *   <li>{@link #isNull(long)} checks if a value is {code null}
  *   <li>{@link #setNull(long)} stores {code null}
@@ -77,11 +77,12 @@ public interface U1Vec extends Vec {
   void setBoolean(long index, boolean value);
 
   /**
-   * Send the {@code validity} and the {@code value} at index {@code index} to the {@code extractor}
+   * Fill the box with {@code validity} and the {@code value} at index {@code index}
    * @param index the index of the value
-   * @see BooleanBox
+   * @param box the box that will be filled
+   * @return the box taken as parameter filled with the {@code validity} and the {@code value}
    */
-  void getBoolean(long index, BooleanExtractor extractor);
+  BooleanBox getBoolean(long index, BooleanBox box);
 
   @Override
   U1Vec withValidity(U1Vec validity);

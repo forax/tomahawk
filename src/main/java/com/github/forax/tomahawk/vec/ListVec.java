@@ -21,7 +21,7 @@ import static java.util.Objects.requireNonNull;
  *
  * It can load and store nulls and list of values
  * <ul>
- *   <li>{@link #getValues(long, ValuesExtractor)} loads a nullable list of values
+ *   <li>{@link #getValues(long, ValuesBox)} loads a nullable list of values
  *   <li>{@link #getString(long)} which is a convenient method in case the values are {@link U32Vec} of char.
  *   <li>{@link #isNull(long)} checks if a value is {code null}
  *   <li>{@link #setNull(long)} stores {code null}
@@ -79,11 +79,12 @@ public interface ListVec<V extends Vec> extends Vec {
   String getString(long index);
 
   /**
-   * Send the {@code validity} and the offset start and offset end of the list of vlaues to the {@code extractor}
+   * Fill the box with {@code validity} and the {@code value} at index {@code index}
    * @param index the index of the value
-   * @see ValuesBox
+   * @param box the box that will be filled
+   * @return the box taken as parameter filled with the {@code validity} and the {@code value}
    */
-  void getValues(long index, ValuesExtractor extractor);
+  ValuesBox getValues(long index, ValuesBox box);
 
   @Override
   ListVec<V> withValidity(U1Vec validity);

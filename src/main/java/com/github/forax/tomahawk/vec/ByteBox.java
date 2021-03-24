@@ -6,9 +6,9 @@ package com.github.forax.tomahawk.vec;
  * If {@link #validity} is true, the value of the box is stored into {@link #value},
  * otherwise if {@link #validity} is false, the value of the box is {@code null}.
  *
- * @see U8Vec#getByte(long, ByteExtractor)
+ * @see U8Vec#getByte(long, ByteBox)
  */
-public class ByteBox implements ByteExtractor {
+public class ByteBox {
   /**
    * The validity of the value, false means that the value doesn't exist (is null)
    */
@@ -20,8 +20,7 @@ public class ByteBox implements ByteExtractor {
    */
   public byte value;
 
-  @Override
-  public void consume(boolean validity, byte value) {
+  void fill(boolean validity, byte value) {
     this.validity = validity;
     this.value = value;
   }

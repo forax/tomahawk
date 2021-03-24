@@ -16,9 +16,9 @@ import java.util.stream.Stream;
  * [#startOffset, #endOffset[,
  * otherwise if {@link #validity} is false, the value of the box is {@code null}.
  *
- * @see ListVec#getValues(long, ValuesExtractor)
+ * @see ListVec#getValues(long, ValuesBox)
  */
-public class ValuesBox implements ValuesExtractor {
+public class ValuesBox {
   /**
    * The validity of the value, false means that the value doesn't exist (is null)
    */
@@ -34,8 +34,7 @@ public class ValuesBox implements ValuesExtractor {
    */
   public long endOffset;
 
-  @Override
-  public void consume(boolean validity, long startOffset, long endOffset) {
+  void fill(boolean validity, long startOffset, long endOffset) {
     this.validity = validity;
     this.startOffset = startOffset;
     this.endOffset = endOffset;
