@@ -112,11 +112,11 @@ public class VecU8Test {
       assertAll(
           () -> assertTrue(vec.isNull(0)),
           () -> assertThrows(NullPointerException.class, () -> vec.getByte(0)),
-          () -> vec.getByte(0, (validity, __) -> assertFalse(validity)),
+          () -> assertFalse(vec.getByte(0, new ByteBox()).validity),
 
           () -> assertTrue(vec.isNull(3)),
           () -> assertThrows(NullPointerException.class, () -> vec.getByte(3)),
-          () -> vec.getByte(3, (validity, __) -> assertFalse(validity))
+          () -> assertFalse(vec.getByte(3, new ByteBox()).validity)
       );
     }
   }

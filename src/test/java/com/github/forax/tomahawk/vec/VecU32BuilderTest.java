@@ -59,24 +59,20 @@ public class VecU32BuilderTest {
 
           () -> assertFalse(vec.isNull(0)),
           () -> assertEquals(-99, vec.getInt(0)),
-          () -> vec.getInt(0, (validity, value) -> {
-            assertTrue(validity);
-            assertEquals(-99, value);
-          }),
+          () ->  assertTrue(vec.getInt(0, new IntBox()).validity),
+          () -> assertEquals(-99, vec.getInt(0, new IntBox()).value),
 
           () -> assertTrue(vec.isNull(1)),
-          () -> vec.getInt(1, (validity, __) -> assertFalse(validity)),
+          () -> assertFalse(vec.getInt(1, new IntBox()).validity),
           () -> assertThrows(NullPointerException.class, () -> vec.getInt(1)),
 
           () -> assertFalse(vec.isNull(2)),
           () -> assertEquals(777, vec.getInt(2)),
-          () -> vec.getInt(2, (validity, value) -> {
-            assertTrue(validity);
-            assertEquals(777, value);
-          }),
+          () -> assertTrue(vec.getInt(2, new IntBox()).validity),
+          () -> assertEquals(777, vec.getInt(2, new IntBox()).value),
 
           () -> assertTrue(vec.isNull(3)),
-          () -> vec.getInt(3, (validity, __) -> assertFalse(validity)),
+          () -> assertFalse(vec.getInt(3, new IntBox()).validity),
           () -> assertThrows(NullPointerException.class, () -> vec.getInt(3))
       );
     } finally {
@@ -128,24 +124,20 @@ public class VecU32BuilderTest {
 
           () -> assertFalse(vec.isNull(0)),
           () -> assertEquals(-888.0f, vec.getFloat(0)),
-          () -> vec.getFloat(0, (validity, value) -> {
-            assertTrue(validity);
-            assertEquals(-888.0f, value);
-          }),
+          () -> assertTrue(vec.getFloat(0, new FloatBox()).validity),
+          () -> assertEquals(-888.0f, vec.getFloat(0, new FloatBox()).value),
 
           () -> assertTrue(vec.isNull(1)),
-          () -> vec.getFloat(1, (validity, __) -> assertFalse(validity)),
+          () -> assertFalse(vec.getFloat(1, new FloatBox()).validity),
           () -> assertThrows(NullPointerException.class, () -> vec.getFloat(1)),
 
           () -> assertFalse(vec.isNull(2)),
           () -> assertEquals(44.0f, vec.getFloat(2)),
-          () -> vec.getFloat(2, (validity, value) -> {
-            assertTrue(validity);
-            assertEquals(44.0f, value);
-          }),
+          () -> assertTrue(vec.getFloat(2, new FloatBox()).validity),
+          () -> assertEquals(44.0f,vec.getFloat(2, new FloatBox()).value),
 
           () -> assertTrue(vec.isNull(3)),
-          () -> vec.getInt(3, (validity, __) -> assertFalse(validity)),
+          () -> assertFalse(vec.getInt(3, new IntBox()).validity),
           () -> assertThrows(NullPointerException.class, () -> vec.getInt(3))
       );
     } finally {

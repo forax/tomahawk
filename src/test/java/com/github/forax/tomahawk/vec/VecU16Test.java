@@ -127,11 +127,11 @@ public class VecU16Test {
       assertAll(
           () -> assertTrue(vec.isNull(0)),
           () -> assertThrows(NullPointerException.class, () -> vec.getShort(0)),
-          () -> vec.getShort(0, (validity, __) -> assertFalse(validity)),
+          () -> assertFalse(vec.getShort(0, new ShortBox()).validity),
 
           () -> assertTrue(vec.isNull(3)),
           () -> assertThrows(NullPointerException.class, () -> vec.getShort(3)),
-          () -> vec.getShort(3, (validity, __) -> assertFalse(validity))
+          () -> assertFalse(vec.getShort(3, new ShortBox()).validity)
       );
     }
   }
@@ -198,11 +198,11 @@ public class VecU16Test {
       assertAll(
           () -> assertTrue(vec.isNull(0)),
           () -> assertThrows(NullPointerException.class, () -> vec.getChar(0)),
-          () -> vec.getChar(0, (validity, __) -> assertFalse(validity)),
+          () -> assertFalse(vec.getChar(0, new CharBox()).validity),
 
           () -> assertTrue(vec.isNull(3)),
           () -> assertThrows(NullPointerException.class, () -> vec.getChar(3)),
-          () -> vec.getChar(3, (validity, __) -> assertFalse(validity))
+          () -> assertFalse(vec.getChar(3, new CharBox()).validity)
       );
     }
   }

@@ -127,11 +127,11 @@ public class VecU32Test {
       assertAll(
           () -> assertTrue(vec.isNull(0)),
           () -> assertThrows(NullPointerException.class, () -> vec.getInt(0)),
-          () -> vec.getInt(0, (validity, __) -> assertFalse(validity)),
+          () -> assertFalse(vec.getInt(0, new IntBox()).validity),
 
           () -> assertTrue(vec.isNull(3)),
           () -> assertThrows(NullPointerException.class, () -> vec.getInt(3)),
-          () -> vec.getInt(3, (validity, __) -> assertFalse(validity))
+          () -> assertFalse(vec.getInt(3, new IntBox()).validity)
       );
     }
   }
@@ -198,11 +198,11 @@ public class VecU32Test {
       assertAll(
           () -> assertTrue(vec.isNull(0)),
           () -> assertThrows(NullPointerException.class, () -> vec.getFloat(0)),
-          () -> vec.getFloat(0, (validity, __) -> assertFalse(validity)),
+          () -> assertFalse(vec.getFloat(0, new FloatBox()).validity),
 
           () -> assertTrue(vec.isNull(3)),
           () -> assertThrows(NullPointerException.class, () -> vec.getFloat(3)),
-          () -> vec.getFloat(3, (validity, __) -> assertFalse(validity))
+          () -> assertFalse(vec.getFloat(3, new FloatBox()).validity)
       );
     }
   }
