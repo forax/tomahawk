@@ -1,6 +1,9 @@
 package com.github.forax.tomahawk.vec;
 
-import jdk.incubator.foreign.MemorySegment;
+import static com.github.forax.tomahawk.vec.VecBuilderImpl.builderImpl;
+import static com.github.forax.tomahawk.vec.VecImpl.implDataOrNull;
+import static java.nio.channels.FileChannel.MapMode.READ_WRITE;
+import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -8,13 +11,9 @@ import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.util.stream.DoubleStream;
-import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
-import static com.github.forax.tomahawk.vec.VecBuilderImpl.builderImpl;
-import static com.github.forax.tomahawk.vec.VecImpl.implDataOrNull;
-import static java.nio.channels.FileChannel.MapMode.READ_WRITE;
-import static java.util.Objects.requireNonNull;
+import jdk.incubator.foreign.MemorySegment;
 
 /**
  * A fixed size, mutable column of 64 bits values.

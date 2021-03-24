@@ -221,12 +221,14 @@ public class VecU32Test {
   public void simple() throws IOException {
     var path = Files.createTempFile("map-new", "");
     Closeable andClean = () -> Files.delete(path);
+    Vec vec;
     try(andClean) {
       var builder = U32Vec.builder(null, path);
       builder.appendInt(3)
           .appendFloat(42.5f);
-      var vec = builder.toVec();
-      vec.close();
+      vec = builder.toVec();
+    }
+    try(vec) {
       assertEquals(vec.length(), 2);
     }
   }

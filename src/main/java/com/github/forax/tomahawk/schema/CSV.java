@@ -139,7 +139,7 @@ public final class CSV {
         case long64 -> rowBuilder.appendLong((U64Vec.Builder) builder, Long.parseLong(text));
         case double64 -> rowBuilder.appendDouble((U64Vec.Builder) builder, Double.parseDouble(text));
         default -> throw new AssertionError();
-      };
+      }
       return;
     }
     if (layout instanceof ListLayout listLayout) {

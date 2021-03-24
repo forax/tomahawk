@@ -20,6 +20,7 @@ import static java.nio.file.Files.delete;
 import static java.nio.file.Files.list;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@SuppressWarnings("static-method")
 public class CSVTest {
   @Test
   public void fetch() throws IOException {

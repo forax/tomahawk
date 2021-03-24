@@ -90,10 +90,12 @@ interface VecOps {
         setTarget(FALLBACK.bindTo(this));
       }
 
+      @SuppressWarnings("unused")
       private static boolean typeCheck(Vec dest, Vec vec1, Vec vec2, Class<?> typeDest, Class<?> typeVec1, Class<?> typeVec2) {
         return dest.getClass() == typeDest && vec1.getClass() == typeVec1 && vec2.getClass() == typeVec2;
       }
 
+      @SuppressWarnings("unused")
       private void fallback(Vec dest, Vec vec1, Vec vec2, IntBinOp binaryOp) {
         Class<?> typeDest = dest.getClass();
         Class<?> typeVec1 = vec1.getClass();
@@ -114,6 +116,7 @@ interface VecOps {
       }
     }
 
+    @SuppressWarnings("unused")
     private static void doApplyInt(Vec vDest, Vec vec1, Vec vec2, IntBinOp binaryOp) {
       var bufferDest = byteBuffer(vDest);
       var buffer1 = byteBuffer(vec1);

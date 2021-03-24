@@ -11,6 +11,7 @@ import static java.nio.file.Files.list;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@SuppressWarnings("static-method")
 public class ListVecTest {
   @Test
   public void demo() throws IOException {

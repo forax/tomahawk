@@ -29,6 +29,7 @@ import static java.nio.file.Files.list;
 import static java.util.Objects.requireNonNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@SuppressWarnings("static-method")
 public class JSONTest {
   @Test
   public void fetch() throws IOException {

@@ -1,7 +1,5 @@
 package com.github.forax.tomahawk.vec;
 
-import jdk.incubator.foreign.MemorySegment;
-
 import java.io.UncheckedIOException;
 
 /**

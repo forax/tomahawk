@@ -218,7 +218,6 @@ public class VecU64Test {
   }
 
   @Test
-  @SuppressWarnings("Convert2MethodRef")
   public void demo() throws IOException {
     var dir = Files.createTempDirectory("vec-u32");
     Closeable andClean = () -> {
@@ -236,7 +235,7 @@ public class VecU64Test {
       U64Vec vec;
       try (var validityBuilder = U1Vec.builder(null, validityPath);
            var builder = U64Vec.builder(validityBuilder, dataPath)) {
-        LongStream.range(0, 100_000).forEach(i -> builder.appendLong(i));
+        LongStream.range(0, 100_000).forEach(builder::appendLong);
         vec = builder.toVec();
       }
       try (vec) {

@@ -34,7 +34,7 @@ interface Layout /*permits Layout.PrimitiveLayout, Layout.ListLayout, Layout.Str
   default Field field(String name) {
     throw new IllegalStateException("no field " + name);
   }
-  default int fieldIndex(String name) {
+  default int fieldIndex(@SuppressWarnings("unused") String name) {
     return -1;
   }
   default Layout element() {

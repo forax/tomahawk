@@ -61,10 +61,12 @@ public final class TextWrap implements CharSequence {
     return hash;
   }
 
+  @Override
   public int length() {
     return length;
   }
 
+  @Override
   public char charAt(int index) {
     Objects.checkIndex(index, length);
     return (char) CHAR_HANDLE.get(segment, offset << 1L + index << 1L);
