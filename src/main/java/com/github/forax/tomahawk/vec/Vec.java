@@ -57,7 +57,7 @@ public interface Vec extends UncheckedCloseable {
    *                            does not have the right element type
    */
   @SuppressWarnings("unchecked")
-  default <V extends Vec> ListVec<V> asListVec(Class<? extends V> elementType) {
+  default <V extends Vec> ListVec<V> asListOf(Class<? extends V> elementType) {
     @SuppressWarnings("RedundantCast")  // the error message should not mention the implementation
     var listVec = (VecImpl.ListImpl<?>) (ListVec<?>) this;
     var data = listVec.data();
@@ -72,7 +72,7 @@ public interface Vec extends UncheckedCloseable {
    * @return the current Vec typed as a {@link StructVec}
    * @throws ClassCastException if the current Vec is not a StructVec
    */
-  default StructVec asStructVec() {
+  default StructVec asStruct() {
     return (StructVec) this;
   }
 
@@ -83,7 +83,7 @@ public interface Vec extends UncheckedCloseable {
    * @return the current Vec typed as a specific Vec
    * @throws ClassCastException if the current Vec is not a specific Vec
    */
-  default <V extends Vec> V asVec(Class<? extends V> vecType) {
+  default <V extends Vec> V as(Class<? extends V> vecType) {
     return vecType.cast(this);
   }
 

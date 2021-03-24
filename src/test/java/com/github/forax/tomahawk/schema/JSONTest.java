@@ -90,10 +90,10 @@ public class JSONTest {
     };
     try(andClean) {
       JSON.fetch(json, layout, directory, "persons");
-      var person = Layout.map(directory, "persons", layout).asStructVec();
-      var name = person.fields().get(0).asListVec(U16Vec.class);
-      var age = person.fields().get(1).asVec(U8Vec.class);
-      var phones = person.fields().get(2).asListVec(ListVec.class);
+      var person = Layout.map(directory, "persons", layout).asStruct();
+      var name = person.fields().get(0).asListOf(U16Vec.class);
+      var age = person.fields().get(1).as(U8Vec.class);
+      var phones = person.fields().get(2).asListOf(ListVec.class);
 
       var names = LongStream.range(0, name.length()).mapToObj(name::getString).toList();
       assertEquals(List.of("Joe", "Jack"), names);
@@ -137,15 +137,15 @@ public class JSONTest {
         var reader = new InputStreamReader(requireNonNull(input), StandardCharsets.UTF_8);
         andClean) {
       JSON.fetch(reader, layout, directory, "scottish-parliament-members");
-      var memberVec = Table.map(directory, "scottish-parliament-members", layout).asStructVec();
+      var memberVec = Table.map(directory, "scottish-parliament-members", layout).asStruct();
 
       // mask past member names
-      var isCurrent = memberVec.fields().get(8).asVec(U1Vec.class);
-      var preferredName = memberVec.fields().get(5).asListVec(U16Vec.class);
-      preferredName = preferredName.withValidity(isCurrent);
+      var isCurrent = memberVec.fields().get(layout.fieldIndex("IsCurrent")).as(U1Vec.class);
+      var parliamentaryName = memberVec.fields().get(layout.fieldIndex("ParliamentaryName")).asListOf(U16Vec.class);
+      parliamentaryName = parliamentaryName.withValidity(isCurrent);
 
       var names =
-          preferredName.allTextWraps()
+          parliamentaryName.allTextWraps()
               .filter(Objects::nonNull)
               .limit(5)
               .map(TextWrap::toString)

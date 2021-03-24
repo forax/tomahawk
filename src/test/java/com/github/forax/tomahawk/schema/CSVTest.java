@@ -76,9 +76,9 @@ public class CSVTest {
     };
     try(andClean) {
       CSV.fetch(csv, (StructLayout) layout, directory, "jobs");
-      var vec = Layout.map(directory, "jobs").asStructVec();
-      var name = vec.fields().get(0).asListVec(U16Vec.class);
-      var state = vec.fields().get(3).asListVec(U16Vec.class);
+      var vec = Layout.map(directory, "jobs").asStruct();
+      var name = vec.fields().get(layout.fieldIndex("Name")).asListOf(U16Vec.class);
+      var state = vec.fields().get(layout.fieldIndex("State")).asListOf(U16Vec.class);
 
       var names = LongStream.range(0, name.length()).mapToObj(name::getString).toList();
       assertEquals(List.of("Doe, John", "Green, Edward"), names);
