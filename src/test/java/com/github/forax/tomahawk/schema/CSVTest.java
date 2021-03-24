@@ -9,7 +9,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.LongStream;
 
 import static com.github.forax.tomahawk.schema.Layout.double64;
 import static com.github.forax.tomahawk.schema.Layout.field;
