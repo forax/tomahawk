@@ -202,6 +202,13 @@ interface Layout /*permits Layout.PrimitiveLayout, Layout.ListLayout, Layout.Str
       return fields.hashCode();
     }
 
+    @Override
+    public String toString() {
+      return fields.stream()
+          .map(field -> "field(" + field.name() + ", " + field.layout + ")")
+          .collect(joining(", ", "(", ")"));
+    }
+
     public List<Field> fields() {
       //noinspection AssignmentOrReturnOfFieldWithMutableType
       return fields;
