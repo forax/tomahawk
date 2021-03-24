@@ -620,10 +620,10 @@ interface VecBuilderImpl {
         return appendNull();
       }
       appendValues(b -> {
-        if (!(b instanceof U16Builder stringBuilder)) {
+        if (!(b instanceof U16Builder u16Builder)) {
           throw new IllegalStateException("appendTextWrap is only supported on U16Dataset");
         }
-        stringBuilder.appendTextWrap(textWrap);
+        u16Builder.appendTextWrap(textWrap);
       });
       return this;
     }
@@ -634,10 +634,10 @@ interface VecBuilderImpl {
         return appendNull();
       }
       appendValues(b -> {
-        if (!(b instanceof U16Builder stringBuilder)) {
+        if (!(b instanceof U16Builder u16Builder)) {
           throw new IllegalStateException("appendString is only supported on U16Dataset");
         }
-        stringBuilder.appendString(s);
+        u16Builder.appendString(s);
       });
       return this;
     }
