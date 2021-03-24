@@ -66,10 +66,10 @@ This API is composed of two packages
   by adding the static import `import static com.github.forax.tomahawk.schema.Layout.*`
   (the boolean after the type indicate if the type is nullable or not).
   
-  By separating the notion of `Vec` and the notion of schema/`Layout`, one can easily rename or
+  By separating the notion of `Vec` and the notion of Layout, one can easily rename or
   rearrange columns without changing the data, or better (or worst) share columns between
-  different tables.
+  different hierarchies of Vecs.
   
-  Apart creating a table by hand, a table can be created from a CSV file or a JSON file,
+  A hierarchy of Vecs can be created from a CSV file or a JSON file,
   with `CSV.fetch()` and `JSON.fetch()` respectively.
   
