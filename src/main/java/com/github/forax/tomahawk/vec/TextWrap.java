@@ -7,7 +7,7 @@ import java.util.Objects;
 import static com.github.forax.tomahawk.vec.VecImpl.U16Impl.CHAR_HANDLE;
 
 /**
- * Lightweight version of a String that only keep a pointer to the memory storage
+ * Lightweight version of a String that only keeps a pointer to the memory storage
  * instead of duplicating all characters like a String does.
  *
  * Example, instead of allocating all the Strings to look for a special value
