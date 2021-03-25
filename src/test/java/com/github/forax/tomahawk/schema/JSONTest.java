@@ -137,7 +137,7 @@ public class JSONTest {
         var reader = new InputStreamReader(requireNonNull(input), StandardCharsets.UTF_8);
         andClean) {
       JSON.fetch(reader, layout, directory, "scottish-parliament-members");
-      var memberVec = Table.map(directory, "scottish-parliament-members", layout).asStruct();
+      var memberVec = Layout.map(directory, "scottish-parliament-members", layout).asStruct();
 
       // mask past member names
       var isCurrent = memberVec.fields().get(layout.fieldIndex("IsCurrent")).as(U1Vec.class);
