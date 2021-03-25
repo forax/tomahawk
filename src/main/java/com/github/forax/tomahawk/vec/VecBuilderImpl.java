@@ -341,9 +341,9 @@ interface VecBuilderImpl {
     }
 
     @Override
-    public U16Vec.Builder appendString(String s) throws UncheckedIOException {
-      for(var i = 0; i < s.length(); i++) {
-        appendChar(s.charAt(i));
+    public U16Vec.Builder appendString(String text) throws UncheckedIOException {
+      for(var i = 0; i < text.length(); i++) {
+        appendChar(text.charAt(i));
       }
       return this;
     }
@@ -841,8 +841,13 @@ interface VecBuilderImpl {
       }
 
       @Override
-      public RowBuilder appendString(ListVec.Builder<U16Vec, U16Vec.Builder> field, String s) {
-        return appendValues(field, b -> b.appendString(s));
+      public RowBuilder appendTextWrap(ListVec.Builder<U16Vec, U16Vec.Builder> field, TextWrap value) throws UncheckedIOException {
+        return appendValues(field, b -> b.appendTextWrap(value));
+      }
+
+      @Override
+      public RowBuilder appendString(ListVec.Builder<U16Vec, U16Vec.Builder> field, String value) {
+        return appendValues(field, b -> b.appendString(value));
       }
 
       @Override

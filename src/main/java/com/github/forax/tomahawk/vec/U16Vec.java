@@ -164,8 +164,23 @@ public interface U16Vec extends Vec {
     @Override
     U16Vec.Builder appendNull() throws UncheckedIOException;
 
+    /**
+     * Appends all characters delimited by the {@link TextWrap} to the file that is mapped to a Vec
+     * @param textWrap a textWrap
+     * @return this builder
+     * @throws UncheckedIOException if an IO error occurs
+     */
     U16Vec.Builder appendTextWrap(TextWrap textWrap) throws UncheckedIOException;
-    U16Vec.Builder appendString(String s) throws UncheckedIOException;
+
+    /**
+     * Appends all characters of the string to the file that is mapped to a Vec
+     * @param text the characters to add
+     * @return this builder
+     * @throws UncheckedIOException if an IO error occurs
+     *
+     * @see #appendTextWrap(TextWrap)
+     */
+    U16Vec.Builder appendString(String text) throws UncheckedIOException;
 
     @Override
     U16Vec toVec();

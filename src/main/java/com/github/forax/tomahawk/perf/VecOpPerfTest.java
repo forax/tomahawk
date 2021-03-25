@@ -3,6 +3,7 @@ package com.github.forax.tomahawk.perf;
 import com.github.forax.tomahawk.vec.U32Vec;
 import com.github.forax.tomahawk.vec.Vec;
 import com.github.forax.tomahawk.vec.VecOp;
+import com.github.forax.tomahawk.vec.VecOpsPerf;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -58,13 +59,19 @@ public class VecOpPerfTest {
   }
 
   @Benchmark
-  public Vec op_add() {
+  public Vec op_add_vecops() {
     VEC_OP.applyInt(dest, v1, v2, (a, b) -> a + b);
     return dest;
   }
 
   @Benchmark
-  public Vec op_add_handcoded() {
+  public Vec op_add_hand_crafted() {
+    VecOpsPerf.handCraftedInt((U32Vec) dest, (U32Vec) v1, (U32Vec) v2, (a, b) -> a + b);
+    return dest;
+  }
+
+  @Benchmark
+  public Vec op_add_vec_loop() {
     var implDest = (U32Vec) dest;
     var implV1 = (U32Vec) v1;
     var implV2 = (U32Vec) v2;

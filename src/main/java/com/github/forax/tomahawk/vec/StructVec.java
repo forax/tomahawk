@@ -117,6 +117,7 @@ public interface StructVec extends Vec {
      * Appends a boolean to the field builder and records that the value for this field is filled.
      *
      * @param field the field builder for a column
+     * @param value the value to append
      * @return this builder
      * @throws UncheckedIOException if an IO error occurs
      * @throws IllegalStateException if the column value was already added
@@ -127,6 +128,7 @@ public interface StructVec extends Vec {
      * Appends a byte to the field builder and records that the value for this field is filled.
      *
      * @param field the field builder for a column
+     * @param value the value to append
      * @return this builder
      * @throws UncheckedIOException if an IO error occurs
      * @throws IllegalStateException if the column value was already added
@@ -137,6 +139,7 @@ public interface StructVec extends Vec {
      * Appends a short to the field builder and records that the value for this field is filled.
      *
      * @param field the field builder for a column
+     * @param value the value to append
      * @return this builder
      * @throws UncheckedIOException if an IO error occurs
      * @throws IllegalStateException if the column value was already added
@@ -147,6 +150,7 @@ public interface StructVec extends Vec {
      * Appends a char to the field builder and records that the value for this field is filled.
      *
      * @param field the field builder for a column
+     * @param value the value to append
      * @return this builder
      * @throws UncheckedIOException if an IO error occurs
      * @throws IllegalStateException if the column value was already added
@@ -157,6 +161,7 @@ public interface StructVec extends Vec {
      * Appends an int to the field builder and records that the value for this field is filled.
      *
      * @param field the field builder for a column
+     * @param value the value to append
      * @return this builder
      * @throws UncheckedIOException if an IO error occurs
      * @throws IllegalStateException if the column value was already added
@@ -167,6 +172,7 @@ public interface StructVec extends Vec {
      * Appends a float to the field builder and records that the value for this field is filled.
      *
      * @param field the field builder for a column
+     * @param value the value to append
      * @return this builder
      * @throws UncheckedIOException if an IO error occurs
      * @throws IllegalStateException if the column value was already added
@@ -177,6 +183,7 @@ public interface StructVec extends Vec {
      * Appends a long to the field builder and records that the value for this field is filled.
      *
      * @param field the field builder for a column
+     * @param value the value to append
      * @return this builder
      * @throws UncheckedIOException if an IO error occurs
      * @throws IllegalStateException if the column value was already added
@@ -187,6 +194,7 @@ public interface StructVec extends Vec {
      * Appends a double to the field builder and records that the value for this field is filled.
      *
      * @param field the field builder for a column
+     * @param value the value to append
      * @return this builder
      * @throws UncheckedIOException if an IO error occurs
      * @throws IllegalStateException if the column value was already added
@@ -194,19 +202,35 @@ public interface StructVec extends Vec {
     StructVec.RowBuilder appendDouble(U64Vec.Builder field, double value) throws UncheckedIOException;
 
     /**
-     * Appends a String to the field builder and records that the value for this field is filled.
+     * Appends the content of a {@link TextWrap} to the field builder and
+     * records that the value for this field is filled.
      *
      * @param field the field builder for a column
+     * @param value the content to add to the builder
      * @return this builder
      * @throws UncheckedIOException if an IO error occurs
      * @throws IllegalStateException if the column value was already added
      */
-    StructVec.RowBuilder appendString(ListVec.Builder<U16Vec, U16Vec.Builder> field, String s) throws UncheckedIOException;
+    StructVec.RowBuilder appendTextWrap(ListVec.Builder<U16Vec, U16Vec.Builder> field, TextWrap value) throws UncheckedIOException;
+
+    /**
+     * Appends a String to the field builder and records that the value for this field is filled.
+     *
+     * @param field the field builder for a column
+     * @param value the value to append
+     * @return this builder
+     * @throws UncheckedIOException if an IO error occurs
+     * @throws IllegalStateException if the column value was already added
+     * 
+     * @see #appendTextWrap(ListVec.Builder, TextWrap)
+     */
+    StructVec.RowBuilder appendString(ListVec.Builder<U16Vec, U16Vec.Builder> field, String value) throws UncheckedIOException;
 
     /**
      * Appends a list of values to the field builder and records that the value for this field is filled.
      *
      * @param field the field builder for a column
+     * @param consumer a consumer that makes the builder of the data of the list available
      * @return this builder
      * @throws UncheckedIOException if an IO error occurs
      * @throws IllegalStateException if the column value was already added
@@ -217,6 +241,7 @@ public interface StructVec extends Vec {
      * Appends a row to the field builder and records that the value for this field is filled.
      *
      * @param field the field builder for a column
+     * @param consumer a consumer that makes the field builder of the struct available
      * @return this builder
      * @throws UncheckedIOException if an IO error occurs
      * @throws IllegalStateException if the column value was already added

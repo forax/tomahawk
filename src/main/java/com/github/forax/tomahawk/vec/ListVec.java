@@ -157,9 +157,21 @@ public interface ListVec<V extends Vec> extends Vec {
     @Override
     ListVec.Builder<D, B> appendNull() throws UncheckedIOException;
 
+    /**
+     * Appends the characters of a {@link TextWrap} to the file that is mapped to a Vec
+     * @param textWrap the content to append
+     * @return this builder
+     * @throws UncheckedIOException if an IO error occurs
+     */
     ListVec.Builder<D, B> appendTextWrap(TextWrap textWrap) throws UncheckedIOException;
 
-    ListVec.Builder<D, B> appendString(String s) throws UncheckedIOException;
+    /**
+     * Appends the characters of a {@code String} to the file that is mapped to a Vec
+     * @param value the content to append
+     * @return this builder
+     * @throws UncheckedIOException if an IO error occurs
+     */
+    ListVec.Builder<D, B> appendString(String value) throws UncheckedIOException;
 
     @Override
     ListVec<D> toVec();
