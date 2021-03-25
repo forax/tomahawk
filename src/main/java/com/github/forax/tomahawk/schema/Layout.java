@@ -19,80 +19,227 @@ import static com.github.forax.tomahawk.schema.Layout.PrimitiveLayout.Kind.u1;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 
-interface Layout /*permits Layout.PrimitiveLayout, Layout.ListLayout, Layout.StructLayout*/ {
+/**
+ *
+ */
+public interface Layout /*permits Layout.PrimitiveLayout, Layout.ListLayout, Layout.StructLayout*/ {
+  /**
+   * Returns true if the current layout is a {@link PrimitiveLayout}
+   * @return true if the current layout is a {@code PrimitiveLayout}
+   */
   default boolean isPrimitive() {
     return this instanceof PrimitiveLayout;
   }
+
+  /**
+   * Returns true if he current layout is a {@link ListLayout}
+   * @return true if he current layout is a {@code ListLayout}
+   */
   default boolean isList() {
     return this instanceof ListLayout;
   }
+
+  /**
+   * Returns true if he current layout is a {@link StructLayout}
+   * @return true if he current layout is a {@code StructLayout}
+   */
   default boolean isStruct() {
     return this instanceof StructLayout;
   }
+
+  /**
+   * Returns true if the current layout is nullable
+   * @return true if the current layout is nullable
+   */
   boolean nullable();
+
+  /**
+   * return the fields of the {@link StructLayout} if the current layout is a struct layout
+   * or an empty list otherwise
+   * @return the fields of a {@link StructLayout}
+   */
   default List<Field> fields() {
     return List.of();
   }
+
+  /**
+   * Returns the field of the {@link StructLayout} if the current layout is a struct layout
+   * and the field exists or throw an exception
+   * @param name the name of the field
+   * @return the field of {@link StructLayout}
+   * @throws IllegalStateException if there is no field named {@code name}
+   */
   default Field field(String name) {
     throw new IllegalStateException("no field " + name);
   }
+
+  /**
+   * Returns the field index of the {@link StructLayout} if the current layout is a struct layout
+   * @param name the name of the field
+   * @return the index of the field or {@code -1} otherwise
+   */
   default int fieldIndex(@SuppressWarnings("unused") String name) {
     return -1;
   }
+
+
+  /**
+   * Returns the element of the {@link ListLayout} if the current layout if a list layout
+   * @return the element of the {@code ListLayout}
+   */
   default Layout element() {
     throw new IllegalStateException("no element");
   }
 
-  static PrimitiveLayout u1(boolean nullable) {
-    return new PrimitiveLayout(nullable, u1);
-  }
-  static PrimitiveLayout byte8(boolean nullable) {
-    return new PrimitiveLayout(nullable, byte8);
-  }
-  static PrimitiveLayout short16(boolean nullable) {
-    return new PrimitiveLayout(nullable, short16);
-  }
-  static PrimitiveLayout char16(boolean nullable) {
-    return new PrimitiveLayout(nullable, char16);
-  }
-  static PrimitiveLayout int32(boolean nullable) {
-    return new PrimitiveLayout(nullable, int32);
-  }
-  static PrimitiveLayout float32(boolean nullable) {
-    return new PrimitiveLayout(nullable, float32);
-  }
-  static PrimitiveLayout long64(boolean nullable) {
-    return new PrimitiveLayout(nullable, long64);
-  }
-  static PrimitiveLayout double64(boolean nullable) {
-    return new PrimitiveLayout(nullable, double64);
+  /**
+   * Saves the textual representation of the current layout to a file
+   * @param path the path of the file
+   * @throws IOException if an io error occurs
+   */
+  default void saveTo(Path path) throws IOException {
+    Files.writeString(path, toString());
   }
 
-  static ListLayout list(boolean nullable, Layout layout) {
-    return new ListLayout(nullable, layout);
-  }
-  static ListLayout string(boolean nullable) {
-    return list(true, char16(nullable));
-  }
-
-  static Field field(String name, Layout layout) {
-    return new Field(name, layout);
-  }
-  static StructLayout struct(boolean nullable, Field... fields) {
-    return new StructLayout(nullable, fields);
-  }
-
-  static void save(Path path, Layout layout) throws IOException {
-    Files.writeString(path, layout.toString());
-  }
-
-  static Layout load(Path path) throws IOException {
+  /**
+   * Loads a Layout from a file
+   * @param path path to the file
+   * @return the loaded layout
+   * @throws IOException if an io error occurs
+   */
+  static Layout loadFrom(Path path) throws IOException {
     var text = Files.readString(path);
     return parse(text);
   }
 
+  /**
+   * Returns a layout from a text containing a textual representation of a Layout
+   * @param text the text containing a textual representation of a Layout
+   * @return a layout from a text containing a textual representation of a Layout
+   */
   static Layout parse(String text) {
     return LayoutParser.parse(text);
+  }
+
+
+  /**
+   * Returns a primitive layout corresponding to a {@link com.github.forax.tomahawk.vec.U1Vec one bit Vec}
+   * of booleans
+   * @param nullable if the primitive layout represents a nullable {@link Vec}
+   * @return a primitive layout representing a booleans {@code Vec}
+   */
+  static PrimitiveLayout u1(boolean nullable) {
+    return new PrimitiveLayout(nullable, u1);
+  }
+
+  /**
+   * Returns a primitive layout corresponding to a {@link com.github.forax.tomahawk.vec.U8Vec 8 bits Vec} of bytes
+   * @param nullable if the primitive layout represents a nullable {@link Vec}
+   * @return a primitive layout representing a bytes {@code Vec}
+   */
+  static PrimitiveLayout byte8(boolean nullable) {
+    return new PrimitiveLayout(nullable, byte8);
+  }
+
+  /**
+   * Returns a primitive layout corresponding to a {@link com.github.forax.tomahawk.vec.U8Vec 16 bits Vec} of shorts
+   * @param nullable if the primitive layout represents a nullable {@link Vec}
+   * @return a primitive layout representing a shorts {@code Vec}
+   */
+  static PrimitiveLayout short16(boolean nullable) {
+    return new PrimitiveLayout(nullable, short16);
+  }
+
+  /**
+   * Returns a primitive layout corresponding to a {@link com.github.forax.tomahawk.vec.U16Vec 16 bits Vec} of chars
+   * @param nullable if the primitive layout represents a nullable {@link Vec}
+   * @return a primitive layout representing a chars {@code Vec}
+   */
+  static PrimitiveLayout char16(boolean nullable) {
+    return new PrimitiveLayout(nullable, char16);
+  }
+
+  /**
+   * Returns a primitive layout corresponding to a {@link com.github.forax.tomahawk.vec.U32Vec 32 bits Vec} of ints
+   * @param nullable if the primitive layout represents a nullable {@link Vec}
+   * @return a primitive layout representing an ints {@code Vec}
+   */
+  static PrimitiveLayout int32(boolean nullable) {
+    return new PrimitiveLayout(nullable, int32);
+  }
+
+  /**
+   * Returns a primitive layout corresponding to a {@link com.github.forax.tomahawk.vec.U32Vec 32 bits Vec} of floats
+   * @param nullable if the primitive layout represents a nullable {@link Vec}
+   * @return a primitive layout representing a floats {@code Vec}
+   */
+  static PrimitiveLayout float32(boolean nullable) {
+    return new PrimitiveLayout(nullable, float32);
+  }
+
+  /**
+   * Returns a primitive layout corresponding to a {@link com.github.forax.tomahawk.vec.U32Vec 32 bits Vec} of floats
+   * @param nullable if the primitive layout represents a nullable {@link Vec}
+   * @return a primitive layout representing a floats {@code Vec}
+   */
+  static PrimitiveLayout long64(boolean nullable) {
+    return new PrimitiveLayout(nullable, long64);
+  }
+
+  /**
+   * Returns a primitive layout corresponding to a {@link com.github.forax.tomahawk.vec.U64Vec 64 bits Vec} of doubles
+   * @param nullable if the primitive layout represents a nullable {@link Vec}
+   * @return a primitive layout representing a doubles {@code Vec}
+   */
+  static PrimitiveLayout double64(boolean nullable) {
+    return new PrimitiveLayout(nullable, double64);
+  }
+
+  /**
+   * Returns a list layout composed from an element layout
+   * @param nullable if the lest layout represents a nullable {@link Vec}
+   * @param layout the element layout of the list
+   * @return a list layout composed from an element layout
+   */
+  static ListLayout list(boolean nullable, Layout layout) {
+    return new ListLayout(nullable, layout);
+  }
+
+  /**
+   * Returns a list representing a string of u16 characters
+   *
+   * This is semantically equivalent to
+   * <pre>
+   *   list(nullable, char16(false))
+   * </pre>
+   *
+   * @param nullable true if the list is nullable
+   * @return a list representing a string of u16 characters
+   */
+  static ListLayout string(boolean nullable) {
+    return list(nullable, char16(false));
+  }
+
+  /**
+   * Returns a field of a {@link StructLayout struct layout}
+   * @param name the name of the field
+   * @param layout the layout of the field
+   * @return a field of a struct layout
+   *
+   * @see StructLayout
+   */
+  static Field field(String name, Layout layout) {
+    return new Field(name, layout);
+  }
+
+  /**
+   * Returns a struct layout from several fields
+   *
+   * @param nullable true if the struct is nullable
+   * @param fields the field composing the struct
+   * @return a struct layout from several fields
+   */
+  static StructLayout struct(boolean nullable, Field... fields) {
+    return new StructLayout(nullable, fields);
   }
 
   private static String toString(String space, Layout layout) {
@@ -117,29 +264,102 @@ interface Layout /*permits Layout.PrimitiveLayout, Layout.ListLayout, Layout.Str
     throw new AssertionError();
   }
 
+  /**
+   * Maps several columns from the name of the "table", a directory containing the different columns
+   * and a Layout (that stores the hierarchy and the name of the files)
+   *
+   * @param directory the directory containing the table
+   * @param name the name of the table
+   * @param layout the layout of the table
+   * @return a Vec able to load data from that table
+   * @throws IOException if an io error occurs
+   */
   static Vec map(Path directory, String name, Layout layout) throws IOException {
-    return Table.map(directory, name, layout);
+    return TableImpl.map(directory, name, layout);
   }
 
+  /**
+   * Maps several columns from the name of the "table", a directory containing the different columns
+   * The layout is loaded from filesystem too.
+   *
+   * @param directory the directory containing all the file
+   * @param name the name of the table
+   * @return a Vec able to load data from that table
+   * @throws IOException if an io error occurs
+   *
+   * @see #map(Path, String, Layout)
+   */
   static Vec map(Path directory, String name) throws IOException {
-    var layout = load(directory.resolve(name + "_metadata.txt"));
-    return Table.map(directory, name, layout);
+    var layout = loadFrom(directory.resolve(name + "_metadata.txt"));
+    return TableImpl.map(directory, name, layout);
   }
 
   static Vec.BaseBuilder<?> builder(Path directory, String name, Layout layout) throws IOException {
-    return Table.builder(directory, name, layout);
+    return TableImpl.builder(directory, name, layout);
   }
 
   static Vec.BaseBuilder<?> builder(Path directory, String name) throws IOException {
-    var layout = load(directory.resolve(name + "_metadata.txt"));
-    return Table.builder(directory, name, layout);
+    var layout = loadFrom(directory.resolve(name + "_metadata.txt"));
+    return TableImpl.builder(directory, name, layout);
   }
 
-  record PrimitiveLayout(boolean nullable, Kind kind) implements Layout {
+  /**
+   * A Layout for primitive values
+   */
+  record PrimitiveLayout(/**
+                          * true if the layout is nullable
+                         */
+                         boolean nullable,
+
+                         /**
+                          * the type of the primitive values
+                          */
+                         Kind kind)
+      implements Layout {
+
+    /**
+     * The type of the values of a {@link PrimitiveLayout}
+     */
     enum Kind {
-      u1, byte8, short16, char16, int32, float32, long64, double64
+      /**
+       * One bit boolean
+       */
+      u1,
+      /**
+       * 8 bits byte
+       */
+      byte8,
+      /**
+       * 16 bits short
+       */
+      short16,
+      /**
+       * 16 bits char
+       */
+      char16,
+      /**
+       * 32 bits int
+       */
+      int32,
+      /**
+       * 32 bits float
+       */
+      float32,
+      /**
+       * 64 bits long
+       */
+      long64,
+      /**
+       * 64 bits double
+       */
+      double64
     }
 
+    /**
+     * Create a primitive layout
+     * @param nullable true if {@code null} is a possible value
+     * @param kind the kind of primitive value allowed
+     */
     public PrimitiveLayout {
       requireNonNull(kind);
     }

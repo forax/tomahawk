@@ -43,7 +43,7 @@ public class JSON {
   }
 
   public static void fetch(Reader reader, Layout layout, Path directory, String name) throws IOException {
-    try(var vecBuilder = Table.builder(directory, name, layout)) {
+    try(var vecBuilder = TableImpl.builder(directory, name, layout)) {
       var factory = JsonFactory.builder().build();
       try (var parser = factory.createParser(reader)) {
         var token = parser.nextToken();

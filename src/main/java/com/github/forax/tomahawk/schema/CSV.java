@@ -51,7 +51,7 @@ public final class CSV {
   private record Column(BaseBuilder<?> builder, Layout layout) {}
 
   public static void fetch(Reader reader, StructLayout layout, Path directory, String name) throws IOException {
-    try(var structBuilder = (StructVec.Builder) Table.builder(directory, name, layout)) {
+    try(var structBuilder = (StructVec.Builder) TableImpl.builder(directory, name, layout)) {
       var fieldBuilders = structBuilder.fieldBuilders();
       var columnMap = new HashMap<String, Column>();
       var index = 0;

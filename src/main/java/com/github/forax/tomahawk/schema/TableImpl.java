@@ -16,8 +16,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 
-final class Table {
-  private Table() {
+final class TableImpl {
+  private TableImpl() {
     throw new AssertionError();
   }
 
