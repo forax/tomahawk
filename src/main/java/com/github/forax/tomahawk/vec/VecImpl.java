@@ -9,7 +9,9 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
@@ -58,7 +60,7 @@ interface VecImpl {
   }
 
   static void initFile(Path path, long length) throws IOException {
-    requireNonNull(path);
+    requireNonNull(path, "path");
     if (length < 0) {
       throw new IllegalArgumentException("length < 0");
     }
@@ -145,7 +147,7 @@ interface VecImpl {
 
     @Override
     public BooleanBox getBoolean(long index, BooleanBox box) {
-      requireNonNull(box);
+      requireNonNull(box, "box");
       if (validitySegment != null) {
         if (!U1Impl.getRawBoolean(validitySegment, index)) {
           box.fill(false, false);
@@ -158,7 +160,7 @@ interface VecImpl {
 
     @Override
     public U1Vec withValidity(U1Vec validity) {
-      requireNonNull(validity);
+      requireNonNull(validity, "validity");
       if (length() > validity.length()) {
         throw invalidLength(this, validity);
       }
@@ -230,7 +232,7 @@ interface VecImpl {
 
     @Override
     public ByteBox getByte(long index, ByteBox box) {
-      requireNonNull(box);
+      requireNonNull(box, "box");
       if (validitySegment != null) {
         if (!U1Impl.getRawBoolean(validitySegment, index)) {
           box.fill(false, (byte) 0);
@@ -244,7 +246,7 @@ interface VecImpl {
 
     @Override
     public U8Vec withValidity(U1Vec validity) {
-      requireNonNull(validity);
+      requireNonNull(validity, "validity");
       if (length() > validity.length()) {
         throw invalidLength(this, validity);
       }
@@ -336,7 +338,7 @@ interface VecImpl {
 
     @Override
     public ShortBox getShort(long index, ShortBox box) {
-      requireNonNull(box);
+      requireNonNull(box, "box");
       if (validitySegment != null) {
         if (!U1Impl.getRawBoolean(validitySegment, index)) {
           box.fill(false, (short) 0);
@@ -350,7 +352,7 @@ interface VecImpl {
 
     @Override
     public CharBox getChar(long index, CharBox box) {
-      requireNonNull(box);
+      requireNonNull(box, "box");
       if (validitySegment != null) {
         if (!U1Impl.getRawBoolean(validitySegment, index)) {
           box.fill(false, '\0');
@@ -364,7 +366,7 @@ interface VecImpl {
 
     @Override
     public U16Vec withValidity(U1Vec validity) {
-      requireNonNull(validity);
+      requireNonNull(validity, "validity");
       if (length() > validity.length()) {
         throw invalidLength(this, validity);
       }
@@ -465,7 +467,7 @@ interface VecImpl {
 
     @Override
     public IntBox getInt(long index, IntBox box) {
-      requireNonNull(box);
+      requireNonNull(box, "box");
       if (validitySegment != null) {
         if (!U1Impl.getRawBoolean(validitySegment, index)) {
           box.fill(false, 0);
@@ -479,7 +481,7 @@ interface VecImpl {
 
     @Override
     public FloatBox getFloat(long index, FloatBox box) {
-      requireNonNull(box);
+      requireNonNull(box, "box");
       if (validitySegment != null) {
         if (!U1Impl.getRawBoolean(validitySegment, index)) {
           box.fill(false, 0);
@@ -493,7 +495,7 @@ interface VecImpl {
 
     @Override
     public U32Vec withValidity(U1Vec validity) {
-      requireNonNull(validity);
+      requireNonNull(validity, "validity");
       if (length() > validity.length()) {
         throw invalidLength(this, validity);
       }
@@ -590,7 +592,7 @@ interface VecImpl {
 
     @Override
     public LongBox getLong(long index, LongBox box) {
-      requireNonNull(box);
+      requireNonNull(box, "box");
       if (validitySegment != null) {
         if (!U1Impl.getRawBoolean(validitySegment, index)) {
           box.fill(false, 0);
@@ -604,7 +606,7 @@ interface VecImpl {
 
     @Override
     public DoubleBox getDouble(long index, DoubleBox box) {
-      requireNonNull(box);
+      requireNonNull(box, "box");
       if (validitySegment != null) {
         if (!U1Impl.getRawBoolean(validitySegment, index)) {
           box.fill(false, 0);
@@ -618,7 +620,7 @@ interface VecImpl {
 
     @Override
     public U64Vec withValidity(U1Vec validity) {
-      requireNonNull(validity);
+      requireNonNull(validity, "validity");
       if (length() > validity.length()) {
         throw invalidLength(this, validity);
       }
@@ -679,7 +681,7 @@ interface VecImpl {
 
     @Override
     public ValuesBox getValues(long index, ValuesBox box) {
-      requireNonNull(box);
+      requireNonNull(box, "box");
       if (validitySegment != null) {
         if (!U1Impl.getRawBoolean(validitySegment, index)) {
           box.fill(false, -1, -1);
@@ -728,7 +730,7 @@ interface VecImpl {
 
     @Override
     public ListVec<D> withValidity(U1Vec validity) {
-      requireNonNull(validity);
+      requireNonNull(validity, "validity");
       if (length() > validity.length()) {
         throw invalidLength(this, validity);
       }
@@ -780,11 +782,27 @@ interface VecImpl {
 
     @Override
     public StructVec withValidity(U1Vec validity) {
-      requireNonNull(validity);
+      requireNonNull(validity, "validity");
       if (length() > validity.length()) {
         throw invalidLength(this, validity);
       }
       return StructVec.from(validity, fields);
+    }
+
+    @Override
+    public StructVec splice(int removeStart, int removeEnd, Vec... vecs) {
+      Objects.checkFromToIndex(removeStart, removeEnd, fields.size());
+      var list = new ArrayList<Vec>();
+      for(var i = 0; i < removeStart; i++) {
+        list.add(fields.get(i));
+      }
+      for(var vec: vecs) {
+        list.add(requireNonNull(vec, "one of the Vec inside 'vecs' is null"));
+      }
+      for(var i = removeEnd; i < fields.size(); i++) {
+        list.add(fields.get(i));
+      }
+      return new StructImpl(validitySegment, List.copyOf(list));
     }
   }
 }

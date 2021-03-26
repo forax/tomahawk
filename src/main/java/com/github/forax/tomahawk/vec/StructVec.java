@@ -65,6 +65,17 @@ public interface StructVec extends Vec {
   @Override
   StructVec withValidity(U1Vec validity);
 
+  /**
+   * Creates a new StructVec with the fields from [{@code removeStart}, {@code removeEnd}[ removed
+   * and the {@code vecs} being added instead.
+   *
+   * @param removeStart index of the first fields being removed
+   * @param removeEnd index (not included) of the last fields being removed
+   * @param vecs the Vecs to add
+   * @return a new StructVec
+   */
+  StructVec splice(int removeStart, int removeEnd, Vec... vecs);
+
   interface Builder extends BaseBuilder<StructVec> {
     /**
      * Returns the list of all builders, one per field of the structure
