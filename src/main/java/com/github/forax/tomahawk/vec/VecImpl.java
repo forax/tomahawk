@@ -797,7 +797,11 @@ interface VecImpl {
         list.add(fields.get(i));
       }
       for(var vec: vecs) {
-        list.add(requireNonNull(vec, "one of the Vec inside 'vecs' is null"));
+        requireNonNull(vec, "one of the Vec inside 'vecs' is null");
+        if (vec.length() < length()) {
+          throw new IllegalArgumentException("vec.length < length");
+        }
+        list.add(vec);
       }
       for(var i = removeEnd; i < fields.size(); i++) {
         list.add(fields.get(i));
