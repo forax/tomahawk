@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.github.forax.tomahawk.schema.Layout.PrimitiveLayout.Kind.byte8;
 import static com.github.forax.tomahawk.schema.Layout.PrimitiveLayout.Kind.char16;
@@ -52,6 +53,17 @@ public interface Layout /*permits Layout.PrimitiveLayout, Layout.ListLayout, Lay
    * @return true if the current layout is nullable
    */
   boolean nullable();
+
+  /**
+   * Returns the corresponding Java type
+   *
+   * For a primitive layout, the corresponding Java primitive,
+   * for a list, an array of the element dataType,
+   * for a struct, {@code Map.class}
+   *
+   * @return the corresponding Java type
+   */
+  Class<?> dataType();
 
   /**
    * return the fields of the {@link StructLayout} if the current layout is a struct layout
@@ -128,7 +140,7 @@ public interface Layout /*permits Layout.PrimitiveLayout, Layout.ListLayout, Lay
    * @return a primitive layout representing a booleans {@code Vec}
    */
   static PrimitiveLayout u1(boolean nullable) {
-    return new PrimitiveLayout(nullable, u1);
+    return new PrimitiveLayout(nullable, u1, boolean.class);
   }
 
   /**
@@ -137,7 +149,7 @@ public interface Layout /*permits Layout.PrimitiveLayout, Layout.ListLayout, Lay
    * @return a primitive layout representing a bytes {@code Vec}
    */
   static PrimitiveLayout byte8(boolean nullable) {
-    return new PrimitiveLayout(nullable, byte8);
+    return new PrimitiveLayout(nullable, byte8, byte.class);
   }
 
   /**
@@ -146,7 +158,7 @@ public interface Layout /*permits Layout.PrimitiveLayout, Layout.ListLayout, Lay
    * @return a primitive layout representing a shorts {@code Vec}
    */
   static PrimitiveLayout short16(boolean nullable) {
-    return new PrimitiveLayout(nullable, short16);
+    return new PrimitiveLayout(nullable, short16, short.class);
   }
 
   /**
@@ -155,7 +167,7 @@ public interface Layout /*permits Layout.PrimitiveLayout, Layout.ListLayout, Lay
    * @return a primitive layout representing a chars {@code Vec}
    */
   static PrimitiveLayout char16(boolean nullable) {
-    return new PrimitiveLayout(nullable, char16);
+    return new PrimitiveLayout(nullable, char16, char.class);
   }
 
   /**
@@ -164,7 +176,7 @@ public interface Layout /*permits Layout.PrimitiveLayout, Layout.ListLayout, Lay
    * @return a primitive layout representing an ints {@code Vec}
    */
   static PrimitiveLayout int32(boolean nullable) {
-    return new PrimitiveLayout(nullable, int32);
+    return new PrimitiveLayout(nullable, int32, int.class);
   }
 
   /**
@@ -173,7 +185,7 @@ public interface Layout /*permits Layout.PrimitiveLayout, Layout.ListLayout, Lay
    * @return a primitive layout representing a floats {@code Vec}
    */
   static PrimitiveLayout float32(boolean nullable) {
-    return new PrimitiveLayout(nullable, float32);
+    return new PrimitiveLayout(nullable, float32, float.class);
   }
 
   /**
@@ -182,7 +194,7 @@ public interface Layout /*permits Layout.PrimitiveLayout, Layout.ListLayout, Lay
    * @return a primitive layout representing a floats {@code Vec}
    */
   static PrimitiveLayout long64(boolean nullable) {
-    return new PrimitiveLayout(nullable, long64);
+    return new PrimitiveLayout(nullable, long64, long.class);
   }
 
   /**
@@ -191,7 +203,7 @@ public interface Layout /*permits Layout.PrimitiveLayout, Layout.ListLayout, Lay
    * @return a primitive layout representing a doubles {@code Vec}
    */
   static PrimitiveLayout double64(boolean nullable) {
-    return new PrimitiveLayout(nullable, double64);
+    return new PrimitiveLayout(nullable, double64, double.class);
   }
 
   /**
@@ -201,7 +213,7 @@ public interface Layout /*permits Layout.PrimitiveLayout, Layout.ListLayout, Lay
    * @return a list layout composed from an element layout
    */
   static ListLayout list(boolean nullable, Layout layout) {
-    return new ListLayout(nullable, layout);
+    return new ListLayout(nullable, layout, layout.dataType().arrayType());
   }
 
   /**
@@ -209,14 +221,14 @@ public interface Layout /*permits Layout.PrimitiveLayout, Layout.ListLayout, Lay
    *
    * This is semantically equivalent to
    * <pre>
-   *   list(nullable, char16(false))
+   *   new ListLayout((nullable, char16(false), String.class)
    * </pre>
    *
    * @param nullable true if the list is nullable
    * @return a list representing a string of u16 characters
    */
   static ListLayout string(boolean nullable) {
-    return list(nullable, char16(false));
+    return new ListLayout(nullable, char16(false), String.class);
   }
 
   /**
@@ -247,8 +259,8 @@ public interface Layout /*permits Layout.PrimitiveLayout, Layout.ListLayout, Lay
       return primitiveLayout.toString();
     }
     if (layout instanceof ListLayout listLayout) {
-      if (listLayout.element instanceof PrimitiveLayout elementLayout && elementLayout.kind == char16) {
-        return "string(" + elementLayout.nullable + ")";
+      if (listLayout.dataType == String.class) {
+        return "string(" + listLayout.nullable + ")";
       }
       return "list(" + listLayout.nullable + ", " + toString(space, listLayout.element);
     }
@@ -284,16 +296,12 @@ public interface Layout /*permits Layout.PrimitiveLayout, Layout.ListLayout, Lay
    *
    * @param directory the directory containing all the file
    * @param name the name of the table
+   * @param layout the layout of the "table"
    * @return a Vec able to load data from that table
    * @throws IOException if an io error occurs
    *
    * @see #map(Path, String, Layout)
    */
-  static Vec map(Path directory, String name) throws IOException {
-    var layout = loadFrom(directory.resolve(name + "_metadata.txt"));
-    return TableImpl.map(directory, name, layout);
-  }
-
   static Vec.BaseBuilder<?> builder(Path directory, String name, Layout layout) throws IOException {
     return TableImpl.builder(directory, name, layout);
   }
@@ -314,13 +322,18 @@ public interface Layout /*permits Layout.PrimitiveLayout, Layout.ListLayout, Lay
                          /**
                           * the type of the primitive values
                           */
-                         Kind kind)
+                         Kind kind,
+
+                         /**
+                          * the corresponding Java type
+                          */
+                         Class<?> dataType)
       implements Layout {
 
     /**
      * The type of the values of a {@link PrimitiveLayout}
      */
-    enum Kind {
+    public enum Kind {
       /**
        * One bit boolean
        */
@@ -362,6 +375,7 @@ public interface Layout /*permits Layout.PrimitiveLayout, Layout.ListLayout, Lay
      */
     public PrimitiveLayout {
       requireNonNull(kind);
+      requireNonNull(dataType);
     }
 
     @Override
@@ -370,9 +384,10 @@ public interface Layout /*permits Layout.PrimitiveLayout, Layout.ListLayout, Lay
     }
   }
 
-  record ListLayout(boolean nullable, Layout element) implements Layout {
+  record ListLayout(boolean nullable, Layout element, Class<?> dataType) implements Layout {
     public ListLayout {
       requireNonNull(element);
+      requireNonNull(dataType);
       if (element instanceof StructLayout) {
         throw new IllegalArgumentException("a struct layout is already a list");
       }
@@ -387,6 +402,11 @@ public interface Layout /*permits Layout.PrimitiveLayout, Layout.ListLayout, Lay
   record StructLayout(boolean nullable, FieldMap fieldMap) implements Layout {
     public StructLayout(boolean nullable, Field... fields) {
       this(nullable, new FieldMap(fields));
+    }
+
+    @Override
+    public Class<?> dataType() {
+      return Map.class;
     }
 
     @Override
