@@ -78,8 +78,6 @@ public final class CSV {
         parseRows(parser, structBuilder, columns);
       }
     }
-
-    Layout.save(directory.resolve(name + "_metadata.txt"), layout);
   }
 
   private static void parseRows(CsvParser parser, StructVec.Builder structBuilder, ArrayList<Column> columns) throws IOException {

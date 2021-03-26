@@ -119,7 +119,7 @@ public class JSONTest {
             field("PersonID",  int32(false)),
             field("PhotoURL",  string(false)),
             field("Notes",     string(false)),
-            field("BirthDate", string(false)),
+            field("BirthDate", string(true)),
             field("BirthDateIsProtected", u1(false)),
             field("ParliamentaryName",  string(false)),
             field("PreferredName",  string(false)),

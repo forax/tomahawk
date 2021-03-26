@@ -59,8 +59,6 @@ public class JSON {
         }
       }
     }
-
-    Layout.save(directory.resolve(name + "_metadata.txt"), layout);
   }
 
   private static void parseArray(JsonParser parser, Vec.BaseBuilder<?> builder, Layout layout) throws IOException {
