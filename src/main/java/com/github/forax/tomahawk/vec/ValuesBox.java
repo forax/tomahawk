@@ -95,45 +95,6 @@ public class ValuesBox {
     MemorySegment.ofArray(charArray).copyFrom(dataSegment.asSlice(start << 1L, length << 1L));
     return new String(charArray);
   }
-  
-  /**
-   * Returns a stream of the bytes between [{@code startOffset}, {@code endOffset}[
-   * @param data the Vec containing the data of the ListVec
-   * @return a stream of the bytes between [{@code startOffset}, {@code endOffset}[
-   * @throws NullPointerException if one of the value is {@code null}
-   *
-   * @see ListVec#data()
-   * @see U8Vec#getByte(long)
-   */
-  public IntStream bytes(U8Vec data) {
-    return offsets().mapToInt(data::getByte);
-  }
-
-  /**
-   * Returns a stream of the shorts between [{@code startOffset}, {@code endOffset}[
-   * @param data the Vec containing the data of the ListVec
-   * @return a stream of the shorts between [{@code startOffset}, {@code endOffset}[
-   * @throws NullPointerException if one of the value is {@code null}
-   *
-   * @see ListVec#data()
-   * @see U8Vec#getByte(long)
-   */
-  public IntStream shorts(U16Vec data) {
-    return offsets().mapToInt(data::getShort);
-  }
-
-  /**
-   * Returns a stream of the chars between [{@code startOffset}, {@code endOffset}[
-   * @param data the Vec containing the data of the ListVec
-   * @return a stream of the chars between [{@code startOffset}, {@code endOffset}[
-   * @throws NullPointerException if one of the value is {@code null}
-   *
-   * @see ListVec#data()
-   * @see U8Vec#getByte(long)
-   */
-  public IntStream chars(U16Vec data) {
-    return offsets().mapToInt(data::getChar);
-  }
 
   /**
    * Returns a stream of the ints between [{@code startOffset}, {@code endOffset}[
@@ -146,19 +107,6 @@ public class ValuesBox {
    */
   public IntStream ints(U32Vec data) {
     return offsets().mapToInt(data::getInt);
-  }
-
-  /**
-   * Returns a stream of the floats between [{@code startOffset}, {@code endOffset}[
-   * @param data the Vec containing the data of the ListVec
-   * @return a stream of the floats between [{@code startOffset}, {@code endOffset}[
-   * @throws NullPointerException if one of the value is {@code null}
-   *
-   * @see ListVec#data()
-   * @see U8Vec#getByte(long)
-   */
-  public DoubleStream floats(U32Vec data) {
-    return offsets().mapToDouble(data::getFloat);
   }
 
   /**
@@ -183,7 +131,7 @@ public class ValuesBox {
    * @see ListVec#data()
    * @see U8Vec#getByte(long)
    */
-  public DoubleStream floats(U64Vec data) {
+  public DoubleStream doubles(U64Vec data) {
     return offsets().mapToDouble(data::getDouble);
   }
 
@@ -198,5 +146,81 @@ public class ValuesBox {
    */
   public Stream<TextWrap> textWraps(ListVec<?> list) {
     return offsets().mapToObj(list::getTextWrap);
+  }
+
+  private int length() {
+    return (int) (endOffset - startOffset); //FIXME
+  }
+
+  public boolean[] booleanArray(U1Vec data) {
+    var length = length();
+    var array = new boolean[length];
+    for(var i = 0; i < length; i++) {
+      array[i] = data.getBoolean(startOffset + i);
+    }
+    return array;
+  }
+
+  public byte[] byteArray(U8Vec data) {
+    var length = length();
+    var array = new byte[length];
+    for(var i = 0; i < length; i++) {
+      array[i] = data.getByte(startOffset + i);
+    }
+    return array;
+  }
+
+  public short[] shortArray(U16Vec data) {
+    var length = length();
+    var array = new short[length];
+    for(var i = 0; i < length; i++) {
+      array[i] = data.getShort(startOffset + i);
+    }
+    return array;
+  }
+
+  public char[] charArray(U16Vec data) {
+    var length = length();
+    var array = new char[length];
+    for(var i = 0; i < length; i++) {
+      array[i] = data.getChar(startOffset + i);
+    }
+    return array;
+  }
+
+  public int[] intArray(U32Vec data) {
+    var length = length();
+    var array = new int[length];
+    for(var i = 0; i < length; i++) {
+      array[i] = data.getInt(startOffset + i);
+    }
+    return array;
+  }
+
+  public float[] floatArray(U32Vec data) {
+    var length = length();
+    var array = new float[length];
+    for(var i = 0; i < length; i++) {
+      array[i] = data.getFloat(startOffset + i);
+    }
+    return array;
+  }
+
+  public long[] longArray(U64Vec data) {
+    var length = length();
+    var array = new long[length];
+    for(var i = 0; i < length; i++) {
+      array[i] = data.getLong(startOffset + i);
+    }
+    return array;
+  }
+
+  public double[] doubleArray(U64Vec data) {
+    var length = length();
+    var array = new double[length];
+    for(var i = 0; i < length; i++) {
+      array[i] = data.getDouble(startOffset + i);
+    }
+    return array;
   }
 }
