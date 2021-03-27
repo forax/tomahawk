@@ -30,11 +30,34 @@ interface VecImpl {
   private static IllegalStateException doNotSupportNull() {
     throw new IllegalStateException("this dataset do not support null");
   }
+
   static NullPointerException valueIsNull() {
     throw new NullPointerException("the value is null");
   }
+
   private static IllegalArgumentException invalidLength(Vec self, Vec validity) {
     throw new IllegalArgumentException("invalid length: length " + self.length() + " != validitySegment length " + validity.length());
+  }
+
+  class CloseHelper {
+    private static final Class<?> NON_CLOSEABLE_SHARED_SCOPE;
+    static {
+      try {
+        NON_CLOSEABLE_SHARED_SCOPE = Class.forName("jdk.internal.foreign.MemoryScope$NonCloseableSharedScope");
+      } catch (ClassNotFoundException e) {
+        throw (NoClassDefFoundError) new NoClassDefFoundError().initCause(e);
+      }
+    }
+
+    private static void close(MemorySegment memorySegment) {
+      var scope = memorySegment.scope();
+      if (CloseHelper.NON_CLOSEABLE_SHARED_SCOPE.isInstance(scope)) {
+        return;  // scope non closeable
+      }
+      if (scope.isAlive()) {
+        scope.close();
+      }
+    }
   }
 
   MemorySegment dataSegment();
@@ -95,12 +118,10 @@ interface VecImpl {
     @Override
     public void close() {
       try {
-        if (dataSegment.isAlive()) {
-          dataSegment.close();
-        }
+        CloseHelper.close(dataSegment);
       } finally {
-        if (validitySegment != null && validitySegment.isAlive()) {
-          validitySegment.close();
+        if (validitySegment != null) {
+          CloseHelper.close(validitySegment);
         }
       }
     }
@@ -180,12 +201,10 @@ interface VecImpl {
     @Override
     public void close() {
       try {
-        if (dataSegment.isAlive()) {
-          dataSegment.close();
-        }
+        CloseHelper.close(dataSegment);
       } finally {
-        if (validitySegment != null && validitySegment.isAlive()) {
-          validitySegment.close();
+        if (validitySegment != null) {
+          CloseHelper.close(validitySegment);
         }
       }
     }
@@ -268,12 +287,10 @@ interface VecImpl {
     @Override
     public void close() {
       try {
-        if (dataSegment.isAlive()) {
-          dataSegment.close();
-        }
+        CloseHelper.close(dataSegment);
       } finally {
-        if (validitySegment != null && validitySegment.isAlive()) {
-          validitySegment.close();
+        if (validitySegment != null) {
+          CloseHelper.close(validitySegment);
         }
       }
     }
@@ -397,12 +414,10 @@ interface VecImpl {
     @Override
     public void close() {
       try {
-        if (dataSegment.isAlive()) {
-          dataSegment.close();
-        }
+        CloseHelper.close(dataSegment);
       } finally {
-        if (validitySegment != null && validitySegment.isAlive()) {
-          validitySegment.close();
+        if (validitySegment != null) {
+          CloseHelper.close(validitySegment);
         }
       }
     }
@@ -522,12 +537,10 @@ interface VecImpl {
     @Override
     public void close() {
       try {
-        if (dataSegment.isAlive()) {
-          dataSegment.close();
-        }
+        CloseHelper.close(dataSegment);
       } finally {
-        if (validitySegment != null && validitySegment.isAlive()) {
-          validitySegment.close();
+        if (validitySegment != null) {
+          CloseHelper.close(validitySegment);
         }
       }
     }
@@ -642,17 +655,13 @@ interface VecImpl {
     @Override
     public void close() {
       try {
-        if (dataSegment.isAlive()) {
-          dataSegment.close();
-        }
+        CloseHelper.close(dataSegment);
       } finally {
         try {
-          if (offsetSegment.isAlive()) {
-            offsetSegment.close();
-          }
+          CloseHelper.close(offsetSegment);
         } finally {
-          if (validitySegment != null && validitySegment.isAlive()) {
-            validitySegment.close();
+          if (validitySegment != null) {
+            CloseHelper.close(validitySegment);
           }
         }
       }
@@ -754,8 +763,8 @@ interface VecImpl {
       for(var field: fields) {
         field.close();
       }
-      if (validitySegment != null && validitySegment.isAlive()) {
-        validitySegment.close();
+      if (validitySegment != null) {
+        CloseHelper.close(validitySegment);
       }
     }
 

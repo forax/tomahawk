@@ -16,7 +16,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="tomahawk" target="16" />
+      <module name="tomahawk" target="17" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">

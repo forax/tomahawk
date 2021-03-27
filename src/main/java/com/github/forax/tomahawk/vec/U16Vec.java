@@ -1,6 +1,7 @@
 package com.github.forax.tomahawk.vec;
 
 import jdk.incubator.foreign.MemorySegment;
+import jdk.incubator.foreign.ResourceScope;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -222,7 +223,8 @@ public interface U16Vec extends Vec {
    */
   static U16Vec map(U1Vec validity, Path path) throws IOException {
     requireNonNull(path);
-    var memorySegment = MemorySegment.mapFile(path, 0, Files.size(path), READ_WRITE);
+    var scope = ResourceScope.ofConfined();
+    var memorySegment = MemorySegment.mapFile(path, 0, Files.size(path), READ_WRITE, scope);
     return from(validity, memorySegment);
   }
 

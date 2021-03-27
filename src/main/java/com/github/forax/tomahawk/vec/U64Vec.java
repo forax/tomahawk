@@ -14,6 +14,7 @@ import java.util.stream.DoubleStream;
 import java.util.stream.LongStream;
 
 import jdk.incubator.foreign.MemorySegment;
+import jdk.incubator.foreign.ResourceScope;
 
 /**
  * A fixed size, mutable column of 64 bits values.
@@ -205,7 +206,8 @@ public interface U64Vec extends Vec {
    */
   static U64Vec map(U1Vec validity, Path path) throws IOException {
     requireNonNull(path);
-    var memorySegment = MemorySegment.mapFile(path, 0, Files.size(path), READ_WRITE);
+    var scope = ResourceScope.ofConfined();
+    var memorySegment = MemorySegment.mapFile(path, 0, Files.size(path), READ_WRITE, scope);
     return from(validity, memorySegment);
   }
 
