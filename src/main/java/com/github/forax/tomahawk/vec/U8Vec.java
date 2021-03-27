@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.util.stream.IntStream;
 
 import jdk.incubator.foreign.MemorySegment;
+import jdk.incubator.foreign.ResourceScope;
 
 /**
  * A fixed size, mutable column of 8 bits values.
@@ -149,7 +150,8 @@ public interface U8Vec extends Vec {
    */
   static U8Vec map(U1Vec validity, Path path) throws IOException {
     requireNonNull(path);
-    var memorySegment = MemorySegment.mapFile(path, 0, Files.size(path), READ_WRITE);
+    var scope = ResourceScope.ofConfined();
+    var memorySegment = MemorySegment.mapFile(path, 0, Files.size(path), READ_WRITE, scope);
     return from(validity, memorySegment);
   }
 
