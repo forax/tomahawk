@@ -739,7 +739,7 @@ interface VecImpl {
 
     @Override
     public Stream<TextWrap> allTextWraps() {
-      return LongStream.range(0, length()).mapToObj(index -> getTextWrap(index));
+      return LongStream.range(0, length()).mapToObj(this::getTextWrap);
     }
   }
 
