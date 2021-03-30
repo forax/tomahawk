@@ -26,7 +26,7 @@ public class VecU1Test {
       Files.delete(dir);
     };
     try(andClean) {
-      var dataPath = dir.resolve("data");
+      var dataPath = dir.resolve("element");
       var validityPath = dir.resolve("validity");
 
       U1Vec vec;

@@ -16,8 +16,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 
-final class TableImpl {
-  private TableImpl() {
+final class LayoutHelper {
+  private LayoutHelper() {
     throw new AssertionError();
   }
 

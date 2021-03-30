@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import static com.github.forax.tomahawk.vec.VecBuilderImpl.builderImpl;
+import static com.github.forax.tomahawk.vec.VecImpl.impl;
 import static com.github.forax.tomahawk.vec.VecImpl.implDataOrNull;
 
 /**
@@ -241,7 +242,7 @@ public interface StructVec extends Vec {
      * Appends a list of values to the field builder and records that the value for this field is filled.
      *
      * @param field the field builder for a column
-     * @param consumer a consumer that makes the builder of the data of the list available
+     * @param consumer a consumer that makes the builder of the element of the list available
      * @return this builder
      * @throws UncheckedIOException if an IO error occurs
      * @throws IllegalStateException if the column value was already added
@@ -277,6 +278,9 @@ public interface StructVec extends Vec {
    * @return a new StructVec
    */
   static StructVec from(U1Vec validity, List<? extends Vec> fields) {
+    if (validity != null  && impl(validity).validitySegment() != null) {
+      throw new IllegalArgumentException("validity can not have itself a validity vec");
+    }
     return new VecImpl.StructImpl(implDataOrNull(validity), List.copyOf(fields));
   }
 

@@ -28,12 +28,14 @@ public class VecU32BuilderTest {
             .appendInt(-5);
         vec = builder.toVec();
       }
-      assertAll(
-          () -> assertEquals(3, vec.length()),
-          () -> assertEquals(123, vec.getInt(0)),
-          () -> assertEquals(42, vec.getInt(1)),
-          () -> assertEquals(-5, vec.getInt(2))
-      );
+      try(vec) {
+        assertAll(
+            () -> assertEquals(3, vec.length()),
+            () -> assertEquals(123, vec.getInt(0)),
+            () -> assertEquals(42, vec.getInt(1)),
+            () -> assertEquals(-5, vec.getInt(2))
+        );
+      }
     } finally {
       Files.deleteIfExists(path);
     }
@@ -42,7 +44,7 @@ public class VecU32BuilderTest {
   @Test
   public void builderWithNullableInts() throws IOException {
     var pathValidity = createTempFile("u32-vec-validity--builder--", ".dtst");
-    var pathData = createTempFile("u32-vec-data--builder--", ".dtst");
+    var pathData = createTempFile("u32-vec-element--builder--", ".dtst");
     try {
       U32Vec vec;
       try (var validity = U1Vec.builder(null, pathValidity, CREATE);
@@ -54,27 +56,29 @@ public class VecU32BuilderTest {
             .appendNull();
         vec = builder.toVec();
       }
-      assertAll(
-          () -> assertEquals(4, vec.length()),
+      try(vec) {
+        assertAll(
+            () -> assertEquals(4, vec.length()),
 
-          () -> assertFalse(vec.isNull(0)),
-          () -> assertEquals(-99, vec.getInt(0)),
-          () ->  assertTrue(vec.getInt(0, new IntBox()).validity),
-          () -> assertEquals(-99, vec.getInt(0, new IntBox()).value),
+            () -> assertFalse(vec.isNull(0)),
+            () -> assertEquals(-99, vec.getInt(0)),
+            () -> assertTrue(vec.getInt(0, new IntBox()).validity),
+            () -> assertEquals(-99, vec.getInt(0, new IntBox()).value),
 
-          () -> assertTrue(vec.isNull(1)),
-          () -> assertFalse(vec.getInt(1, new IntBox()).validity),
-          () -> assertThrows(NullPointerException.class, () -> vec.getInt(1)),
+            () -> assertTrue(vec.isNull(1)),
+            () -> assertFalse(vec.getInt(1, new IntBox()).validity),
+            () -> assertThrows(NullPointerException.class, () -> vec.getInt(1)),
 
-          () -> assertFalse(vec.isNull(2)),
-          () -> assertEquals(777, vec.getInt(2)),
-          () -> assertTrue(vec.getInt(2, new IntBox()).validity),
-          () -> assertEquals(777, vec.getInt(2, new IntBox()).value),
+            () -> assertFalse(vec.isNull(2)),
+            () -> assertEquals(777, vec.getInt(2)),
+            () -> assertTrue(vec.getInt(2, new IntBox()).validity),
+            () -> assertEquals(777, vec.getInt(2, new IntBox()).value),
 
-          () -> assertTrue(vec.isNull(3)),
-          () -> assertFalse(vec.getInt(3, new IntBox()).validity),
-          () -> assertThrows(NullPointerException.class, () -> vec.getInt(3))
-      );
+            () -> assertTrue(vec.isNull(3)),
+            () -> assertFalse(vec.getInt(3, new IntBox()).validity),
+            () -> assertThrows(NullPointerException.class, () -> vec.getInt(3))
+        );
+      }
     } finally {
       Files.deleteIfExists(pathData);
       Files.deleteIfExists(pathValidity);
@@ -93,12 +97,14 @@ public class VecU32BuilderTest {
             .appendFloat(-8);
         vec = builder.toVec();
       }
-      assertAll(
-          () -> assertEquals(3, vec.length()),
-          () -> assertEquals(12.0f, vec.getFloat(0)),
-          () -> assertEquals(42.0f, vec.getFloat(1)),
-          () -> assertEquals(-8.0f, vec.getFloat(2))
-      );
+      try(vec) {
+        assertAll(
+            () -> assertEquals(3, vec.length()),
+            () -> assertEquals(12.0f, vec.getFloat(0)),
+            () -> assertEquals(42.0f, vec.getFloat(1)),
+            () -> assertEquals(-8.0f, vec.getFloat(2))
+        );
+      }
     } finally {
       Files.deleteIfExists(path);
     }
@@ -107,7 +113,7 @@ public class VecU32BuilderTest {
   @Test
   public void builderWithNullableFloats() throws IOException {
     var pathValidity = createTempFile("u32-vec-validity--builder--", ".dtst");
-    var pathData = createTempFile("u32-vec-data--builder--", ".dtst");
+    var pathData = createTempFile("u32-vec-element--builder--", ".dtst");
     try {
       U32Vec vec;
       try (var validity = U1Vec.builder(null, pathValidity, CREATE);
@@ -119,27 +125,29 @@ public class VecU32BuilderTest {
             .appendNull();
         vec = builder.toVec();
       }
-      assertAll(
-          () -> assertEquals(4, vec.length()),
+      try(vec) {
+        assertAll(
+            () -> assertEquals(4, vec.length()),
 
-          () -> assertFalse(vec.isNull(0)),
-          () -> assertEquals(-888.0f, vec.getFloat(0)),
-          () -> assertTrue(vec.getFloat(0, new FloatBox()).validity),
-          () -> assertEquals(-888.0f, vec.getFloat(0, new FloatBox()).value),
+            () -> assertFalse(vec.isNull(0)),
+            () -> assertEquals(-888.0f, vec.getFloat(0)),
+            () -> assertTrue(vec.getFloat(0, new FloatBox()).validity),
+            () -> assertEquals(-888.0f, vec.getFloat(0, new FloatBox()).value),
 
-          () -> assertTrue(vec.isNull(1)),
-          () -> assertFalse(vec.getFloat(1, new FloatBox()).validity),
-          () -> assertThrows(NullPointerException.class, () -> vec.getFloat(1)),
+            () -> assertTrue(vec.isNull(1)),
+            () -> assertFalse(vec.getFloat(1, new FloatBox()).validity),
+            () -> assertThrows(NullPointerException.class, () -> vec.getFloat(1)),
 
-          () -> assertFalse(vec.isNull(2)),
-          () -> assertEquals(44.0f, vec.getFloat(2)),
-          () -> assertTrue(vec.getFloat(2, new FloatBox()).validity),
-          () -> assertEquals(44.0f,vec.getFloat(2, new FloatBox()).value),
+            () -> assertFalse(vec.isNull(2)),
+            () -> assertEquals(44.0f, vec.getFloat(2)),
+            () -> assertTrue(vec.getFloat(2, new FloatBox()).validity),
+            () -> assertEquals(44.0f, vec.getFloat(2, new FloatBox()).value),
 
-          () -> assertTrue(vec.isNull(3)),
-          () -> assertFalse(vec.getInt(3, new IntBox()).validity),
-          () -> assertThrows(NullPointerException.class, () -> vec.getInt(3))
-      );
+            () -> assertTrue(vec.isNull(3)),
+            () -> assertFalse(vec.getInt(3, new IntBox()).validity),
+            () -> assertThrows(NullPointerException.class, () -> vec.getInt(3))
+        );
+      }
     } finally {
       Files.deleteIfExists(pathData);
       Files.deleteIfExists(pathValidity);

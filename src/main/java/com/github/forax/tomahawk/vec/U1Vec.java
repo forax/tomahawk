@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.util.stream.Stream;
 
 import static com.github.forax.tomahawk.vec.VecBuilderImpl.builderImpl;
+import static com.github.forax.tomahawk.vec.VecImpl.impl;
 import static com.github.forax.tomahawk.vec.VecImpl.implDataOrNull;
 import static java.nio.channels.FileChannel.MapMode.READ_WRITE;
 import static java.util.Objects.requireNonNull;
@@ -39,7 +40,7 @@ import static java.util.Objects.requireNonNull;
  *
  * Example
  * <pre>
- *   var dataPath = dir.resolve("data");
+ *   var dataPath = dir.resolve("element");
  *   var validityPath = dir.resolve("validity");
  *
  *   U1Vec vec;
@@ -175,7 +176,7 @@ public interface U1Vec extends Vec {
    * Creates a new Vec from an optional validity bitset (to represent null values) and a memory segment
    *
    * @param validity the validity bitset or {@code null}
-   * @param data a memory segment containing the data, the byte size should be a multiple of 8
+   * @param data a memory segment containing the element, the byte size should be a multiple of 8
    * @return a new Vec from an optional validity bitset (to represent null values) and a memory segment
    * @throws IllegalArgumentException if the byte size of the memory segment is not a multiple of 8
    */
@@ -184,6 +185,10 @@ public interface U1Vec extends Vec {
     if ((data.byteSize() & 7) != 0) {
       throw new IllegalArgumentException("the memory segment byte size should be a multiple of 8");
     }
+    if (validity != null  && impl(validity).validitySegment() != null) {
+      throw new IllegalArgumentException("validity can not have a validity vec");
+    }
+    VecImpl.register(data);
     return new VecImpl.U1Impl(data, implDataOrNull(validity));
   }
 

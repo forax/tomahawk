@@ -45,7 +45,7 @@ public class JSONTest {
         field("married",   u1(false)),
         field("email",     string(false))
     );
-    var directory = createTempDirectory("data");
+    var directory = createTempDirectory("element");
     Closeable andClean = () -> {
       for (var temp : list(directory).toList()) {
         delete(temp);
@@ -90,24 +90,25 @@ public class JSONTest {
     };
     try(andClean) {
       JSON.fetch(json, layout, directory, "persons");
-      var person = Layout.map(directory, "persons", layout).asStruct();
-      var name = person.fields().get(0).asListOf(U16Vec.class);
-      var age = person.fields().get(1).as(U8Vec.class);
-      var phones = person.fields().get(2).asListOf(ListVec.class);
+      try(var person = Layout.map(directory, "persons", layout).asStruct()) {
+        var name = person.fields().get(0).asListOf(U16Vec.class);
+        var age = person.fields().get(1).as(U8Vec.class);
+        var phones = person.fields().get(2).asListOf(ListVec.class);
 
-      var names = LongStream.range(0, name.length()).mapToObj(name::getString).toList();
-      assertEquals(List.of("Joe", "Jack"), names);
+        var names = LongStream.range(0, name.length()).mapToObj(name::getString).toList();
+        assertEquals(List.of("Joe", "Jack"), names);
 
-      var ages = LongStream.range(0, name.length()).mapToObj(age::getByte).toList();
-      assertEquals(List.of((byte) 18, (byte) 37), ages);
+        var ages = LongStream.range(0, name.length()).mapToObj(age::getByte).toList();
+        assertEquals(List.of((byte) 18, (byte) 37), ages);
 
-      var valuesBox = new ValuesBox();
-      phones.getValues(0, valuesBox);
-      var joePhones = valuesBox.textWraps(phones.data()).map(TextWrap::toString).toList();
-      phones.getValues(1, valuesBox);
-      var jackPhones = valuesBox.textWraps(phones.data()).map(TextWrap::toString).toList();
-      assertEquals(List.of("555-111-1111", "555-222-2222"), joePhones);
-      assertEquals(List.of("555-333-3333"), jackPhones);
+        var valuesBox = new ValuesBox();
+        phones.getValues(0, valuesBox);
+        var joePhones = valuesBox.textWraps(phones.element()).map(TextWrap::toString).toList();
+        phones.getValues(1, valuesBox);
+        var jackPhones = valuesBox.textWraps(phones.element()).map(TextWrap::toString).toList();
+        assertEquals(List.of("555-111-1111", "555-222-2222"), joePhones);
+        assertEquals(List.of("555-333-3333"), jackPhones);
+      }
     }
   }
 
@@ -137,22 +138,23 @@ public class JSONTest {
         var reader = new InputStreamReader(requireNonNull(input), StandardCharsets.UTF_8);
         andClean) {
       JSON.fetch(reader, layout, directory, "scottish-parliament-members");
-      var memberVec = Layout.map(directory, "scottish-parliament-members", layout).asStruct();
+      try(var memberVec = Layout.map(directory, "scottish-parliament-members", layout).asStruct()) {
 
-      // mask past member names
-      var isCurrent = memberVec.fields().get(layout.fieldIndex("IsCurrent")).as(U1Vec.class);
-      var parliamentaryName = memberVec.fields().get(layout.fieldIndex("ParliamentaryName")).asListOf(U16Vec.class);
-      parliamentaryName = parliamentaryName.withValidity(isCurrent);
+        // mask past member names
+        var isCurrent = memberVec.fields().get(layout.fieldIndex("IsCurrent")).as(U1Vec.class);
+        var parliamentaryName = memberVec.fields().get(layout.fieldIndex("ParliamentaryName")).asListOf(U16Vec.class);
+        parliamentaryName = parliamentaryName.withValidity(isCurrent);
 
-      var names =
-          parliamentaryName.allTextWraps()
-              .filter(Objects::nonNull)
-              .limit(5)
-              .map(TextWrap::toString)
-              .toList();
-      assertEquals(
-          List.of("Constance, Angela", "Ewing, Annabelle", "Grahame, Christine", "Beamish, Claudia", "Smith, Elaine"),
-          names);
+        var names =
+            parliamentaryName.allTextWraps()
+                .filter(Objects::nonNull)
+                .limit(5)
+                .map(TextWrap::toString)
+                .toList();
+        assertEquals(
+            List.of("Constance, Angela", "Ewing, Annabelle", "Grahame, Christine", "Beamish, Claudia", "Smith, Elaine"),
+            names);
+      }
     }
   }
 }

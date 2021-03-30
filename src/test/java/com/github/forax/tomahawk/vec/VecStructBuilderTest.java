@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 public class VecStructBuilderTest {
   @Test
   public void builder() throws IOException {
-    var pathNameData = createTempFile("struct-vec-name-data--", ".dtst");
+    var pathNameData = createTempFile("struct-vec-name-element--", ".dtst");
     var pathNameOffset = createTempFile("struct-vec-name-offset--", ".dtst");
     var pathNameValidity = createTempFile("struct-vec-name-validity--", ".dtst");
     var pathAge = createTempFile("struct-vec-age--", ".dtst");
@@ -24,8 +24,6 @@ public class VecStructBuilderTest {
     var pathValidity = createTempFile("struct-vec-validity--", ".dtst");
     try {
       StructVec vec;
-      ListVec<U16Vec> name;
-      U32Vec age;
       try (var nameValidityB = U1Vec.builder(null, pathNameValidity, CREATE);
            var nameOffsetB = U32Vec.builder(null, pathNameOffset, CREATE);
            var nameDataB = U16Vec.builder(null, pathNameData, CREATE);
@@ -38,19 +36,20 @@ public class VecStructBuilderTest {
             .appendRow(row -> row.appendString(nameB, "Bob").appendInt(ageB, 42))
             .appendNull()
             .appendRow(row -> row.appendValues(nameB, b -> b.appendString("Ana")));
-        name = nameB.toVec();
-        age = ageB.toVec();
         vec = builder.toVec();
       }
-
-      assertAll(
-          () -> assertEquals(3, vec.length()),
-          () -> assertEquals("Bob", name.getString(0)),
-          () -> assertEquals(42, age.getInt(0)),
-          () -> assertTrue(vec.isNull(1)),
-          () -> assertEquals("Ana", name.getString(2)),
-          () -> assertTrue(age.isNull(2))
-      );
+      try(vec) {
+        var name = vec.fields().get(0).asListOf(U16Vec.class);
+        var age = vec.fields().get(1).as(U32Vec.class);
+        assertAll(
+            () -> assertEquals(3, vec.length()),
+            () -> assertEquals("Bob", name.getString(0)),
+            () -> assertEquals(42, age.getInt(0)),
+            () -> assertTrue(vec.isNull(1)),
+            () -> assertEquals("Ana", name.getString(2)),
+            () -> assertTrue(age.isNull(2))
+        );
+      }
     } finally {
       Files.deleteIfExists(pathValidity);
       Files.deleteIfExists(pathAgeValidity);
@@ -106,26 +105,27 @@ public class VecStructBuilderTest {
             );
         vec = builder.toVec();
       }
-
-      assertAll(
-          () -> assertEquals(2, vec.length()),
-          () -> assertTrue(((U1Vec) vec.fields().get(0)).getBoolean(0)),
-          () -> assertFalse(((U1Vec) vec.fields().get(0)).getBoolean(1)),
-          () -> assertEquals((byte) 5, ((U8Vec) vec.fields().get(1)).getByte(0)),
-          () -> assertEquals((byte) 15, ((U8Vec) vec.fields().get(1)).getByte(1)),
-          () -> assertEquals((short) -7, ((U16Vec) vec.fields().get(2)).getShort(0)),
-          () -> assertEquals((short) -70, ((U16Vec) vec.fields().get(2)).getShort(1)),
-          () -> assertEquals('Z', ((U16Vec) vec.fields().get(3)).getChar(0)),
-          () -> assertEquals('G', ((U16Vec) vec.fields().get(3)).getChar(1)),
-          () -> assertEquals(6847, ((U32Vec) vec.fields().get(4)).getInt(0)),
-          () -> assertEquals(433488, ((U32Vec) vec.fields().get(4)).getInt(1)),
-          () -> assertEquals(67.2f, ((U32Vec) vec.fields().get(5)).getFloat(0)),
-          () -> assertEquals(7.2f, ((U32Vec) vec.fields().get(5)).getFloat(1)),
-          () -> assertEquals(78L, ((U64Vec) vec.fields().get(6)).getLong(0)),
-          () -> assertEquals(787L, ((U64Vec) vec.fields().get(6)).getLong(1)),
-          () -> assertEquals(67.8, ((U64Vec) vec.fields().get(7)).getDouble(0)),
-          () -> assertEquals(678.7, ((U64Vec) vec.fields().get(7)).getDouble(1))
-      );
+      try(vec) {
+        assertAll(
+            () -> assertEquals(2, vec.length()),
+            () -> assertTrue(((U1Vec) vec.fields().get(0)).getBoolean(0)),
+            () -> assertFalse(((U1Vec) vec.fields().get(0)).getBoolean(1)),
+            () -> assertEquals((byte) 5, ((U8Vec) vec.fields().get(1)).getByte(0)),
+            () -> assertEquals((byte) 15, ((U8Vec) vec.fields().get(1)).getByte(1)),
+            () -> assertEquals((short) -7, ((U16Vec) vec.fields().get(2)).getShort(0)),
+            () -> assertEquals((short) -70, ((U16Vec) vec.fields().get(2)).getShort(1)),
+            () -> assertEquals('Z', ((U16Vec) vec.fields().get(3)).getChar(0)),
+            () -> assertEquals('G', ((U16Vec) vec.fields().get(3)).getChar(1)),
+            () -> assertEquals(6847, ((U32Vec) vec.fields().get(4)).getInt(0)),
+            () -> assertEquals(433488, ((U32Vec) vec.fields().get(4)).getInt(1)),
+            () -> assertEquals(67.2f, ((U32Vec) vec.fields().get(5)).getFloat(0)),
+            () -> assertEquals(7.2f, ((U32Vec) vec.fields().get(5)).getFloat(1)),
+            () -> assertEquals(78L, ((U64Vec) vec.fields().get(6)).getLong(0)),
+            () -> assertEquals(787L, ((U64Vec) vec.fields().get(6)).getLong(1)),
+            () -> assertEquals(67.8, ((U64Vec) vec.fields().get(7)).getDouble(0)),
+            () -> assertEquals(678.7, ((U64Vec) vec.fields().get(7)).getDouble(1))
+        );
+      }
     } finally {
       Files.deleteIfExists(pathBoolean);
       Files.deleteIfExists(pathByte);

@@ -39,7 +39,7 @@ public class CSVTest {
         field("Description", string(true)),
         field("Price",       double64(true))
     );
-    var directory = createTempDirectory("data");
+    var directory = createTempDirectory("element");
     Closeable andClean = () -> {
       for (var temp : list(directory).toList()) {
         delete(temp);
@@ -76,15 +76,16 @@ public class CSVTest {
     };
     try(andClean) {
       CSV.fetch(csv, (StructLayout) layout, directory, "jobs");
-      var vec = Layout.map(directory, "jobs", layout).asStruct();
-      var name = vec.fields().get(layout.fieldIndex("Name")).asListOf(U16Vec.class);
-      var state = vec.fields().get(layout.fieldIndex("State")).asListOf(U16Vec.class);
+      try(var vec = Layout.map(directory, "jobs", layout).asStruct()) {
+        var name = vec.fields().get(layout.fieldIndex("Name")).asListOf(U16Vec.class);
+        var state = vec.fields().get(layout.fieldIndex("State")).asListOf(U16Vec.class);
 
-      var names = name.allTextWraps().map(TextWrap::asString).toList();
-      assertEquals(List.of("Doe, John", "Green, Edward"), names);
+        var names = name.allTextWraps().map(TextWrap::asString).toList();
+        assertEquals(List.of("Doe, John", "Green, Edward"), names);
 
-      var states = state.allTextWraps().map(TextWrap::asString).toList();
-      assertEquals(Arrays.asList(null, "WA"), states);
+        var states = state.allTextWraps().map(TextWrap::asString).toList();
+        assertEquals(Arrays.asList(null, "WA"), states);
+      }
     }
   }
 }

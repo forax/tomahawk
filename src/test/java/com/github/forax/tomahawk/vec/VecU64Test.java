@@ -49,8 +49,16 @@ public class VecU64Test {
   @MethodSource("provideAllVecs")
   public void length(LongFunction<? extends U64Vec> factory) {
     assertAll(
-        () -> assertEquals(13, factory.apply(13).length()),
-        () -> assertEquals(42, factory.apply(42).length())
+        () -> {
+          try(var vec = factory.apply(13)) {
+            assertEquals(13, vec.length());
+          }
+        },
+        () -> {
+          try(var vec = factory.apply(42)) {
+            assertEquals(42, vec.length());
+          }
+        }
     );
   }
 
@@ -212,8 +220,9 @@ public class VecU64Test {
     var path = Files.createTempFile("map-new", "");
     Closeable andClean = () -> Files.delete(path);
     try(andClean) {
-      var vec = U64Vec.mapNew(null, path, 128);
-      assertEquals(128, vec.length());
+      try(var vec = U64Vec.mapNew(null, path, 128)) {
+        assertEquals(128, vec.length());
+      }
     }
   }
 
@@ -229,7 +238,7 @@ public class VecU64Test {
       Files.delete(dir);
     };
     try(andClean) {
-      var dataPath = dir.resolve("data");
+      var dataPath = dir.resolve("element");
       var validityPath = dir.resolve("validity");
 
       U64Vec vec;

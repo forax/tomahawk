@@ -51,7 +51,7 @@ public final class CSV {
   private record Column(BaseBuilder<?> builder, Layout layout) {}
 
   public static void fetch(Reader reader, StructLayout layout, Path directory, String name) throws IOException {
-    try(var structBuilder = (StructVec.Builder) TableImpl.builder(directory, name, layout)) {
+    try(var structBuilder = (StructVec.Builder) LayoutHelper.builder(directory, name, layout)) {
       var fieldBuilders = structBuilder.fieldBuilders();
       var columnMap = new HashMap<String, Column>();
       var index = 0;
@@ -90,13 +90,13 @@ public final class CSV {
               var token = parser.nextToken();
               if (token == END_ARRAY) {
                 throw new UncheckedIOException(
-                    new JsonParseException(parser, "not enough data, the headers defines " + columns.size() + " columns"));
+                    new JsonParseException(parser, "not enough element, the headers defines " + columns.size() + " columns"));
               }
               if (token != VALUE_STRING) {
-                throw new UncheckedIOException(new JsonParseException(parser, "unknown data " + token));
+                throw new UncheckedIOException(new JsonParseException(parser, "unknown element " + token));
               }
               var text = parser.getText();
-              //System.out.println("parse data " + token + " " + text);
+              //System.out.println("parse element " + token + " " + text);
               insertData(rowBuilder, column.builder, column.layout, text);
             }
           } catch(IOException e) {

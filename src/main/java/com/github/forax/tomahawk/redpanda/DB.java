@@ -217,7 +217,7 @@ public record DB(Path directory, String name) {
       if (!box.validity) {
         return null;
       }
-      var data = listVec.data();
+      var data = listVec.element();
       var element = listLayout.element();
       if (element instanceof Layout.PrimitiveLayout primitiveLayout) {
         return switch (primitiveLayout.kind()) {

@@ -60,7 +60,7 @@ public interface Vec extends UncheckedCloseable {
   default <V extends Vec> ListVec<V> asListOf(Class<? extends V> elementType) {
     @SuppressWarnings("RedundantCast")  // the error message should not mention the implementation
     var listVec = (VecImpl.ListImpl<?>) (ListVec<?>) this;
-    var data = listVec.data();
+    var data = listVec.element();
     if (!elementType.isInstance(data)) {
       throw new ClassCastException("element vec is not a " + elementType.getName() + " but a " + data.getClass().getName());
     }

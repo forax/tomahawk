@@ -552,21 +552,21 @@ interface VecBuilderImpl {
   }
 
   final class ListBuilder<D extends Vec, B extends BaseBuilder<D>> extends BaseImpl implements ListVec.Builder<D, B> {
-    private final B dataBuilder;
+    private final B elementBuilder;
     private final U32Builder offsetBuilder;
     private final U1Builder validityBuilder;
     private int offset;
     private boolean closed;
 
-    ListBuilder(B dataBuilder, U32Builder offsetBuilder, U1Builder validityBuilder) {
-      this.dataBuilder = dataBuilder;
+    ListBuilder(B elementBuilder, U32Builder offsetBuilder, U1Builder validityBuilder) {
+      this.elementBuilder = elementBuilder;
       this.offsetBuilder = offsetBuilder;
       this.validityBuilder = validityBuilder;
     }
 
     @Override
-    public B dataBuilder() {
-      return dataBuilder;
+    public B elementBuilder() {
+      return elementBuilder;
     }
 
     @Override
@@ -576,7 +576,7 @@ interface VecBuilderImpl {
       }
       closed = true;
       offsetBuilder.appendInt(offset);  // last offsetSegment
-      dataBuilder.close();
+      elementBuilder.close();
       offsetBuilder.close();
       if (validityBuilder != null) {
         validityBuilder.close();
@@ -591,9 +591,9 @@ interface VecBuilderImpl {
     @Override
     public ListVec.Builder<D, B> appendValues(Consumer<? super B> consumer) {
       requireNonNull(consumer);
-      consumer.accept(dataBuilder);
+      consumer.accept(elementBuilder);
       offsetBuilder.appendInt(offset);
-      var length = dataBuilder.length();
+      var length = elementBuilder.length();
       if (length > Integer.MAX_VALUE) {
         throw new ArithmeticException("overflow the size of an int");
       }
@@ -645,7 +645,7 @@ interface VecBuilderImpl {
     @Override
     public ListVec<D> toVec() {
       close();
-      return ListVec.from(validityBuilder == null? null: validityBuilder.toVec(), offsetBuilder.toVec(), dataBuilder.toVec());
+      return ListVec.from(validityBuilder == null? null: validityBuilder.toVec(), offsetBuilder.toVec(), elementBuilder.toVec());
     }
   }
 

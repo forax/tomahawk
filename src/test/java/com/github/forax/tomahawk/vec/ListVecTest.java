@@ -25,7 +25,7 @@ public class ListVecTest {
       Files.delete(dir);
     };
     try(andClean) {
-      var dataPath = dir.resolve("data");
+      var dataPath = dir.resolve("element");
       var offsetPath = dir.resolve("offset");
       var validityPath = dir.resolve("validity");
 
@@ -45,7 +45,7 @@ public class ListVecTest {
       try (vec) {
         assertEquals(100_000, vec.length());
 
-        var data = vec.data();
+        var data = vec.element();
         var box = new ValuesBox();
         vec.getValues(6, box);   // extract the validity, startOffset and endOffset
         assertEquals(6, data.getByte(box.startOffset));        // first item
@@ -69,7 +69,7 @@ public class ListVecTest {
       Files.delete(dir);
     };
     try(andClean) {
-      var dataPath = dir.resolve("data");
+      var dataPath = dir.resolve("element");
       var offsetPath = dir.resolve("offset");
       var validityPath = dir.resolve("validity");
 

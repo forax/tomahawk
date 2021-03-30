@@ -5,6 +5,8 @@ import jdk.incubator.foreign.MemorySegment;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.lang.invoke.VarHandle;
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
@@ -12,6 +14,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.WeakHashMap;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
@@ -28,7 +31,7 @@ import static jdk.incubator.foreign.MemoryLayout.ofValueBits;
  */
 interface VecImpl {
   private static IllegalStateException doNotSupportNull() {
-    throw new IllegalStateException("this dataset do not support null");
+    throw new IllegalStateException("this Vec do not support null");
   }
   static NullPointerException valueIsNull() {
     throw new NullPointerException("the value is null");
@@ -37,19 +40,17 @@ interface VecImpl {
     throw new IllegalArgumentException("invalid length: length " + self.length() + " != validitySegment length " + validity.length());
   }
 
-  MemorySegment dataSegment();
-
   static VecImpl impl(Vec vec) {
     return (VecImpl) vec;
   }
-  static U1Impl impl(U1Vec dataset) {
-    return (U1Impl) dataset;
+  static U1Impl impl(U1Vec vec) {
+    return (U1Impl) vec;
   }
-  static U16Impl impl(U16Vec dataset) {
-    return (U16Impl) dataset;
+  static U16Impl impl(U16Vec vec) {
+    return (U16Impl) vec;
   }
-  static U32Impl impl(U32Vec dataset) {
-    return (U32Impl) dataset;
+  static U32Impl impl(U32Vec vec) {
+    return (U32Impl) vec;
   }
 
   static MemorySegment implDataOrNull(U1Vec validity) {
@@ -72,7 +73,84 @@ interface VecImpl {
     }
   }
 
-  record U1Impl(MemorySegment dataSegment, MemorySegment validitySegment) implements VecImpl, U1Vec {
+  /**
+   * Register/unregister MemorySegments when assertions are enabled so an error message appears
+   * when the VM shutdown and some segments have been closed as they should
+   */
+  class MemoryTracker {
+    static final MemoryTracker INSTANCE;
+    static {
+      INSTANCE = new MemoryTracker();
+      Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+        //noinspection CallToSystemGC
+        System.gc();
+        INSTANCE.checkTracking();
+      }));
+    }
+
+    private static class TrackingInfo extends WeakReference<MemorySegment> {
+      private final Throwable witness;
+
+      private TrackingInfo(MemorySegment segment, ReferenceQueue<MemorySegment> queue, Throwable witness) {
+        super(segment, queue);
+        this.witness = witness;
+      }
+    }
+
+    private final ReferenceQueue<MemorySegment> queue = new ReferenceQueue<>();
+    private final WeakHashMap<MemorySegment, TrackingInfo> weakMap = new WeakHashMap<>();
+
+    private void checkTracking() {
+      AssertionError error = null;
+      TrackingInfo trackingInfo;
+      while((trackingInfo = (TrackingInfo) INSTANCE.queue.poll()) != null) {
+        if (error == null) {
+          error = new AssertionError("segment not closed");
+        }
+        error.addSuppressed(trackingInfo.witness);
+      }
+      if (error != null) {
+        throw error;
+      }
+    }
+
+    private void register(MemorySegment memorySegment) {
+      var witness = new Throwable("segment creation");
+      var trackingInfo = new TrackingInfo(memorySegment, queue, witness);
+      weakMap.put(memorySegment, trackingInfo);
+    }
+
+    private void unregister(MemorySegment memorySegment) {
+      var ref = weakMap.remove(memorySegment);
+      if (ref == null)  {
+        throw new IllegalStateException("try to untrack a non tracker segment " + memorySegment);
+      }
+      ref.clear();
+    }
+  }
+
+
+  /**
+   * Register the memory allocation if assertions are enabled
+   * @param segment the allocated segment to track
+   */
+  static void register(MemorySegment segment) {
+    if (VecImpl.class.desiredAssertionStatus()) {
+      MemoryTracker.INSTANCE.register(segment);
+    }
+  }
+
+  /**
+   * Unregister the memory allocation if assertions are enabled
+   * @param segment the allocated segment to track
+   */
+  static void unregister(MemorySegment segment) {
+    if (VecImpl.class.desiredAssertionStatus()) {
+      MemoryTracker.INSTANCE.unregister(segment);
+    }
+  }
+
+  record U1Impl(MemorySegment dataSegment, MemorySegment validitySegment) implements U1Vec {
     static final VarHandle HANDLE = ofSequence(ofValueBits(64, LITTLE_ENDIAN))
         .varHandle(long.class, sequenceElement());
 
@@ -97,10 +175,12 @@ interface VecImpl {
       try {
         if (dataSegment.isAlive()) {
           dataSegment.close();
+          unregister(dataSegment);
         }
       } finally {
         if (validitySegment != null && validitySegment.isAlive()) {
           validitySegment.close();
+          unregister(validitySegment);
         }
       }
     }
@@ -173,7 +253,7 @@ interface VecImpl {
     }
   }
 
-  record U8Impl(MemorySegment dataSegment, MemorySegment validitySegment) implements VecImpl, U8Vec {
+  record U8Impl(MemorySegment dataSegment, MemorySegment validitySegment) implements U8Vec {
     static final VarHandle BYTE_HANDLE = ofSequence(ofValueBits(8, LITTLE_ENDIAN))
         .varHandle(byte.class, sequenceElement());
 
@@ -182,10 +262,12 @@ interface VecImpl {
       try {
         if (dataSegment.isAlive()) {
           dataSegment.close();
+          unregister(dataSegment);
         }
       } finally {
         if (validitySegment != null && validitySegment.isAlive()) {
           validitySegment.close();
+          unregister(validitySegment);
         }
       }
     }
@@ -259,7 +341,7 @@ interface VecImpl {
     }
   }
 
-  record U16Impl(MemorySegment dataSegment, MemorySegment validitySegment) implements VecImpl, U16Vec {
+  record U16Impl(MemorySegment dataSegment, MemorySegment validitySegment) implements U16Vec {
     static final VarHandle SHORT_HANDLE = ofSequence(ofValueBits(16, LITTLE_ENDIAN))
         .varHandle(short.class, sequenceElement());
     static final VarHandle CHAR_HANDLE = ofSequence(ofValueBits(16, LITTLE_ENDIAN))
@@ -270,10 +352,12 @@ interface VecImpl {
       try {
         if (dataSegment.isAlive()) {
           dataSegment.close();
+          unregister(dataSegment);
         }
       } finally {
         if (validitySegment != null && validitySegment.isAlive()) {
           validitySegment.close();
+          unregister(validitySegment);
         }
       }
     }
@@ -384,7 +468,7 @@ interface VecImpl {
     }
   }
 
-  record U32Impl(MemorySegment dataSegment, MemorySegment validitySegment) implements VecImpl, U32Vec {
+  record U32Impl(MemorySegment dataSegment, MemorySegment validitySegment) implements U32Vec {
     static final VarHandle INT_HANDLE = ofSequence(ofValueBits(32, LITTLE_ENDIAN))
         .varHandle(int.class, sequenceElement());
     static final VarHandle FLOAT_HANDLE = ofSequence(ofValueBits(32, LITTLE_ENDIAN))
@@ -399,10 +483,12 @@ interface VecImpl {
       try {
         if (dataSegment.isAlive()) {
           dataSegment.close();
+          unregister(dataSegment);
         }
       } finally {
         if (validitySegment != null && validitySegment.isAlive()) {
           validitySegment.close();
+          unregister(validitySegment);
         }
       }
     }
@@ -513,7 +599,7 @@ interface VecImpl {
     }
   }
 
-  record U64Impl(MemorySegment dataSegment, MemorySegment validitySegment) implements VecImpl, U64Vec {
+  record U64Impl(MemorySegment dataSegment, MemorySegment validitySegment) implements U64Vec {
     static final VarHandle LONG_HANDLE = ofSequence(ofValueBits(64, LITTLE_ENDIAN))
         .varHandle(long.class, sequenceElement());
     static final VarHandle DOUBLE_HANDLE = ofSequence(ofValueBits(64, LITTLE_ENDIAN))
@@ -524,10 +610,12 @@ interface VecImpl {
       try {
         if (dataSegment.isAlive()) {
           dataSegment.close();
+          unregister(dataSegment);
         }
       } finally {
         if (validitySegment != null && validitySegment.isAlive()) {
           validitySegment.close();
+          unregister(validitySegment);
         }
       }
     }
@@ -638,21 +726,21 @@ interface VecImpl {
     }
   }
 
-  record ListImpl<D extends Vec>(D data, MemorySegment dataSegment, MemorySegment offsetSegment, MemorySegment validitySegment) implements VecImpl, ListVec<D> {
+  record ListImpl<V extends Vec>(V element, MemorySegment offsetSegment, MemorySegment validitySegment) implements ListVec<V> {
     @Override
     public void close() {
       try {
-        if (dataSegment.isAlive()) {
-          dataSegment.close();
-        }
+        element.close();
       } finally {
         try {
           if (offsetSegment.isAlive()) {
             offsetSegment.close();
+            unregister(offsetSegment);
           }
         } finally {
           if (validitySegment != null && validitySegment.isAlive()) {
             validitySegment.close();
+            unregister(validitySegment);
           }
         }
       }
@@ -696,7 +784,7 @@ interface VecImpl {
 
     @Override
     public String getString(long index) {
-      if (data.getClass() != U16Impl.class) {
+      if (!(element instanceof U16Impl impl)) {
         throw new IllegalStateException("getString is only supported on U16Dataset");
       }
       if (validitySegment != null) {
@@ -708,13 +796,13 @@ interface VecImpl {
       var end = U32Impl.getRawInt(offsetSegment, index + 1);
       var length = end - start;
       var charArray = new char[length];
-      MemorySegment.ofArray(charArray).copyFrom(dataSegment.asSlice((long) start << 1L, (long) length << 1L));
+      MemorySegment.ofArray(charArray).copyFrom(impl.dataSegment.asSlice((long) start << 1L, (long) length << 1L));
       return new String(charArray);
     }
 
     @Override
     public TextWrap getTextWrap(long index) {
-      if (data.getClass() != U16Impl.class) {
+      if (!(element instanceof U16Impl impl)) {
         throw new IllegalStateException("getTextWrap is only supported on U16Dataset");
       }
       if (validitySegment != null) {
@@ -725,16 +813,16 @@ interface VecImpl {
       var start = U32Impl.getRawInt(offsetSegment, index);
       var end = U32Impl.getRawInt(offsetSegment, index + 1);
       var length = end - start;
-      return new TextWrap(dataSegment, start, length);
+      return new TextWrap(impl.dataSegment, start, length);
     }
 
     @Override
-    public ListVec<D> withValidity(U1Vec validity) {
+    public ListVec<V> withValidity(U1Vec validity) {
       requireNonNull(validity, "validity");
       if (length() > validity.length()) {
         throw invalidLength(this, validity);
       }
-      return new ListImpl<>(data, dataSegment, offsetSegment, impl(validity).dataSegment);
+      return new ListImpl<>(element, offsetSegment, impl(validity).dataSegment);
     }
 
     @Override
@@ -743,12 +831,7 @@ interface VecImpl {
     }
   }
 
-  record StructImpl(MemorySegment validitySegment, List<Vec> fields) implements VecImpl, StructVec {
-    @Override
-    public MemorySegment dataSegment() {
-      throw new UnsupportedOperationException("list of struct are not supported yet");
-    }
-
+  record StructImpl(MemorySegment validitySegment, List<Vec> fields) implements StructVec {
     @Override
     public void close() throws UncheckedIOException {
       for(var field: fields) {
@@ -756,6 +839,7 @@ interface VecImpl {
       }
       if (validitySegment != null && validitySegment.isAlive()) {
         validitySegment.close();
+        unregister(validitySegment);
       }
     }
 

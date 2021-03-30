@@ -30,13 +30,14 @@ public class VecListBuilderTest {
             .appendString("bar");
         vec = builder.toVec();
       }
-
-      assertAll(
-          () -> assertEquals(3, vec.length()),
-          () -> assertEquals("foo", vec.getString(0)),
-          () -> assertEquals("", vec.getString(1)),
-          () -> assertEquals("bar", vec.getString(2))
-      );
+      try(vec) {
+        assertAll(
+            () -> assertEquals(3, vec.length()),
+            () -> assertEquals("foo", vec.getString(0)),
+            () -> assertEquals("", vec.getString(1)),
+            () -> assertEquals("bar", vec.getString(2))
+        );
+      }
     } finally {
       Files.deleteIfExists(pathValidity);
       Files.deleteIfExists(pathOffset);

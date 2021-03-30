@@ -37,6 +37,7 @@ public class VecOpPerfTest {
 
   private Path destPath, path1, path2;
   private Vec dest, v1, v2;
+  private int[] destArray, v1Array, v2Array;
 
   private static final Vec DEST, V1, V2;
   private static final ByteBuffer DEST_BUFFER, V1_BUFFER, V2_BUFFER;
@@ -83,6 +84,12 @@ public class VecOpPerfTest {
     IntStream.range(0, (int) v1.length()).forEach(i -> ((U32Vec) v1).setInt(i, i));
     v2 = U32Vec.mapNew(null, path2, 100_000);
     IntStream.range(0, (int) v2.length()).forEach(i -> ((U32Vec) v2).setInt(i, i));
+
+    destArray = new int[100_000];
+    v1Array = new int[100_000];
+    IntStream.range(0, v1Array.length).forEach(i -> { v1Array[i] = i; });
+    v2Array = new int[100_000];
+    IntStream.range(0, v2Array.length).forEach(i -> { v2Array[i] = i; });
   }
 
   @TearDown
@@ -104,6 +111,12 @@ public class VecOpPerfTest {
   @Benchmark
   public Vec op_add_hand_crafted() {
     VecOpsPerf.handCraftedInt((U32Vec) dest, (U32Vec) v1, (U32Vec) v2, (a, b) -> a + b);
+    return dest;
+  }
+
+  @Benchmark
+  public Vec op_add_array_hand_crafted() {
+    VecOpsPerf.handCraftedArraysInt(destArray, v1Array, v2Array, (a, b) -> a + b);
     return dest;
   }
 

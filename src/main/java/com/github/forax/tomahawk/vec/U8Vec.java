@@ -1,6 +1,7 @@
 package com.github.forax.tomahawk.vec;
 
 import static com.github.forax.tomahawk.vec.VecBuilderImpl.builderImpl;
+import static com.github.forax.tomahawk.vec.VecImpl.impl;
 import static com.github.forax.tomahawk.vec.VecImpl.implDataOrNull;
 import static java.nio.channels.FileChannel.MapMode.READ_WRITE;
 import static java.util.Objects.requireNonNull;
@@ -37,7 +38,7 @@ import jdk.incubator.foreign.MemorySegment;
  *
  * Example
  * <pre>
- *   var dataPath = dir.resolve("data");
+ *   var dataPath = dir.resolve("element");
  *   var validityPath = dir.resolve("validity");
  *
  *   U8Vec vec;
@@ -172,11 +173,15 @@ public interface U8Vec extends Vec {
    * Creates a new Vec from an optional validity bitset (to represent null values) and a memory segment
    *
    * @param validity the validity bitset or {@code null}
-   * @param data a memory segment containing the data
+   * @param data a memory segment containing the element
    * @return a new Vec from an optional validity bitset (to represent null values) and a memory segment
    */
   static U8Vec from(U1Vec validity, MemorySegment data) {
     requireNonNull(data);
+    if (validity != null  && impl(validity).validitySegment() != null) {
+      throw new IllegalArgumentException("validity can not have a validity vec");
+    }
+    VecImpl.register(data);
     return new VecImpl.U8Impl(data, implDataOrNull(validity));
   }
 

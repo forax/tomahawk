@@ -16,7 +16,7 @@ import static java.util.Objects.requireNonNull;
  * <ul>
  *   <li>Using a builder {@link #builder(U1Vec.Builder, U32Vec.Builder, BaseBuilder)}
  *       to append values to a new mapped file
- *   <li>From a validity Vec, an offset Vec and a data Vec {@link #from(U1Vec, U32Vec, Vec)}
+ *   <li>From a validity Vec, an offset Vec and a element Vec {@link #from(U1Vec, U32Vec, Vec)}
  * </ul>
  *
  * It can load and store nulls and list of values
@@ -34,10 +34,10 @@ import static java.util.Objects.requireNonNull;
  */
 public interface ListVec<V extends Vec> extends Vec {
   /**
-   * The data Vec
-   * @return the Vec containing all the data values
+   * The Vec containing the element values
+   * @return the Vec containing all the element values
    */
-  V data();
+  V element();
 
   /**
    * Returns a {@link TextWrap} representing a list of U16 values,
@@ -45,15 +45,15 @@ public interface ListVec<V extends Vec> extends Vec {
    *
    * Convenient method equivalent to
    * <pre>
-   *   var data = (U16Vec) data();
+   *   var element = (U16Vec) element();
    *   var valuesBox = new ValuesBox();
    *   getValues(index, valuesBox);
-   *   return valuesBox.getTextWrap(data);
+   *   return valuesBox.getTextWrap(element);
    * </pre>
    *
    * @param index the index of the String value
    * @return a TextWrap representing the list of U16 values or {@code null}
-   * @throws IllegalStateException if the data is not a {@link U16Vec}
+   * @throws IllegalStateException if the element is not a {@link U16Vec}
    *
    * @see TextWrap
    * @see #getString(long)
@@ -72,7 +72,7 @@ public interface ListVec<V extends Vec> extends Vec {
    *
    * @param index the index of the String value
    * @return the String decoded from a list of U16 values or {@code null}
-   * @throws IllegalStateException if the data is not a {@link U16Vec}
+   * @throws IllegalStateException if the element is not a {@link U16Vec}
    * 
    * @see #getTextWrap(long)
    */
@@ -103,15 +103,15 @@ public interface ListVec<V extends Vec> extends Vec {
    * A builder of {@link ListVec}
    *
    * This builder relies on 3 sub-builder, one for the validity bit set, one for the offset and
-   * one for the data itself.
+   * one for the element itself.
    *
    * Example
    * <pre>
-   *   var dataPath = dir.resolve("data");
+   *   var dataPath = dir.resolve("element");
    *   var offsetPath = dir.resolve("offset");
    *   var validityPath = dir.resolve("validity");
    *
-   *   ListVec<U8Vec> vec;   // each value is a list of U8
+   *   ListVec&lt;U8Vec&gt; vec;   // each value is a list of U8
    *   try(var validityBuilder = U1Vec.builder(null, validityPath);
    *       var offsetBuilder = U32Vec.builder(null, offsetPath);
    *       var dataBuilder = U8Vec.builder(null, dataPath);
@@ -127,11 +127,11 @@ public interface ListVec<V extends Vec> extends Vec {
    *   try (vec) {
    *     assertEquals(100_000, vec.length());
    *
-   *     var data = vec.data();
+   *     var element = vec.element();
    *     var box = new ValuesBox();
    *     vec.getValues(6, box);   // extract the validity, startOffset and endOffset
-   *     assertEquals(6, data.getByte(box.startOffset));        // first item
-   *     assertEquals(-5, data.getByte(box.startOffset + 1));   // second item
+   *     assertEquals(6, element.getByte(box.startOffset));        // first item
+   *     assertEquals(-5, element.getByte(box.startOffset + 1));   // second item
    *
    *     vec.setNull(13);
    *     assertTrue(vec.isNull(13));
@@ -144,11 +144,11 @@ public interface ListVec<V extends Vec> extends Vec {
    * @see #builder(U1Vec.Builder, U32Vec.Builder, BaseBuilder)
    */
   interface Builder<D extends Vec, B extends BaseBuilder<D>> extends BaseBuilder<ListVec<D>> {
-    B dataBuilder();
+    B elementBuilder();
 
     /**
-     * Appends a list of values to the data file with the corresponding offset to the offset file
-     * @param consumer a consumer that give access to the data builder
+     * Appends a list of values to the element file with the corresponding offset to the offset file
+     * @param consumer a consumer that give access to the element builder
      * @return this builder
      * @throws UncheckedIOException if an IO error occurs
      */
@@ -178,37 +178,43 @@ public interface ListVec<V extends Vec> extends Vec {
   }
 
   /**
-   * Creates a ListVec from an optional {@code validity} Vec, an {@code offset} Vec and a {@code data} Vec
+   * Creates a ListVec from an optional {@code validity} Vec, an {@code offset} Vec and a {@code element} Vec
    * @param validity a validity bitset or {@code null}
    * @param offset an offset Vec
-   * @param data a data Vec
-   * @param <V> the type of the data Vec
+   * @param element the Vec containing all the element values
+   * @param <V> the type of the element Vec
    * @return a newly created ListVec
    */
-  static <V extends Vec> ListVec<V> from(U1Vec validity, U32Vec offset, V data) {
+  static <V extends Vec> ListVec<V> from(U1Vec validity, U32Vec offset, V element) {
     requireNonNull(offset);
-    requireNonNull(data);
+    requireNonNull(element);
     if (offset.length() <= 1) {
       throw new IllegalArgumentException("offsetSegment.length is too small");
     }
     if (validity != null && (offset.length() - 1) > validity.length()) {
       throw new IllegalArgumentException("validitySegment.length is too small");
     }
-    return new VecImpl.ListImpl<>(data, impl(data).dataSegment(), impl(offset).dataSegment(), implDataOrNull(validity));
+    if (impl(offset).validitySegment() != null) {
+      throw new IllegalArgumentException("offset can not have a validity vec");
+    }
+    if (validity != null  && impl(validity).validitySegment() != null) {
+      throw new IllegalArgumentException("validity can not itself have a validity vec");
+    }
+    return new VecImpl.ListImpl<>(element, impl(offset).dataSegment(), implDataOrNull(validity));
   }
 
   /**
-   * Create a Vec builder that will append lists of values to the data builder and the offsets of those lists
+   * Create a Vec builder that will append lists of values to the element builder and the offsets of those lists
    * to the offset builder.
    *
    * @param validityBuilder a builder able to create the validity bit set or {@code null}
    * @param offsetBuilder a builder able to create the offset file
-   * @param dataBuilder a builder able to create the data file
+   * @param elementBuilder a builder able to create the element file
    * @return a Vec builder that will append the list of values to a file before creating a Vec on those list of values
    */
-  static <D extends Vec, B extends BaseBuilder<D>> ListVec.Builder<D, B> builder(U1Vec.Builder validityBuilder, U32Vec.Builder offsetBuilder, B dataBuilder) {
-    requireNonNull(dataBuilder);
+  static <D extends Vec, B extends BaseBuilder<D>> ListVec.Builder<D, B> builder(U1Vec.Builder validityBuilder, U32Vec.Builder offsetBuilder, B elementBuilder) {
+    requireNonNull(elementBuilder);
     requireNonNull(offsetBuilder);
-    return new VecBuilderImpl.ListBuilder<>(dataBuilder, builderImpl(offsetBuilder), builderImpl(validityBuilder));
+    return new VecBuilderImpl.ListBuilder<>(elementBuilder, builderImpl(offsetBuilder), builderImpl(validityBuilder));
   }
 }

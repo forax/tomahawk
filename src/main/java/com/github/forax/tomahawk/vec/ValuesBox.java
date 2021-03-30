@@ -73,8 +73,8 @@ public class ValuesBox {
    *
    * This is semantically equivalent to
    * <pre>
-   *   U16Vec data = ...
-   *   return asTextWrap(data).toString()
+   *   U16Vec element = ...
+   *   return asTextWrap(element).toString()
    * </pre>
    *
    * @param data the Vec containing the characters as U16 values of the String.
@@ -98,11 +98,11 @@ public class ValuesBox {
 
   /**
    * Returns a stream of the ints between [{@code startOffset}, {@code endOffset}[
-   * @param data the Vec containing the data of the ListVec
+   * @param data the Vec containing the element of the ListVec
    * @return a stream of the ints between [{@code startOffset}, {@code endOffset}[
    * @throws NullPointerException if one of the value is {@code null}
    *
-   * @see ListVec#data()
+   * @see ListVec#element()
    * @see U8Vec#getByte(long)
    */
   public IntStream ints(U32Vec data) {
@@ -111,11 +111,11 @@ public class ValuesBox {
 
   /**
    * Returns a stream of the longs between [{@code startOffset}, {@code endOffset}[
-   * @param data the Vec containing the data of the ListVec
+   * @param data the Vec containing the element of the ListVec
    * @return a stream of the longs between [{@code startOffset}, {@code endOffset}[
    * @throws NullPointerException if one of the value is {@code null}
    *
-   * @see ListVec#data()
+   * @see ListVec#element()
    * @see U8Vec#getByte(long)
    */
   public LongStream longs(U64Vec data) {
@@ -124,11 +124,11 @@ public class ValuesBox {
 
   /**
    * Returns a stream of the doubles between [{@code startOffset}, {@code endOffset}[
-   * @param data the Vec containing the data of the ListVec
+   * @param data the Vec containing the element of the ListVec
    * @return a stream of the doubles between [{@code startOffset}, {@code endOffset}[
    * @throws NullPointerException if one of the value is {@code null}
    *
-   * @see ListVec#data()
+   * @see ListVec#element()
    * @see U8Vec#getByte(long)
    */
   public DoubleStream doubles(U64Vec data) {
@@ -139,9 +139,9 @@ public class ValuesBox {
    * Returns a stream of {@link TextWrap}s between [{@code startOffset}, {@code endOffset}[
    * @param list the Vec containing list of strings
    * @return a stream of {@link TextWrap}s between [{@code startOffset}, {@code endOffset}[
-   * @throws IllegalStateException if the data is not a {@link U16Vec}
+   * @throws IllegalStateException if the element is not a {@link U16Vec}
    *
-   * @see ListVec#data()
+   * @see ListVec#element()
    * @see ListVec#getString(long)
    */
   public Stream<TextWrap> textWraps(ListVec<?> list) {

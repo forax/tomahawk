@@ -6,7 +6,7 @@
  * <p>
  * There are three kinds of {@link com.github.forax.tomahawk.vec.Vec},
  * <ul>
- *   <li>primitive Vecs that stores 8 bits, to 64 bits values ({@code data})
+ *   <li>primitive Vecs that stores 8 bits, to 64 bits values ({@code element})
  *       as an array of values.
  *       <ul>
  *         <li>{@link com.github.forax.tomahawk.vec.U8Vec 8 bits Vec} of values
@@ -16,7 +16,7 @@
  *       </ul>
  *   <li>the {@link com.github.forax.tomahawk.vec.ListVec ListVec}
  *       conceptually represents a list of Vecs of the values of the same
- *       type using two Vecs, a Vec of values ({@code data}) that contains
+ *       type using two Vecs, a Vec of values ({@code element}) that contains
  *       all the values and a vec of offsets ({@code offset}) that defines
  *       the list of values for an index as the values in between the offset
  *       at the index in {@code offset} and the following index.
@@ -27,7 +27,7 @@
  * The values can be nullable, for that all the {@link com.github.forax.tomahawk.vec.Vec}
  * listed above can takes an optional {@link com.github.forax.tomahawk.vec.U1Vec}
  * which is an array of boolean that if false says that the value is {@code null}
- * independently of the value in the {code data}.
+ * independently of the value in the {code element}.
  * <br/>
  * The method {@link com.github.forax.tomahawk.vec.Vec#isNull(long)} checks if a value
  * at {@code index} is null or not, and {@link com.github.forax.tomahawk.vec.Vec#setNull(long)}

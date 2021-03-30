@@ -283,11 +283,11 @@ public interface Layout /*permits Layout.PrimitiveLayout, Layout.ListLayout, Lay
    * @param directory the directory containing the table
    * @param name the name of the table
    * @param layout the layout of the table
-   * @return a Vec able to load data from that table
+   * @return a Vec able to load element from that table
    * @throws IOException if an io error occurs
    */
   static Vec map(Path directory, String name, Layout layout) throws IOException {
-    return TableImpl.map(directory, name, layout);
+    return LayoutHelper.map(directory, name, layout);
   }
 
   /**
@@ -297,18 +297,18 @@ public interface Layout /*permits Layout.PrimitiveLayout, Layout.ListLayout, Lay
    * @param directory the directory containing all the file
    * @param name the name of the table
    * @param layout the layout of the "table"
-   * @return a Vec able to load data from that table
+   * @return a Vec able to load element from that table
    * @throws IOException if an io error occurs
    *
    * @see #map(Path, String, Layout)
    */
   static Vec.BaseBuilder<?> builder(Path directory, String name, Layout layout) throws IOException {
-    return TableImpl.builder(directory, name, layout);
+    return LayoutHelper.builder(directory, name, layout);
   }
 
   static Vec.BaseBuilder<?> builder(Path directory, String name) throws IOException {
     var layout = loadFrom(directory.resolve(name + "_metadata.txt"));
-    return TableImpl.builder(directory, name, layout);
+    return LayoutHelper.builder(directory, name, layout);
   }
 
   /**
