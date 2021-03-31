@@ -75,9 +75,9 @@ interface VecImpl {
 
   /**
    * Register/unregister MemorySegments when assertions are enabled so an error message appears
-   * when the VM shutdown and some segments have been closed as they should
+   * when the VM shutdown and some segments have not been closed as they should
    */
-  class MemoryTracker {
+  final class MemoryTracker {
     static final MemoryTracker INSTANCE;
     static {
       INSTANCE = new MemoryTracker();
@@ -88,7 +88,7 @@ interface VecImpl {
       }));
     }
 
-    private static class TrackingInfo extends WeakReference<MemorySegment> {
+    private static final class TrackingInfo extends WeakReference<MemorySegment> {
       private final Throwable witness;
 
       private TrackingInfo(MemorySegment segment, ReferenceQueue<MemorySegment> queue, Throwable witness) {
@@ -115,7 +115,7 @@ interface VecImpl {
     }
 
     private void register(MemorySegment memorySegment) {
-      var witness = new Throwable("segment creation");
+      var witness = new Throwable("segment allocation");
       var trackingInfo = new TrackingInfo(memorySegment, queue, witness);
       weakMap.put(memorySegment, trackingInfo);
     }
@@ -123,7 +123,7 @@ interface VecImpl {
     private void unregister(MemorySegment memorySegment) {
       var ref = weakMap.remove(memorySegment);
       if (ref == null)  {
-        throw new IllegalStateException("try to untrack a non tracker segment " + memorySegment);
+        throw new InternalError("try to unregister an unknown segment " + memorySegment);
       }
       ref.clear();
     }
@@ -131,7 +131,7 @@ interface VecImpl {
 
 
   /**
-   * Register the memory allocation if assertions are enabled
+   * Register a memory allocation if assertions are enabled
    * @param segment the allocated segment to track
    */
   static void register(MemorySegment segment) {
@@ -141,7 +141,7 @@ interface VecImpl {
   }
 
   /**
-   * Unregister the memory allocation if assertions are enabled
+   * Unregister a memory allocation if assertions are enabled
    * @param segment the allocated segment to track
    */
   static void unregister(MemorySegment segment) {
