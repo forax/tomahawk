@@ -1,6 +1,5 @@
-package com.github.forax.tomahawk.redpanda;
+package com.github.forax.tomahawk.blackpanda;
 
-import com.github.forax.tomahawk.schema.Layout;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

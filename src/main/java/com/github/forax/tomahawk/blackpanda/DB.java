@@ -1,4 +1,4 @@
-package com.github.forax.tomahawk.redpanda;
+package com.github.forax.tomahawk.blackpanda;
 
 import com.github.forax.tomahawk.schema.CSV;
 import com.github.forax.tomahawk.schema.JSON;
